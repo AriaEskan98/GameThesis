@@ -9,32 +9,32 @@ namespace GameEngine {
 	{
 	public:
 		MouseMovedEvent(const float x, const float y)
-			: m_MouseX(x), m_MouseY(y) {}
+			: myMouseX(x), myMouseY(y) {}
 
-		float GetX() const { return m_MouseX; }
-		float GetY() const { return m_MouseY; }
+		float GetX() const { return myMouseX; }
+		float GetY() const { return myMouseY; }
 
 		std::string ToString() const override
 		{
 			std::stringstream ss;
-			ss << "MouseMovedEvent: " << m_MouseX << ", " << m_MouseY;
+			ss << "MouseMovedEvent: " << myMouseX << ", " << myMouseY;
 			return ss.str();
 		}
 
-		EVENT_CLASS_TYPE(MouseMoved)
-		EVENT_CLASS_CATEGORY(EventCategoryMouse | EventCategoryInput)
+		GE_EVENT_TYPE(MouseMoved)
+		GE_EVENT_CATEGORY(EventCategoryMouse | EventCategoryInput)
 	private:
-		float m_MouseX, m_MouseY;
+		float myMouseX, myMouseY;
 	};
 
 	class MouseScrolledEvent : public Event
 	{
 	public:
 		MouseScrolledEvent(const float xOffset, const float yOffset)
-			: m_XOffset(xOffset), m_YOffset(yOffset) {}
+			: myXOffset(xOffset), myYOffset(yOffset) {}
 
-		float GetXOffset() const { return m_XOffset; }
-		float GetYOffset() const { return m_YOffset; }
+		float GetXOffset() const { return myXOffset; }
+		float GetYOffset() const { return myYOffset; }
 
 		std::string ToString() const override
 		{
@@ -43,23 +43,23 @@ namespace GameEngine {
 			return ss.str();
 		}
 
-		EVENT_CLASS_TYPE(MouseScrolled)
-		EVENT_CLASS_CATEGORY(EventCategoryMouse | EventCategoryInput)
+		GE_EVENT_TYPE(MouseScrolled)
+		GE_EVENT_CATEGORY(EventCategoryMouse | EventCategoryInput)
 	private:
-		float m_XOffset, m_YOffset;
+		float myXOffset, myYOffset;
 	};
 
 	class MouseButtonEvent : public Event
 	{
 	public:
-		MouseCode GetMouseButton() const { return m_Button; }
+		MouseCode GetMouseButton() const { return myButton; }
 
-		EVENT_CLASS_CATEGORY(EventCategoryMouse | EventCategoryInput | EventCategoryMouseButton)
+		GE_EVENT_CATEGORY(EventCategoryMouse | EventCategoryInput | EventCategoryMouseButton)
 	protected:
 		MouseButtonEvent(const MouseCode button)
-			: m_Button(button) {}
+			: myButton(button) {}
 
-		MouseCode m_Button;
+		MouseCode myButton;
 	};
 
 	class MouseButtonPressedEvent : public MouseButtonEvent
@@ -71,11 +71,11 @@ namespace GameEngine {
 		std::string ToString() const override
 		{
 			std::stringstream ss;
-			ss << "MouseButtonPressedEvent: " << m_Button;
+			ss << "MouseButtonPressedEvent: " << myButton;
 			return ss.str();
 		}
 
-		EVENT_CLASS_TYPE(MouseButtonPressed)
+		GE_EVENT_TYPE(MouseButtonPressed)
 	};
 
 	class MouseButtonReleasedEvent : public MouseButtonEvent
@@ -87,11 +87,11 @@ namespace GameEngine {
 		std::string ToString() const override
 		{
 			std::stringstream ss;
-			ss << "MouseButtonReleasedEvent: " << m_Button;
+			ss << "MouseButtonReleasedEvent: " << myButton;
 			return ss.str();
 		}
 
-		EVENT_CLASS_TYPE(MouseButtonReleased)
+		GE_EVENT_TYPE(MouseButtonReleased)
 	};
 
 }

@@ -15,13 +15,13 @@ namespace GameEngine {
 		Font(const std::filesystem::path& font);
 		~Font();
 
-		const MSDFData* GetMSDFData() const { return m_Data; }
-		Ref<Texture2D> GetAtlasTexture() const { return m_AtlasTexture; }
+		const MSDFData* GetMSDFData() const { return myData; }
+		Handle<Texture2D> GetAtlasTexture() const { return myAtlasTexture; }
 
-		static Ref<Font> GetDefault();
+		static Handle<Font> GetDefault();
 	private:
-		MSDFData* m_Data;
-		Ref<Texture2D> m_AtlasTexture;
+		MSDFData* myData;
+		Handle<Texture2D> myAtlasTexture;
 	};
 
 }

@@ -5,7 +5,7 @@
 
 namespace GameEngine {
 
-	static const uint32_t s_MaxFramebufferSize = 8192;
+	static const uint32_t gsMaxFramebufferSize = 8192;
 
 	namespace Utils {
 
@@ -91,14 +91,14 @@ namespace GameEngine {
 	}
 
 	OpenGLFramebuffer::OpenGLFramebuffer(const FramebufferSpecification& spec)
-		: m_Specification(spec)
+		: mySpecification(spec)
 	{
-		for (auto spec : m_Specification.Attachments.Attachments)
+		for (auto spec : mySpecification.Attachments.Attachments)
 		{
 			if (!Utils::IsDepthFormat(spec.TextureFormat))
-				m_ColorAttachmentSpecifications.emplace_back(spec);
+				myColorAttachmentSpecifications.emplace_back(spec);
 			else
-				m_DepthAttachmentSpecification = spec;
+				myDepthAttachmentSpecification = spec;
 		}
 
 		Invalidate();
@@ -106,68 +106,68 @@ namespace GameEngine {
 
 	OpenGLFramebuffer::~OpenGLFramebuffer()
 	{
-		glDeleteFramebuffers(1, &m_RendererID);
-		glDeleteTextures(m_ColorAttachments.size(), m_ColorAttachments.data());
-		glDeleteTextures(1, &m_DepthAttachment);
+		glDeleteFramebuffers(1, &myRendererID);
+		glDeleteTextures(myColorAttachments.size(), myColorAttachments.data());
+		glDeleteTextures(1, &myDepthAttachment);
 	}
 
 	void OpenGLFramebuffer::Invalidate()
 	{
-		if (m_RendererID)
+		if (myRendererID)
 		{
-			glDeleteFramebuffers(1, &m_RendererID);
-			glDeleteTextures(m_ColorAttachments.size(), m_ColorAttachments.data());
-			glDeleteTextures(1, &m_DepthAttachment);
+			glDeleteFramebuffers(1, &myRendererID);
+			glDeleteTextures(myColorAttachments.size(), myColorAttachments.data());
+			glDeleteTextures(1, &myDepthAttachment);
 			
-			m_ColorAttachments.clear();
-			m_DepthAttachment = 0;
+			myColorAttachments.clear();
+			myDepthAttachment = 0;
 		}
 
-		glCreateFramebuffers(1, &m_RendererID);
-		glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID);
+		glCreateFramebuffers(1, &myRendererID);
+		glBindFramebuffer(GL_FRAMEBUFFER, myRendererID);
 
-		bool multisample = m_Specification.Samples > 1;
+		bool multisample = mySpecification.Samples > 1;
 
 		// Attachments
-		if (m_ColorAttachmentSpecifications.size())
+		if (myColorAttachmentSpecifications.size())
 		{
-			m_ColorAttachments.resize(m_ColorAttachmentSpecifications.size());
-			Utils::CreateTextures(multisample, m_ColorAttachments.data(), m_ColorAttachments.size());
+			myColorAttachments.resize(myColorAttachmentSpecifications.size());
+			Utils::CreateTextures(multisample, myColorAttachments.data(), myColorAttachments.size());
 
-			for (size_t i = 0; i < m_ColorAttachments.size(); i++)
+			for (size_t i = 0; i < myColorAttachments.size(); i++)
 			{
-				Utils::BindTexture(multisample, m_ColorAttachments[i]);
-				switch (m_ColorAttachmentSpecifications[i].TextureFormat)
+				Utils::BindTexture(multisample, myColorAttachments[i]);
+				switch (myColorAttachmentSpecifications[i].TextureFormat)
 				{
 					case FramebufferTextureFormat::RGBA8:
-						Utils::AttachColorTexture(m_ColorAttachments[i], m_Specification.Samples, GL_RGBA8, GL_RGBA, m_Specification.Width, m_Specification.Height, i);
+						Utils::AttachColorTexture(myColorAttachments[i], mySpecification.Samples, GL_RGBA8, GL_RGBA, mySpecification.Width, mySpecification.Height, i);
 						break;
 					case FramebufferTextureFormat::RED_INTEGER:
-						Utils::AttachColorTexture(m_ColorAttachments[i], m_Specification.Samples, GL_R32I, GL_RED_INTEGER, m_Specification.Width, m_Specification.Height, i);
+						Utils::AttachColorTexture(myColorAttachments[i], mySpecification.Samples, GL_R32I, GL_RED_INTEGER, mySpecification.Width, mySpecification.Height, i);
 						break;
 				}
 			}
 		}
 
-		if (m_DepthAttachmentSpecification.TextureFormat != FramebufferTextureFormat::None)
+		if (myDepthAttachmentSpecification.TextureFormat != FramebufferTextureFormat::None)
 		{
-			Utils::CreateTextures(multisample, &m_DepthAttachment, 1);
-			Utils::BindTexture(multisample, m_DepthAttachment);
-			switch (m_DepthAttachmentSpecification.TextureFormat)
+			Utils::CreateTextures(multisample, &myDepthAttachment, 1);
+			Utils::BindTexture(multisample, myDepthAttachment);
+			switch (myDepthAttachmentSpecification.TextureFormat)
 			{
 				case FramebufferTextureFormat::DEPTH24STENCIL8:
-					Utils::AttachDepthTexture(m_DepthAttachment, m_Specification.Samples, GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL_ATTACHMENT, m_Specification.Width, m_Specification.Height);
+					Utils::AttachDepthTexture(myDepthAttachment, mySpecification.Samples, GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL_ATTACHMENT, mySpecification.Width, mySpecification.Height);
 					break;
 			}
 		}
 
-		if (m_ColorAttachments.size() > 1)
+		if (myColorAttachments.size() > 1)
 		{
-			GE_CORE_ASSERT(m_ColorAttachments.size() <= 4);
+			GE_CORE_ASSERT(myColorAttachments.size() <= 4);
 			GLenum buffers[4] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 };
-			glDrawBuffers(m_ColorAttachments.size(), buffers);
+			glDrawBuffers(myColorAttachments.size(), buffers);
 		}
-		else if (m_ColorAttachments.empty())
+		else if (myColorAttachments.empty())
 		{
 			// Only depth-pass
 			glDrawBuffer(GL_NONE);
@@ -180,8 +180,8 @@ namespace GameEngine {
 
 	void OpenGLFramebuffer::Bind()
 	{
-		glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID);
-		glViewport(0, 0, m_Specification.Width, m_Specification.Height);
+		glBindFramebuffer(GL_FRAMEBUFFER, myRendererID);
+		glViewport(0, 0, mySpecification.Width, mySpecification.Height);
 	}
 
 	void OpenGLFramebuffer::Unbind()
@@ -191,20 +191,20 @@ namespace GameEngine {
 
 	void OpenGLFramebuffer::Resize(uint32_t width, uint32_t height)
 	{
-		if (width == 0 || height == 0 || width > s_MaxFramebufferSize || height > s_MaxFramebufferSize)
+		if (width == 0 || height == 0 || width > gsMaxFramebufferSize || height > gsMaxFramebufferSize)
 		{
 			GE_CORE_WARN("Attempted to rezize framebuffer to {0}, {1}", width, height);
 			return;
 		}
-		m_Specification.Width = width;
-		m_Specification.Height = height;
+		mySpecification.Width = width;
+		mySpecification.Height = height;
 		
 		Invalidate();
 	}
 
 	int OpenGLFramebuffer::ReadPixel(uint32_t attachmentIndex, int x, int y)
 	{
-		GE_CORE_ASSERT(attachmentIndex < m_ColorAttachments.size());
+		GE_CORE_ASSERT(attachmentIndex < myColorAttachments.size());
 
 		glReadBuffer(GL_COLOR_ATTACHMENT0 + attachmentIndex);
 		int pixelData;
@@ -215,10 +215,10 @@ namespace GameEngine {
 
 	void OpenGLFramebuffer::ClearAttachment(uint32_t attachmentIndex, int value)
 	{
-		GE_CORE_ASSERT(attachmentIndex < m_ColorAttachments.size());
+		GE_CORE_ASSERT(attachmentIndex < myColorAttachments.size());
 
-		auto& spec = m_ColorAttachmentSpecifications[attachmentIndex];
-		glClearTexImage(m_ColorAttachments[attachmentIndex], 0,
+		auto& spec = myColorAttachmentSpecifications[attachmentIndex];
+		glClearTexImage(myColorAttachments[attachmentIndex], 0,
 			Utils::HazelFBTextureFormatToGL(spec.TextureFormat), GL_INT, &value);
 	}
 

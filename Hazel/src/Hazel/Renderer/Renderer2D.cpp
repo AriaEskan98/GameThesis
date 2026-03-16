@@ -65,22 +65,22 @@ namespace GameEngine {
 		static const uint32_t MaxIndices = MaxQuads * 6;
 		static const uint32_t MaxTextureSlots = 32; // TODO: RenderCaps
 
-		Ref<VertexArray> QuadVertexArray;
-		Ref<VertexBuffer> QuadVertexBuffer;
-		Ref<Shader> QuadShader;
-		Ref<Texture2D> WhiteTexture;
+		Handle<VertexArray> QuadVertexArray;
+		Handle<VertexBuffer> QuadVertexBuffer;
+		Handle<Shader> QuadShader;
+		Handle<Texture2D> WhiteTexture;
 
-		Ref<VertexArray> CircleVertexArray;
-		Ref<VertexBuffer> CircleVertexBuffer;
-		Ref<Shader> CircleShader;
+		Handle<VertexArray> CircleVertexArray;
+		Handle<VertexBuffer> CircleVertexBuffer;
+		Handle<Shader> CircleShader;
 
-		Ref<VertexArray> LineVertexArray;
-		Ref<VertexBuffer> LineVertexBuffer;
-		Ref<Shader> LineShader;	
+		Handle<VertexArray> LineVertexArray;
+		Handle<VertexBuffer> LineVertexBuffer;
+		Handle<Shader> LineShader;	
 		
-		Ref<VertexArray> TextVertexArray;
-		Ref<VertexBuffer> TextVertexBuffer;
-		Ref<Shader> TextShader;
+		Handle<VertexArray> TextVertexArray;
+		Handle<VertexBuffer> TextVertexBuffer;
+		Handle<Shader> TextShader;
 
 		uint32_t QuadIndexCount = 0;
 		QuadVertex* QuadVertexBufferBase = nullptr;
@@ -100,10 +100,10 @@ namespace GameEngine {
 
 		float LineWidth = 2.0f;
 
-		std::array<Ref<Texture2D>, MaxTextureSlots> TextureSlots;
+		std::array<Handle<Texture2D>, MaxTextureSlots> TextureSlots;
 		uint32_t TextureSlotIndex = 1; // 0 = white texture
 		
-		Ref<Texture2D> FontAtlasTexture;
+		Handle<Texture2D> FontAtlasTexture;
 
 		glm::vec4 QuadVertexPositions[4];
 
@@ -114,19 +114,19 @@ namespace GameEngine {
 			glm::mat4 ViewProjection;
 		};
 		CameraData CameraBuffer;
-		Ref<UniformBuffer> CameraUniformBuffer;
+		Handle<UniformBuffer> CameraUniformBuffer;
 	};
 
-	static Renderer2DData s_Data;
+	static Renderer2DData gsData;
 
 	void Renderer2D::Init()
 	{
 		GE_PROFILE_FUNCTION();
 
-		s_Data.QuadVertexArray = VertexArray::Create();
+		gsData.QuadVertexArray = VertexArray::Create();
 
-		s_Data.QuadVertexBuffer = VertexBuffer::Create(s_Data.MaxVertices * sizeof(QuadVertex));
-		s_Data.QuadVertexBuffer->SetLayout({
+		gsData.QuadVertexBuffer = VertexBuffer::Create(gsData.MaxVertices * sizeof(QuadVertex));
+		gsData.QuadVertexBuffer->SetLayout({
 			{ ShaderDataType::Float3, "a_Position"     },
 			{ ShaderDataType::Float4, "a_Color"        },
 			{ ShaderDataType::Float2, "a_TexCoord"     },
@@ -134,14 +134,14 @@ namespace GameEngine {
 			{ ShaderDataType::Float,  "a_TilingFactor" },
 			{ ShaderDataType::Int,    "a_EntityID"     }
 		});
-		s_Data.QuadVertexArray->AddVertexBuffer(s_Data.QuadVertexBuffer);
+		gsData.QuadVertexArray->AddVertexBuffer(gsData.QuadVertexBuffer);
 
-		s_Data.QuadVertexBufferBase = new QuadVertex[s_Data.MaxVertices];
+		gsData.QuadVertexBufferBase = new QuadVertex[gsData.MaxVertices];
 
-		uint32_t* quadIndices = new uint32_t[s_Data.MaxIndices];
+		uint32_t* quadIndices = new uint32_t[gsData.MaxIndices];
 
 		uint32_t offset = 0;
-		for (uint32_t i = 0; i < s_Data.MaxIndices; i += 6)
+		for (uint32_t i = 0; i < gsData.MaxIndices; i += 6)
 		{
 			quadIndices[i + 0] = offset + 0;
 			quadIndices[i + 1] = offset + 1;
@@ -154,15 +154,15 @@ namespace GameEngine {
 			offset += 4;
 		}
 
-		Ref<IndexBuffer> quadIB = IndexBuffer::Create(quadIndices, s_Data.MaxIndices);
-		s_Data.QuadVertexArray->SetIndexBuffer(quadIB);
+		Handle<IndexBuffer> quadIB = IndexBuffer::Create(quadIndices, gsData.MaxIndices);
+		gsData.QuadVertexArray->SetIndexBuffer(quadIB);
 		delete[] quadIndices;
 
 		// Circles
-		s_Data.CircleVertexArray = VertexArray::Create();
+		gsData.CircleVertexArray = VertexArray::Create();
 
-		s_Data.CircleVertexBuffer = VertexBuffer::Create(s_Data.MaxVertices * sizeof(CircleVertex));
-		s_Data.CircleVertexBuffer->SetLayout({
+		gsData.CircleVertexBuffer = VertexBuffer::Create(gsData.MaxVertices * sizeof(CircleVertex));
+		gsData.CircleVertexBuffer->SetLayout({
 			{ ShaderDataType::Float3, "a_WorldPosition" },
 			{ ShaderDataType::Float3, "a_LocalPosition" },
 			{ ShaderDataType::Float4, "a_Color"         },
@@ -170,73 +170,73 @@ namespace GameEngine {
 			{ ShaderDataType::Float,  "a_Fade"          },
 			{ ShaderDataType::Int,    "a_EntityID"      }
 		});
-		s_Data.CircleVertexArray->AddVertexBuffer(s_Data.CircleVertexBuffer);
-		s_Data.CircleVertexArray->SetIndexBuffer(quadIB); // Use quad IB
-		s_Data.CircleVertexBufferBase = new CircleVertex[s_Data.MaxVertices];
+		gsData.CircleVertexArray->AddVertexBuffer(gsData.CircleVertexBuffer);
+		gsData.CircleVertexArray->SetIndexBuffer(quadIB); // Use quad IB
+		gsData.CircleVertexBufferBase = new CircleVertex[gsData.MaxVertices];
 
 		// Lines
-		s_Data.LineVertexArray = VertexArray::Create();
+		gsData.LineVertexArray = VertexArray::Create();
 
-		s_Data.LineVertexBuffer = VertexBuffer::Create(s_Data.MaxVertices * sizeof(LineVertex));
-		s_Data.LineVertexBuffer->SetLayout({
+		gsData.LineVertexBuffer = VertexBuffer::Create(gsData.MaxVertices * sizeof(LineVertex));
+		gsData.LineVertexBuffer->SetLayout({
 			{ ShaderDataType::Float3, "a_Position" },
 			{ ShaderDataType::Float4, "a_Color"    },
 			{ ShaderDataType::Int,    "a_EntityID" }
 		});
-		s_Data.LineVertexArray->AddVertexBuffer(s_Data.LineVertexBuffer);
-		s_Data.LineVertexBufferBase = new LineVertex[s_Data.MaxVertices];
+		gsData.LineVertexArray->AddVertexBuffer(gsData.LineVertexBuffer);
+		gsData.LineVertexBufferBase = new LineVertex[gsData.MaxVertices];
 
 		// Text
-		s_Data.TextVertexArray = VertexArray::Create();
+		gsData.TextVertexArray = VertexArray::Create();
 
-		s_Data.TextVertexBuffer = VertexBuffer::Create(s_Data.MaxVertices * sizeof(TextVertex));
-		s_Data.TextVertexBuffer->SetLayout({
+		gsData.TextVertexBuffer = VertexBuffer::Create(gsData.MaxVertices * sizeof(TextVertex));
+		gsData.TextVertexBuffer->SetLayout({
 			{ ShaderDataType::Float3, "a_Position"     },
 			{ ShaderDataType::Float4, "a_Color"        },
 			{ ShaderDataType::Float2, "a_TexCoord"     },
 			{ ShaderDataType::Int,    "a_EntityID"     }
 		});
-		s_Data.TextVertexArray->AddVertexBuffer(s_Data.TextVertexBuffer);
-		s_Data.TextVertexArray->SetIndexBuffer(quadIB);
-		s_Data.TextVertexBufferBase = new TextVertex[s_Data.MaxVertices];
+		gsData.TextVertexArray->AddVertexBuffer(gsData.TextVertexBuffer);
+		gsData.TextVertexArray->SetIndexBuffer(quadIB);
+		gsData.TextVertexBufferBase = new TextVertex[gsData.MaxVertices];
 
-		s_Data.WhiteTexture = Texture2D::Create(TextureSpecification());
+		gsData.WhiteTexture = Texture2D::Create(TextureSpecification());
 		uint32_t whiteTextureData = 0xffffffff;
-		s_Data.WhiteTexture->SetData(&whiteTextureData, sizeof(uint32_t));
+		gsData.WhiteTexture->SetData(&whiteTextureData, sizeof(uint32_t));
 
-		int32_t samplers[s_Data.MaxTextureSlots];
-		for (uint32_t i = 0; i < s_Data.MaxTextureSlots; i++)
+		int32_t samplers[gsData.MaxTextureSlots];
+		for (uint32_t i = 0; i < gsData.MaxTextureSlots; i++)
 			samplers[i] = i;
 
-		s_Data.QuadShader = Shader::Create("assets/shaders/Renderer2D_Quad.glsl");
-		s_Data.CircleShader = Shader::Create("assets/shaders/Renderer2D_Circle.glsl");
-		s_Data.LineShader = Shader::Create("assets/shaders/Renderer2D_Line.glsl");
-		s_Data.TextShader = Shader::Create("assets/shaders/Renderer2D_Text.glsl");
+		gsData.QuadShader = Shader::Create("assets/shaders/Renderer2D_Quad.glsl");
+		gsData.CircleShader = Shader::Create("assets/shaders/Renderer2D_Circle.glsl");
+		gsData.LineShader = Shader::Create("assets/shaders/Renderer2D_Line.glsl");
+		gsData.TextShader = Shader::Create("assets/shaders/Renderer2D_Text.glsl");
 
 		// Set first texture slot to 0
-		s_Data.TextureSlots[0] = s_Data.WhiteTexture;
+		gsData.TextureSlots[0] = gsData.WhiteTexture;
 
-		s_Data.QuadVertexPositions[0] = { -0.5f, -0.5f, 0.0f, 1.0f };
-		s_Data.QuadVertexPositions[1] = {  0.5f, -0.5f, 0.0f, 1.0f };
-		s_Data.QuadVertexPositions[2] = {  0.5f,  0.5f, 0.0f, 1.0f };
-		s_Data.QuadVertexPositions[3] = { -0.5f,  0.5f, 0.0f, 1.0f };
+		gsData.QuadVertexPositions[0] = { -0.5f, -0.5f, 0.0f, 1.0f };
+		gsData.QuadVertexPositions[1] = {  0.5f, -0.5f, 0.0f, 1.0f };
+		gsData.QuadVertexPositions[2] = {  0.5f,  0.5f, 0.0f, 1.0f };
+		gsData.QuadVertexPositions[3] = { -0.5f,  0.5f, 0.0f, 1.0f };
 
-		s_Data.CameraUniformBuffer = UniformBuffer::Create(sizeof(Renderer2DData::CameraData), 0);
+		gsData.CameraUniformBuffer = UniformBuffer::Create(sizeof(Renderer2DData::CameraData), 0);
 	}
 
 	void Renderer2D::Shutdown()
 	{
 		GE_PROFILE_FUNCTION();
 
-		delete[] s_Data.QuadVertexBufferBase;
+		delete[] gsData.QuadVertexBufferBase;
 	}
 
 	void Renderer2D::BeginScene(const OrthographicCamera& camera)
 	{
 		GE_PROFILE_FUNCTION();
 
-		s_Data.CameraBuffer.ViewProjection = camera.GetViewProjectionMatrix();
-		s_Data.CameraUniformBuffer->SetData(&s_Data.CameraBuffer, sizeof(Renderer2DData::CameraData));
+		gsData.CameraBuffer.ViewProjection = camera.GetViewProjectionMatrix();
+		gsData.CameraUniformBuffer->SetData(&gsData.CameraBuffer, sizeof(Renderer2DData::CameraData));
 
 		StartBatch();
 	}
@@ -245,8 +245,8 @@ namespace GameEngine {
 	{
 		GE_PROFILE_FUNCTION();
 
-		s_Data.CameraBuffer.ViewProjection = camera.GetProjection() * glm::inverse(transform);
-		s_Data.CameraUniformBuffer->SetData(&s_Data.CameraBuffer, sizeof(Renderer2DData::CameraData));
+		gsData.CameraBuffer.ViewProjection = camera.GetProjection() * glm::inverse(transform);
+		gsData.CameraUniformBuffer->SetData(&gsData.CameraBuffer, sizeof(Renderer2DData::CameraData));
 
 		StartBatch();
 	}
@@ -255,8 +255,8 @@ namespace GameEngine {
 	{
 		GE_PROFILE_FUNCTION();
 
-		s_Data.CameraBuffer.ViewProjection = camera.GetViewProjection();
-		s_Data.CameraUniformBuffer->SetData(&s_Data.CameraBuffer, sizeof(Renderer2DData::CameraData));
+		gsData.CameraBuffer.ViewProjection = camera.GetViewProjection();
+		gsData.CameraUniformBuffer->SetData(&gsData.CameraBuffer, sizeof(Renderer2DData::CameraData));
 
 		StartBatch();
 	}
@@ -270,69 +270,69 @@ namespace GameEngine {
 
 	void Renderer2D::StartBatch()
 	{
-		s_Data.QuadIndexCount = 0;
-		s_Data.QuadVertexBufferPtr = s_Data.QuadVertexBufferBase;
+		gsData.QuadIndexCount = 0;
+		gsData.QuadVertexBufferPtr = gsData.QuadVertexBufferBase;
 
-		s_Data.CircleIndexCount = 0;
-		s_Data.CircleVertexBufferPtr = s_Data.CircleVertexBufferBase;
+		gsData.CircleIndexCount = 0;
+		gsData.CircleVertexBufferPtr = gsData.CircleVertexBufferBase;
 
-		s_Data.LineVertexCount = 0;
-		s_Data.LineVertexBufferPtr = s_Data.LineVertexBufferBase;	
+		gsData.LineVertexCount = 0;
+		gsData.LineVertexBufferPtr = gsData.LineVertexBufferBase;	
 		
-		s_Data.TextIndexCount = 0;
-		s_Data.TextVertexBufferPtr = s_Data.TextVertexBufferBase;
+		gsData.TextIndexCount = 0;
+		gsData.TextVertexBufferPtr = gsData.TextVertexBufferBase;
 
-		s_Data.TextureSlotIndex = 1;
+		gsData.TextureSlotIndex = 1;
 	}
 
 	void Renderer2D::Flush()
 	{
-		if (s_Data.QuadIndexCount)
+		if (gsData.QuadIndexCount)
 		{
-			uint32_t dataSize = (uint32_t)((uint8_t*)s_Data.QuadVertexBufferPtr - (uint8_t*)s_Data.QuadVertexBufferBase);
-			s_Data.QuadVertexBuffer->SetData(s_Data.QuadVertexBufferBase, dataSize);
+			uint32_t dataSize = (uint32_t)((uint8_t*)gsData.QuadVertexBufferPtr - (uint8_t*)gsData.QuadVertexBufferBase);
+			gsData.QuadVertexBuffer->SetData(gsData.QuadVertexBufferBase, dataSize);
 
 			// Bind textures
-			for (uint32_t i = 0; i < s_Data.TextureSlotIndex; i++)
-				s_Data.TextureSlots[i]->Bind(i);
+			for (uint32_t i = 0; i < gsData.TextureSlotIndex; i++)
+				gsData.TextureSlots[i]->Bind(i);
 
-			s_Data.QuadShader->Bind();
-			RenderCommand::DrawIndexed(s_Data.QuadVertexArray, s_Data.QuadIndexCount);
-			s_Data.Stats.DrawCalls++;
+			gsData.QuadShader->Bind();
+			RenderCommand::DrawIndexed(gsData.QuadVertexArray, gsData.QuadIndexCount);
+			gsData.Stats.DrawCalls++;
 		}
 
-		if (s_Data.CircleIndexCount)
+		if (gsData.CircleIndexCount)
 		{
-			uint32_t dataSize = (uint32_t)((uint8_t*)s_Data.CircleVertexBufferPtr - (uint8_t*)s_Data.CircleVertexBufferBase);
-			s_Data.CircleVertexBuffer->SetData(s_Data.CircleVertexBufferBase, dataSize);
+			uint32_t dataSize = (uint32_t)((uint8_t*)gsData.CircleVertexBufferPtr - (uint8_t*)gsData.CircleVertexBufferBase);
+			gsData.CircleVertexBuffer->SetData(gsData.CircleVertexBufferBase, dataSize);
 
-			s_Data.CircleShader->Bind();
-			RenderCommand::DrawIndexed(s_Data.CircleVertexArray, s_Data.CircleIndexCount);
-			s_Data.Stats.DrawCalls++;
+			gsData.CircleShader->Bind();
+			RenderCommand::DrawIndexed(gsData.CircleVertexArray, gsData.CircleIndexCount);
+			gsData.Stats.DrawCalls++;
 		}
 
-		if (s_Data.LineVertexCount)
+		if (gsData.LineVertexCount)
 		{
-			uint32_t dataSize = (uint32_t)((uint8_t*)s_Data.LineVertexBufferPtr - (uint8_t*)s_Data.LineVertexBufferBase);
-			s_Data.LineVertexBuffer->SetData(s_Data.LineVertexBufferBase, dataSize);
+			uint32_t dataSize = (uint32_t)((uint8_t*)gsData.LineVertexBufferPtr - (uint8_t*)gsData.LineVertexBufferBase);
+			gsData.LineVertexBuffer->SetData(gsData.LineVertexBufferBase, dataSize);
 
-			s_Data.LineShader->Bind();
-			RenderCommand::SetLineWidth(s_Data.LineWidth);
-			RenderCommand::DrawLines(s_Data.LineVertexArray, s_Data.LineVertexCount);
-			s_Data.Stats.DrawCalls++;
+			gsData.LineShader->Bind();
+			RenderCommand::SetLineWidth(gsData.LineWidth);
+			RenderCommand::DrawLines(gsData.LineVertexArray, gsData.LineVertexCount);
+			gsData.Stats.DrawCalls++;
 		}
 		
-		if (s_Data.TextIndexCount)
+		if (gsData.TextIndexCount)
 		{
-			uint32_t dataSize = (uint32_t)((uint8_t*)s_Data.TextVertexBufferPtr - (uint8_t*)s_Data.TextVertexBufferBase);
-			s_Data.TextVertexBuffer->SetData(s_Data.TextVertexBufferBase, dataSize);
+			uint32_t dataSize = (uint32_t)((uint8_t*)gsData.TextVertexBufferPtr - (uint8_t*)gsData.TextVertexBufferBase);
+			gsData.TextVertexBuffer->SetData(gsData.TextVertexBufferBase, dataSize);
 
-			auto buf = s_Data.TextVertexBufferBase;
-			s_Data.FontAtlasTexture->Bind(0);
+			auto buf = gsData.TextVertexBufferBase;
+			gsData.FontAtlasTexture->Bind(0);
 
-			s_Data.TextShader->Bind();
-			RenderCommand::DrawIndexed(s_Data.TextVertexArray, s_Data.TextIndexCount);
-			s_Data.Stats.DrawCalls++;
+			gsData.TextShader->Bind();
+			RenderCommand::DrawIndexed(gsData.TextVertexArray, gsData.TextIndexCount);
+			gsData.Stats.DrawCalls++;
 		}
 	}
 
@@ -357,12 +357,12 @@ namespace GameEngine {
 		DrawQuad(transform, color);
 	}
 
-	void Renderer2D::DrawQuad(const glm::vec2& position, const glm::vec2& size, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor)
+	void Renderer2D::DrawQuad(const glm::vec2& position, const glm::vec2& size, const Handle<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor)
 	{
 		DrawQuad({ position.x, position.y, 0.0f }, size, texture, tilingFactor, tintColor);
 	}
 
-	void Renderer2D::DrawQuad(const glm::vec3& position, const glm::vec2& size, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor)
+	void Renderer2D::DrawQuad(const glm::vec3& position, const glm::vec2& size, const Handle<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor)
 	{
 		GE_PROFILE_FUNCTION();
 
@@ -381,39 +381,39 @@ namespace GameEngine {
 		constexpr glm::vec2 textureCoords[] = { { 0.0f, 0.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f } };
 		const float tilingFactor = 1.0f;
 
-		if (s_Data.QuadIndexCount >= Renderer2DData::MaxIndices)
+		if (gsData.QuadIndexCount >= Renderer2DData::MaxIndices)
 			NextBatch();
 
 		for (size_t i = 0; i < quadVertexCount; i++)
 		{
-			s_Data.QuadVertexBufferPtr->Position = transform * s_Data.QuadVertexPositions[i];
-			s_Data.QuadVertexBufferPtr->Color = color;
-			s_Data.QuadVertexBufferPtr->TexCoord = textureCoords[i];
-			s_Data.QuadVertexBufferPtr->TexIndex = textureIndex;
-			s_Data.QuadVertexBufferPtr->TilingFactor = tilingFactor;
-			s_Data.QuadVertexBufferPtr->EntityID = entityID;
-			s_Data.QuadVertexBufferPtr++;
+			gsData.QuadVertexBufferPtr->Position = transform * gsData.QuadVertexPositions[i];
+			gsData.QuadVertexBufferPtr->Color = color;
+			gsData.QuadVertexBufferPtr->TexCoord = textureCoords[i];
+			gsData.QuadVertexBufferPtr->TexIndex = textureIndex;
+			gsData.QuadVertexBufferPtr->TilingFactor = tilingFactor;
+			gsData.QuadVertexBufferPtr->EntityID = entityID;
+			gsData.QuadVertexBufferPtr++;
 		}
 
-		s_Data.QuadIndexCount += 6;
+		gsData.QuadIndexCount += 6;
 
-		s_Data.Stats.QuadCount++;
+		gsData.Stats.QuadCount++;
 	}
 
-	void Renderer2D::DrawQuad(const glm::mat4& transform, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor, int entityID)
+	void Renderer2D::DrawQuad(const glm::mat4& transform, const Handle<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor, int entityID)
 	{
 		GE_PROFILE_FUNCTION();
 
 		constexpr size_t quadVertexCount = 4;
 		constexpr glm::vec2 textureCoords[] = { { 0.0f, 0.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f } };
 
-		if (s_Data.QuadIndexCount >= Renderer2DData::MaxIndices)
+		if (gsData.QuadIndexCount >= Renderer2DData::MaxIndices)
 			NextBatch();
 
 		float textureIndex = 0.0f;
-		for (uint32_t i = 1; i < s_Data.TextureSlotIndex; i++)
+		for (uint32_t i = 1; i < gsData.TextureSlotIndex; i++)
 		{
-			if (*s_Data.TextureSlots[i] == *texture)
+			if (*gsData.TextureSlots[i] == *texture)
 			{
 				textureIndex = (float)i;
 				break;
@@ -422,28 +422,28 @@ namespace GameEngine {
 
 		if (textureIndex == 0.0f)
 		{
-			if (s_Data.TextureSlotIndex >= Renderer2DData::MaxTextureSlots)
+			if (gsData.TextureSlotIndex >= Renderer2DData::MaxTextureSlots)
 				NextBatch();
 
-			textureIndex = (float)s_Data.TextureSlotIndex;
-			s_Data.TextureSlots[s_Data.TextureSlotIndex] = texture;
-			s_Data.TextureSlotIndex++;
+			textureIndex = (float)gsData.TextureSlotIndex;
+			gsData.TextureSlots[gsData.TextureSlotIndex] = texture;
+			gsData.TextureSlotIndex++;
 		}
 
 		for (size_t i = 0; i < quadVertexCount; i++)
 		{
-			s_Data.QuadVertexBufferPtr->Position = transform * s_Data.QuadVertexPositions[i];
-			s_Data.QuadVertexBufferPtr->Color = tintColor;
-			s_Data.QuadVertexBufferPtr->TexCoord = textureCoords[i];
-			s_Data.QuadVertexBufferPtr->TexIndex = textureIndex;
-			s_Data.QuadVertexBufferPtr->TilingFactor = tilingFactor;
-			s_Data.QuadVertexBufferPtr->EntityID = entityID;
-			s_Data.QuadVertexBufferPtr++;
+			gsData.QuadVertexBufferPtr->Position = transform * gsData.QuadVertexPositions[i];
+			gsData.QuadVertexBufferPtr->Color = tintColor;
+			gsData.QuadVertexBufferPtr->TexCoord = textureCoords[i];
+			gsData.QuadVertexBufferPtr->TexIndex = textureIndex;
+			gsData.QuadVertexBufferPtr->TilingFactor = tilingFactor;
+			gsData.QuadVertexBufferPtr->EntityID = entityID;
+			gsData.QuadVertexBufferPtr++;
 		}
 
-		s_Data.QuadIndexCount += 6;
+		gsData.QuadIndexCount += 6;
 
-		s_Data.Stats.QuadCount++;
+		gsData.Stats.QuadCount++;
 	}
 
 	void Renderer2D::DrawRotatedQuad(const glm::vec2& position, const glm::vec2& size, float rotation, const glm::vec4& color)
@@ -462,12 +462,12 @@ namespace GameEngine {
 		DrawQuad(transform, color);
 	}
 
-	void Renderer2D::DrawRotatedQuad(const glm::vec2& position, const glm::vec2& size, float rotation, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor)
+	void Renderer2D::DrawRotatedQuad(const glm::vec2& position, const glm::vec2& size, float rotation, const Handle<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor)
 	{
 		DrawRotatedQuad({ position.x, position.y, 0.0f }, size, rotation, texture, tilingFactor, tintColor);
 	}
 
-	void Renderer2D::DrawRotatedQuad(const glm::vec3& position, const glm::vec2& size, float rotation, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor)
+	void Renderer2D::DrawRotatedQuad(const glm::vec3& position, const glm::vec2& size, float rotation, const Handle<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor)
 	{
 		GE_PROFILE_FUNCTION();
 
@@ -483,38 +483,38 @@ namespace GameEngine {
 		GE_PROFILE_FUNCTION();
 
 		// TODO: implement for circles
-		// if (s_Data.QuadIndexCount >= Renderer2DData::MaxIndices)
+		// if (gsData.QuadIndexCount >= Renderer2DData::MaxIndices)
 		// 	NextBatch();
 
 		for (size_t i = 0; i < 4; i++)
 		{
-			s_Data.CircleVertexBufferPtr->WorldPosition = transform * s_Data.QuadVertexPositions[i];
-			s_Data.CircleVertexBufferPtr->LocalPosition = s_Data.QuadVertexPositions[i] * 2.0f;
-			s_Data.CircleVertexBufferPtr->Color = color;
-			s_Data.CircleVertexBufferPtr->Thickness = thickness;
-			s_Data.CircleVertexBufferPtr->Fade = fade;
-			s_Data.CircleVertexBufferPtr->EntityID = entityID;
-			s_Data.CircleVertexBufferPtr++;
+			gsData.CircleVertexBufferPtr->WorldPosition = transform * gsData.QuadVertexPositions[i];
+			gsData.CircleVertexBufferPtr->LocalPosition = gsData.QuadVertexPositions[i] * 2.0f;
+			gsData.CircleVertexBufferPtr->Color = color;
+			gsData.CircleVertexBufferPtr->Thickness = thickness;
+			gsData.CircleVertexBufferPtr->Fade = fade;
+			gsData.CircleVertexBufferPtr->EntityID = entityID;
+			gsData.CircleVertexBufferPtr++;
 		}
 
-		s_Data.CircleIndexCount += 6;
+		gsData.CircleIndexCount += 6;
 
-		s_Data.Stats.QuadCount++;
+		gsData.Stats.QuadCount++;
 	}
 
 	void Renderer2D::DrawLine(const glm::vec3& p0, glm::vec3& p1, const glm::vec4& color, int entityID)
 	{
-		s_Data.LineVertexBufferPtr->Position = p0;
-		s_Data.LineVertexBufferPtr->Color = color;
-		s_Data.LineVertexBufferPtr->EntityID = entityID;
-		s_Data.LineVertexBufferPtr++;
+		gsData.LineVertexBufferPtr->Position = p0;
+		gsData.LineVertexBufferPtr->Color = color;
+		gsData.LineVertexBufferPtr->EntityID = entityID;
+		gsData.LineVertexBufferPtr++;
 
-		s_Data.LineVertexBufferPtr->Position = p1;
-		s_Data.LineVertexBufferPtr->Color = color;
-		s_Data.LineVertexBufferPtr->EntityID = entityID;
-		s_Data.LineVertexBufferPtr++;
+		gsData.LineVertexBufferPtr->Position = p1;
+		gsData.LineVertexBufferPtr->Color = color;
+		gsData.LineVertexBufferPtr->EntityID = entityID;
+		gsData.LineVertexBufferPtr++;
 
-		s_Data.LineVertexCount += 2;
+		gsData.LineVertexCount += 2;
 	}
 
 	void Renderer2D::DrawRect(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color, int entityID)
@@ -534,7 +534,7 @@ namespace GameEngine {
 	{
 		glm::vec3 lineVertices[4];
 		for (size_t i = 0; i < 4; i++)
-			lineVertices[i] = transform * s_Data.QuadVertexPositions[i];
+			lineVertices[i] = transform * gsData.QuadVertexPositions[i];
 
 		DrawLine(lineVertices[0], lineVertices[1], color, entityID);
 		DrawLine(lineVertices[1], lineVertices[2], color, entityID);
@@ -550,13 +550,13 @@ namespace GameEngine {
 			DrawQuad(transform, src.Color, entityID);
 	}
 
-	void Renderer2D::DrawString(const std::string& string, Ref<Font> font, const glm::mat4& transform, const TextParams& textParams, int entityID)
+	void Renderer2D::DrawString(const std::string& string, Handle<Font> font, const glm::mat4& transform, const TextParams& textParams, int entityID)
 	{
 		const auto& fontGeometry = font->GetMSDFData()->FontGeometry;
 		const auto& metrics = fontGeometry.getMetrics();
-		Ref<Texture2D> fontAtlas = font->GetAtlasTexture();
+		Handle<Texture2D> fontAtlas = font->GetAtlasTexture();
 
-		s_Data.FontAtlasTexture = fontAtlas;
+		gsData.FontAtlasTexture = fontAtlas;
 
 		double x = 0.0;
 		double fsScale = 1.0 / (metrics.ascenderY - metrics.descenderY);
@@ -625,32 +625,32 @@ namespace GameEngine {
 			texCoordMax *= glm::vec2(texelWidth, texelHeight);
 
 			// render here
-			s_Data.TextVertexBufferPtr->Position = transform * glm::vec4(quadMin, 0.0f, 1.0f);
-			s_Data.TextVertexBufferPtr->Color = textParams.Color;
-			s_Data.TextVertexBufferPtr->TexCoord = texCoordMin;
-			s_Data.TextVertexBufferPtr->EntityID = entityID;
-			s_Data.TextVertexBufferPtr++;
+			gsData.TextVertexBufferPtr->Position = transform * glm::vec4(quadMin, 0.0f, 1.0f);
+			gsData.TextVertexBufferPtr->Color = textParams.Color;
+			gsData.TextVertexBufferPtr->TexCoord = texCoordMin;
+			gsData.TextVertexBufferPtr->EntityID = entityID;
+			gsData.TextVertexBufferPtr++;
 
-			s_Data.TextVertexBufferPtr->Position = transform * glm::vec4(quadMin.x, quadMax.y, 0.0f, 1.0f);
-			s_Data.TextVertexBufferPtr->Color = textParams.Color;
-			s_Data.TextVertexBufferPtr->TexCoord = { texCoordMin.x, texCoordMax.y };
-			s_Data.TextVertexBufferPtr->EntityID = entityID;
-			s_Data.TextVertexBufferPtr++;
+			gsData.TextVertexBufferPtr->Position = transform * glm::vec4(quadMin.x, quadMax.y, 0.0f, 1.0f);
+			gsData.TextVertexBufferPtr->Color = textParams.Color;
+			gsData.TextVertexBufferPtr->TexCoord = { texCoordMin.x, texCoordMax.y };
+			gsData.TextVertexBufferPtr->EntityID = entityID;
+			gsData.TextVertexBufferPtr++;
 
-			s_Data.TextVertexBufferPtr->Position = transform * glm::vec4(quadMax, 0.0f, 1.0f);
-			s_Data.TextVertexBufferPtr->Color = textParams.Color;
-			s_Data.TextVertexBufferPtr->TexCoord = texCoordMax;
-			s_Data.TextVertexBufferPtr->EntityID = entityID;
-			s_Data.TextVertexBufferPtr++;
+			gsData.TextVertexBufferPtr->Position = transform * glm::vec4(quadMax, 0.0f, 1.0f);
+			gsData.TextVertexBufferPtr->Color = textParams.Color;
+			gsData.TextVertexBufferPtr->TexCoord = texCoordMax;
+			gsData.TextVertexBufferPtr->EntityID = entityID;
+			gsData.TextVertexBufferPtr++;
 
-			s_Data.TextVertexBufferPtr->Position = transform * glm::vec4(quadMax.x, quadMin.y, 0.0f, 1.0f);
-			s_Data.TextVertexBufferPtr->Color = textParams.Color;
-			s_Data.TextVertexBufferPtr->TexCoord = { texCoordMax.x, texCoordMin.y };
-			s_Data.TextVertexBufferPtr->EntityID = entityID;
-			s_Data.TextVertexBufferPtr++;
+			gsData.TextVertexBufferPtr->Position = transform * glm::vec4(quadMax.x, quadMin.y, 0.0f, 1.0f);
+			gsData.TextVertexBufferPtr->Color = textParams.Color;
+			gsData.TextVertexBufferPtr->TexCoord = { texCoordMax.x, texCoordMin.y };
+			gsData.TextVertexBufferPtr->EntityID = entityID;
+			gsData.TextVertexBufferPtr++;
 
-			s_Data.TextIndexCount += 6;
-			s_Data.Stats.QuadCount++;
+			gsData.TextIndexCount += 6;
+			gsData.Stats.QuadCount++;
 
 			if (i < string.size() - 1)
 			{
@@ -670,22 +670,22 @@ namespace GameEngine {
 
 	float Renderer2D::GetLineWidth()
 	{
-		return s_Data.LineWidth;
+		return gsData.LineWidth;
 	}
 
 	void Renderer2D::SetLineWidth(float width)
 	{
-		s_Data.LineWidth = width;
+		gsData.LineWidth = width;
 	}
 
 	void Renderer2D::ResetStats()
 	{
-		memset(&s_Data.Stats, 0, sizeof(Statistics));
+		memset(&gsData.Stats, 0, sizeof(Statistics));
 	}
 
 	Renderer2D::Statistics Renderer2D::GetStats()
 	{
-		return s_Data.Stats;
+		return gsData.Stats;
 	}
 
 }

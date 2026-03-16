@@ -30,7 +30,7 @@ namespace GameEngine {
 
 	}
 
-	static std::unordered_map<MonoType*, std::function<bool(Entity)>> s_EntityHasComponentFuncs;
+	static std::unordered_map<MonoType*, std::function<bool(Entity)>> gsEntityHasComponentFuncs;
 
 #define GE_ADD_INTERNAL_CALL(Name) mono_add_internal_call("GameEngine.InternalCalls::" #Name, Name)
 
@@ -65,8 +65,8 @@ namespace GameEngine {
 		GE_CORE_ASSERT(entity);
 
 		MonoType* managedType = mono_reflection_type_get_type(componentType);
-		GE_CORE_ASSERT(s_EntityHasComponentFuncs.find(managedType) != s_EntityHasComponentFuncs.end());
-		return s_EntityHasComponentFuncs.at(managedType)(entity);
+		GE_CORE_ASSERT(gsEntityHasComponentFuncs.find(managedType) != gsEntityHasComponentFuncs.end());
+		return gsEntityHasComponentFuncs.at(managedType)(entity);
 	}
 
 	static uint64_t Entity_FindEntityByName(MonoString* name)
@@ -282,7 +282,7 @@ namespace GameEngine {
 				GE_CORE_ERROR("Could not find component type {}", managedTypename);
 				return;
 			}
-			s_EntityHasComponentFuncs[managedType] = [](Entity entity) { return entity.HasComponent<Component>(); };
+			gsEntityHasComponentFuncs[managedType] = [](Entity entity) { return entity.HasComponent<Component>(); };
 		}(), ...);
 	}
 
@@ -294,7 +294,7 @@ namespace GameEngine {
 
 	void ScriptGlue::RegisterComponents()
 	{
-		s_EntityHasComponentFuncs.clear();
+		gsEntityHasComponentFuncs.clear();
 		RegisterComponent(AllComponents{});
 	}
 

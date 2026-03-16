@@ -26,7 +26,7 @@
 
 #include "Hazel/Core/Log.h"
 
-#include "Hazel/Debug/Instrumentor.h"
+#include "Hazel/Debug/Profiler.h"
 
 #ifdef GE_PLATFORM_WINDOWS
 	#include <Windows.h>

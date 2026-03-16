@@ -21,24 +21,24 @@
 #define GE_EXPAND_MACRO(x) x
 #define GE_STRINGIFY_MACRO(x) #x
 
-#define BIT(x) (1 << x)
+#define FLAG(x) (1 << x)
 
-#define GE_BIND_EVENT_FN(fn) [this](auto&&... args) -> decltype(auto) { return this->fn(std::forward<decltype(args)>(args)...); }
+#define GE_BIND_FN(fn) [this](auto&&... args) -> decltype(auto) { return this->fn(std::forward<decltype(args)>(args)...); }
 
 namespace GameEngine {
 
 	template<typename T>
-	using Scope = std::unique_ptr<T>;
+	using Own = std::unique_ptr<T>;
 	template<typename T, typename ... Args>
-	constexpr Scope<T> CreateScope(Args&& ... args)
+	constexpr Own<T> MakeOwn(Args&& ... args)
 	{
 		return std::make_unique<T>(std::forward<Args>(args)...);
 	}
 
 	template<typename T>
-	using Ref = std::shared_ptr<T>;
+	using Handle = std::shared_ptr<T>;
 	template<typename T, typename ... Args>
-	constexpr Ref<T> CreateRef(Args&& ... args)
+	constexpr Handle<T> MakeHandle(Args&& ... args)
 	{
 		return std::make_shared<T>(std::forward<Args>(args)...);
 	}

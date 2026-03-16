@@ -12,44 +12,44 @@ namespace GameEngine {
 
 	void SceneCamera::SetPerspective(float verticalFOV, float nearClip, float farClip)
 	{
-		m_ProjectionType = ProjectionType::Perspective;
-		m_PerspectiveFOV = verticalFOV;
-		m_PerspectiveNear = nearClip;
-		m_PerspectiveFar = farClip;
+		myProjectionType = ProjectionType::Perspective;
+		myPerspectiveFOV = verticalFOV;
+		myPerspectiveNear = nearClip;
+		myPerspectiveFar = farClip;
 		RecalculateProjection();
 	}
 
 	void SceneCamera::SetOrthographic(float size, float nearClip, float farClip)
 	{
-		m_ProjectionType = ProjectionType::Orthographic;
-		m_OrthographicSize = size;
-		m_OrthographicNear = nearClip;
-		m_OrthographicFar = farClip;
+		myProjectionType = ProjectionType::Orthographic;
+		myOrthographicSize = size;
+		myOrthographicNear = nearClip;
+		myOrthographicFar = farClip;
 		RecalculateProjection();
 	}
 
 	void SceneCamera::SetViewportSize(uint32_t width, uint32_t height)
 	{
 		GE_CORE_ASSERT(width > 0 && height > 0);
-		m_AspectRatio = (float)width / (float)height;
+		myAspectRatio = (float)width / (float)height;
 		RecalculateProjection();
 	}
 
 	void SceneCamera::RecalculateProjection()
 	{
-		if (m_ProjectionType == ProjectionType::Perspective)
+		if (myProjectionType == ProjectionType::Perspective)
 		{
-			m_Projection = glm::perspective(m_PerspectiveFOV, m_AspectRatio, m_PerspectiveNear, m_PerspectiveFar);
+			myProjection = glm::perspective(myPerspectiveFOV, myAspectRatio, myPerspectiveNear, myPerspectiveFar);
 		}
 		else
 		{
-			float orthoLeft = -m_OrthographicSize * m_AspectRatio * 0.5f;
-			float orthoRight = m_OrthographicSize * m_AspectRatio * 0.5f;
-			float orthoBottom = -m_OrthographicSize * 0.5f;
-			float orthoTop = m_OrthographicSize * 0.5f;
+			float orthoLeft = -myOrthographicSize * myAspectRatio * 0.5f;
+			float orthoRight = myOrthographicSize * myAspectRatio * 0.5f;
+			float orthoBottom = -myOrthographicSize * 0.5f;
+			float orthoTop = myOrthographicSize * 0.5f;
 
-			m_Projection = glm::ortho(orthoLeft, orthoRight,
-				orthoBottom, orthoTop, m_OrthographicNear, m_OrthographicFar);
+			myProjection = glm::ortho(orthoLeft, orthoRight,
+				orthoBottom, orthoTop, myOrthographicNear, myOrthographicFar);
 		}
 		
 	}

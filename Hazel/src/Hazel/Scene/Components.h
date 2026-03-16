@@ -55,7 +55,7 @@ namespace GameEngine {
 	struct SpriteRendererComponent
 	{
 		glm::vec4 Color{ 1.0f, 1.0f, 1.0f, 1.0f };
-		Ref<Texture2D> Texture;
+		Handle<Texture2D> Texture;
 		float TilingFactor = 1.0f;
 
 		SpriteRendererComponent() = default;
@@ -164,7 +164,7 @@ namespace GameEngine {
 	struct TextComponent
 	{
 		std::string TextString;
-		Ref<Font> FontAsset = Font::GetDefault();
+		Handle<Font> FontAsset = Font::GetDefault();
 		glm::vec4 Color{ 1.0f };
 		float Kerning = 0.0f;
 		float LineSpacing = 0.0f;

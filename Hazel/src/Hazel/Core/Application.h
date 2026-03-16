@@ -45,15 +45,15 @@ namespace GameEngine {
 		void PushLayer(Layer* layer);
 		void PushOverlay(Layer* layer);
 
-		Window& GetWindow() { return *m_Window; }
+		Window& GetWindow() { return *myWindow; }
 
 		void Close();
 
-		ImGuiLayer* GetImGuiLayer() { return m_ImGuiLayer; }
+		ImGuiLayer* GetImGuiLayer() { return myImGuiLayer; }
 
-		static Application& Get() { return *s_Instance; }
+		static Application& GetInstance() { return *gsInstance; }
 
-		const ApplicationSpecification& GetSpecification() const { return m_Specification; }
+		const ApplicationSpecification& GetSpecification() const { return mySpecification; }
 
 		void SubmitToMainThread(const std::function<void()>& function);
 	private:
@@ -63,18 +63,18 @@ namespace GameEngine {
 
 		void ExecuteMainThreadQueue();
 	private:
-		ApplicationSpecification m_Specification;
-		Scope<Window> m_Window;
-		ImGuiLayer* m_ImGuiLayer;
-		bool m_Running = true;
-		bool m_Minimized = false;
-		LayerStack m_LayerStack;
-		float m_LastFrameTime = 0.0f;
+		ApplicationSpecification mySpecification;
+		Own<Window> myWindow;
+		ImGuiLayer* myImGuiLayer;
+		bool myRunning = true;
+		bool myMinimized = false;
+		LayerStack myLayerStack;
+		float myLastFrameTime = 0.0f;
 
-		std::vector<std::function<void()>> m_MainThreadQueue;
-		std::mutex m_MainThreadQueueMutex;
+		std::vector<std::function<void()>> myMainThreadQueue;
+		std::mutex myMainThreadQueueMutex;
 	private:
-		static Application* s_Instance;
+		static Application* gsInstance;
 		friend int ::main(int argc, char** argv);
 	};
 

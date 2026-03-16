@@ -9,14 +9,14 @@ namespace GameEngine::UI {
 		ScopedStyleColor() = default;
 
 		ScopedStyleColor(ImGuiCol idx, ImVec4 color, bool predicate = true)
-			: m_Set(predicate)
+			: mySet(predicate)
 		{
 			if (predicate)
 				ImGui::PushStyleColor(idx, color);
 		}
 
 		ScopedStyleColor(ImGuiCol idx, ImU32 color, bool predicate = true)
-			: m_Set(predicate)
+			: mySet(predicate)
 		{
 			if (predicate)
 				ImGui::PushStyleColor(idx, color);
@@ -24,11 +24,11 @@ namespace GameEngine::UI {
 
 		~ScopedStyleColor()
 		{
-			if (m_Set)
+			if (mySet)
 				ImGui::PopStyleColor();
 		}
 	private:
-		bool m_Set = false;
+		bool mySet = false;
 	};
 
 

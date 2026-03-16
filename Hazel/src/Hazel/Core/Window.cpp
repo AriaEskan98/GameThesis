@@ -7,10 +7,10 @@
 
 namespace GameEngine
 {
-	Scope<Window> Window::Create(const WindowProps& props)
+	Own<Window> Window::Create(const WindowProps& props)
 	{
 	#ifdef GE_PLATFORM_WINDOWS
-		return CreateScope<WindowsWindow>(props);
+		return MakeOwn<WindowsWindow>(props);
 	#else
 		GE_CORE_ASSERT(false, "Unknown platform!");
 		return nullptr;

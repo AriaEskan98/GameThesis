@@ -13,7 +13,7 @@
 
 namespace GameEngine {
 	
-	static uint8_t s_GLFWWindowCount = 0;
+	static uint8_t gsGLFWWindowCount = 0;
 
 	static void GLFWErrorCallback(int error, const char* description)
 	{
@@ -38,13 +38,13 @@ namespace GameEngine {
 	{
 		GE_PROFILE_FUNCTION();
 
-		m_Data.Title = props.Title;
-		m_Data.Width = props.Width;
-		m_Data.Height = props.Height;
+		myData.Title = props.Title;
+		myData.Width = props.Width;
+		myData.Height = props.Height;
 
 		GE_CORE_INFO("Creating window {0} ({1}, {2})", props.Title, props.Width, props.Height);
 
-		if (s_GLFWWindowCount == 0)
+		if (gsGLFWWindowCount == 0)
 		{
 			GE_PROFILE_SCOPE("glfwInit");
 			int success = glfwInit();
@@ -58,18 +58,18 @@ namespace GameEngine {
 			if (Renderer::GetAPI() == RendererAPI::API::OpenGL)
 				glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
 		#endif
-			m_Window = glfwCreateWindow((int)props.Width, (int)props.Height, m_Data.Title.c_str(), nullptr, nullptr);
-			++s_GLFWWindowCount;
+			myWindow = glfwCreateWindow((int)props.Width, (int)props.Height, myData.Title.c_str(), nullptr, nullptr);
+			++gsGLFWWindowCount;
 		}
 
-		m_Context = GraphicsContext::Create(m_Window);
-		m_Context->Init();
+		myContext = GraphicsContext::Create(myWindow);
+		myContext->Init();
 
-		glfwSetWindowUserPointer(m_Window, &m_Data);
+		glfwSetWindowUserPointer(myWindow, &myData);
 		SetVSync(true);
 
 		// Set GLFW callbacks
-		glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height)
+		glfwSetWindowSizeCallback(myWindow, [](GLFWwindow* window, int width, int height)
 		{
 			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
 			data.Width = width;
@@ -79,14 +79,14 @@ namespace GameEngine {
 			data.EventCallback(event);
 		});
 
-		glfwSetWindowCloseCallback(m_Window, [](GLFWwindow* window)
+		glfwSetWindowCloseCallback(myWindow, [](GLFWwindow* window)
 		{
 			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
 			WindowCloseEvent event;
 			data.EventCallback(event);
 		});
 
-		glfwSetKeyCallback(m_Window, [](GLFWwindow* window, int key, int scancode, int action, int mods)
+		glfwSetKeyCallback(myWindow, [](GLFWwindow* window, int key, int scancode, int action, int mods)
 		{
 			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
 
@@ -113,7 +113,7 @@ namespace GameEngine {
 			}
 		});
 
-		glfwSetCharCallback(m_Window, [](GLFWwindow* window, unsigned int keycode)
+		glfwSetCharCallback(myWindow, [](GLFWwindow* window, unsigned int keycode)
 		{
 			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
 
@@ -121,7 +121,7 @@ namespace GameEngine {
 			data.EventCallback(event);
 		});
 
-		glfwSetMouseButtonCallback(m_Window, [](GLFWwindow* window, int button, int action, int mods)
+		glfwSetMouseButtonCallback(myWindow, [](GLFWwindow* window, int button, int action, int mods)
 		{
 			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
 
@@ -142,7 +142,7 @@ namespace GameEngine {
 			}
 		});
 
-		glfwSetScrollCallback(m_Window, [](GLFWwindow* window, double xOffset, double yOffset)
+		glfwSetScrollCallback(myWindow, [](GLFWwindow* window, double xOffset, double yOffset)
 		{
 			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
 
@@ -150,7 +150,7 @@ namespace GameEngine {
 			data.EventCallback(event);
 		});
 
-		glfwSetCursorPosCallback(m_Window, [](GLFWwindow* window, double xPos, double yPos)
+		glfwSetCursorPosCallback(myWindow, [](GLFWwindow* window, double xPos, double yPos)
 		{
 			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
 
@@ -163,10 +163,10 @@ namespace GameEngine {
 	{
 		GE_PROFILE_FUNCTION();
 
-		glfwDestroyWindow(m_Window);
-		--s_GLFWWindowCount;
+		glfwDestroyWindow(myWindow);
+		--gsGLFWWindowCount;
 
-		if (s_GLFWWindowCount == 0)
+		if (gsGLFWWindowCount == 0)
 		{
 			glfwTerminate();
 		}
@@ -177,7 +177,7 @@ namespace GameEngine {
 		GE_PROFILE_FUNCTION();
 
 		glfwPollEvents();
-		m_Context->SwapBuffers();
+		myContext->SwapBuffers();
 	}
 
 	void WindowsWindow::SetVSync(bool enabled)
@@ -189,12 +189,12 @@ namespace GameEngine {
 		else
 			glfwSwapInterval(0);
 
-		m_Data.VSync = enabled;
+		myData.VSync = enabled;
 	}
 
 	bool WindowsWindow::IsVSync() const
 	{
-		return m_Data.VSync;
+		return myData.VSync;
 	}
 
 }

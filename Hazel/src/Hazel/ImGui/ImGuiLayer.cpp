@@ -55,7 +55,7 @@ namespace GameEngine {
 
 		SetDarkThemeColors();
 
-		Application& app = Application::Get();
+		Application& app = Application::GetInstance();
 		GLFWwindow* window = static_cast<GLFWwindow*>(app.GetWindow().GetNativeWindow());
 
 		// Setup Platform/Renderer bindings
@@ -74,7 +74,7 @@ namespace GameEngine {
 
 	void ImGuiLayer::OnEvent(Event& e)
 	{
-		if (m_BlockEvents)
+		if (myBlockEvents)
 		{
 			ImGuiIO& io = ImGui::GetIO();
 			e.Handled |= e.IsInCategory(EventCategoryMouse) & io.WantCaptureMouse;
@@ -97,7 +97,7 @@ namespace GameEngine {
 		GE_PROFILE_FUNCTION();
 
 		ImGuiIO& io = ImGui::GetIO();
-		Application& app = Application::Get();
+		Application& app = Application::GetInstance();
 		io.DisplaySize = ImVec2((float)app.GetWindow().GetWidth(), (float)app.GetWindow().GetHeight());
 
 		// Rendering

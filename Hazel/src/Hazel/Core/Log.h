@@ -18,11 +18,11 @@ namespace GameEngine {
 	public:
 		static void Init();
 
-		static Ref<spdlog::logger>& GetCoreLogger() { return s_CoreLogger; }
-		static Ref<spdlog::logger>& GetClientLogger() { return s_ClientLogger; }
+		static Handle<spdlog::logger>& GetCoreLogger() { return gsCoreLogger; }
+		static Handle<spdlog::logger>& GetClientLogger() { return gsClientLogger; }
 	private:
-		static Ref<spdlog::logger> s_CoreLogger;
-		static Ref<spdlog::logger> s_ClientLogger;
+		static Handle<spdlog::logger> gsCoreLogger;
+		static Handle<spdlog::logger> gsClientLogger;
 	};
 
 }

@@ -22,35 +22,35 @@ namespace GameEngine {
 	public:
 		static const std::filesystem::path& GetProjectDirectory()
 		{
-			GE_CORE_ASSERT(s_ActiveProject);
-			return s_ActiveProject->m_ProjectDirectory;
+			GE_CORE_ASSERT(gsActiveProject);
+			return gsActiveProject->myProjectDirectory;
 		}
 
 		static std::filesystem::path GetAssetDirectory()
 		{
-			GE_CORE_ASSERT(s_ActiveProject);
-			return GetProjectDirectory() / s_ActiveProject->m_Config.AssetDirectory;
+			GE_CORE_ASSERT(gsActiveProject);
+			return GetProjectDirectory() / gsActiveProject->myConfig.AssetDirectory;
 		}
 
 		// TODO(Yan): move to asset manager when we have one
 		static std::filesystem::path GetAssetFileSystemPath(const std::filesystem::path& path)
 		{
-			GE_CORE_ASSERT(s_ActiveProject);
+			GE_CORE_ASSERT(gsActiveProject);
 			return GetAssetDirectory() / path;
 		}
 
-		ProjectConfig& GetConfig() { return m_Config; }
+		ProjectConfig& GetConfig() { return myConfig; }
 
-		static Ref<Project> GetActive() { return s_ActiveProject; }
+		static Handle<Project> GetActive() { return gsActiveProject; }
 
-		static Ref<Project> New();
-		static Ref<Project> Load(const std::filesystem::path& path);
+		static Handle<Project> New();
+		static Handle<Project> Load(const std::filesystem::path& path);
 		static bool SaveActive(const std::filesystem::path& path);
 	private:
-		ProjectConfig m_Config;
-		std::filesystem::path m_ProjectDirectory;
+		ProjectConfig myConfig;
+		std::filesystem::path myProjectDirectory;
 
-		inline static Ref<Project> s_ActiveProject;
+		inline static Handle<Project> gsActiveProject;
 	};
 
 }

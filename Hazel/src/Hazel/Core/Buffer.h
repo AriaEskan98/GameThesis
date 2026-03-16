@@ -58,32 +58,32 @@ namespace GameEngine {
 	struct ScopedBuffer
 	{
 		ScopedBuffer(Buffer buffer)
-			: m_Buffer(buffer)
+			: myBuffer(buffer)
 		{
 		}
 
 		ScopedBuffer(uint64_t size)
-			: m_Buffer(size)
+			: myBuffer(size)
 		{
 		}
 
 		~ScopedBuffer()
 		{
-			m_Buffer.Release();
+			myBuffer.Release();
 		}
 
-		uint8_t* Data() { return m_Buffer.Data; }
-		uint64_t Size() { return m_Buffer.Size; }
+		uint8_t* Data() { return myBuffer.Data; }
+		uint64_t Size() { return myBuffer.Size; }
 
 		template<typename T>
 		T* As()
 		{
-			return m_Buffer.As<T>();
+			return myBuffer.As<T>();
 		}
 
-		operator bool() const { return m_Buffer; }
+		operator bool() const { return myBuffer; }
 	private:
-		Buffer m_Buffer;
+		Buffer myBuffer;
 	};
 
 

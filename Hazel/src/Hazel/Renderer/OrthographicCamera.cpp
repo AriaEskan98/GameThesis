@@ -6,30 +6,30 @@
 namespace GameEngine {
 
 	OrthographicCamera::OrthographicCamera(float left, float right, float bottom, float top)
-		: m_ProjectionMatrix(glm::ortho(left, right, bottom, top, -1.0f, 1.0f)), m_ViewMatrix(1.0f)
+		: myProjectionMatrix(glm::ortho(left, right, bottom, top, -1.0f, 1.0f)), myViewMatrix(1.0f)
 	{
 		GE_PROFILE_FUNCTION();
 
-		m_ViewProjectionMatrix = m_ProjectionMatrix * m_ViewMatrix;
+		myViewProjectionMatrix = myProjectionMatrix * myViewMatrix;
 	}
 
 	void OrthographicCamera::SetProjection(float left, float right, float bottom, float top)
 	{
 		GE_PROFILE_FUNCTION();
 
-		m_ProjectionMatrix = glm::ortho(left, right, bottom, top, -1.0f, 1.0f);
-		m_ViewProjectionMatrix = m_ProjectionMatrix * m_ViewMatrix;
+		myProjectionMatrix = glm::ortho(left, right, bottom, top, -1.0f, 1.0f);
+		myViewProjectionMatrix = myProjectionMatrix * myViewMatrix;
 	}
 
 	void OrthographicCamera::RecalculateViewMatrix()
 	{
 		GE_PROFILE_FUNCTION();
 
-		glm::mat4 transform = glm::translate(glm::mat4(1.0f), m_Position) *
-			glm::rotate(glm::mat4(1.0f), glm::radians(m_Rotation), glm::vec3(0, 0, 1));
+		glm::mat4 transform = glm::translate(glm::mat4(1.0f), myPosition) *
+			glm::rotate(glm::mat4(1.0f), glm::radians(myRotation), glm::vec3(0, 0, 1));
 
-		m_ViewMatrix = glm::inverse(transform);
-		m_ViewProjectionMatrix = m_ProjectionMatrix * m_ViewMatrix;
+		myViewMatrix = glm::inverse(transform);
+		myViewProjectionMatrix = myProjectionMatrix * myViewMatrix;
 	}
 
 }

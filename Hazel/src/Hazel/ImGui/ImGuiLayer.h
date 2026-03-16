@@ -21,13 +21,13 @@ namespace GameEngine {
 		void Begin();
 		void End();
 
-		void BlockEvents(bool block) { m_BlockEvents = block; }
+		void BlockEvents(bool block) { myBlockEvents = block; }
 		
 		void SetDarkThemeColors();
 
 		uint32_t GetActiveWidgetID() const;
 	private:
-		bool m_BlockEvents = true;
+		bool myBlockEvents = true;
 	};
 
 }

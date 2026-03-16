@@ -3,6 +3,6 @@
 
 namespace GameEngine {
 
-	Scope<RendererAPI> RenderCommand::s_RendererAPI = RendererAPI::Create();
+	Own<RendererAPI> RenderCommand::gsRendererAPI = RendererAPI::Create();
 
 }

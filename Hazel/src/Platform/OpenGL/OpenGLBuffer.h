@@ -16,11 +16,11 @@ namespace GameEngine {
 		
 		virtual void SetData(const void* data, uint32_t size) override;
 
-		virtual const BufferLayout& GetLayout() const override { return m_Layout; }
-		virtual void SetLayout(const BufferLayout& layout) override { m_Layout = layout; }
+		virtual const BufferLayout& GetLayout() const override { return myLayout; }
+		virtual void SetLayout(const BufferLayout& layout) override { myLayout = layout; }
 	private:
-		uint32_t m_RendererID;
-		BufferLayout m_Layout;
+		uint32_t myRendererID;
+		BufferLayout myLayout;
 	};
 
 	class OpenGLIndexBuffer : public IndexBuffer
@@ -32,10 +32,10 @@ namespace GameEngine {
 		virtual void Bind() const;
 		virtual void Unbind() const;
 
-		virtual uint32_t GetCount() const { return m_Count; }
+		virtual uint32_t GetCount() const { return myCount; }
 	private:
-		uint32_t m_RendererID;
-		uint32_t m_Count;
+		uint32_t myRendererID;
+		uint32_t myCount;
 	};
 
 }

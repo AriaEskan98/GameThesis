@@ -34,25 +34,25 @@ namespace GameEngine {
 	}
 
 	OpenGLTexture2D::OpenGLTexture2D(const TextureSpecification& specification)
-		: m_Specification(specification), m_Width(m_Specification.Width), m_Height(m_Specification.Height)
+		: mySpecification(specification), myWidth(mySpecification.Width), myHeight(mySpecification.Height)
 	{
 		GE_PROFILE_FUNCTION();
 
-		m_InternalFormat = Utils::HazelImageFormatToGLInternalFormat(m_Specification.Format);
-		m_DataFormat = Utils::HazelImageFormatToGLDataFormat(m_Specification.Format);
+		myInternalFormat = Utils::HazelImageFormatToGLInternalFormat(mySpecification.Format);
+		myDataFormat = Utils::HazelImageFormatToGLDataFormat(mySpecification.Format);
 
-		glCreateTextures(GL_TEXTURE_2D, 1, &m_RendererID);
-		glTextureStorage2D(m_RendererID, 1, m_InternalFormat, m_Width, m_Height);
+		glCreateTextures(GL_TEXTURE_2D, 1, &myRendererID);
+		glTextureStorage2D(myRendererID, 1, myInternalFormat, myWidth, myHeight);
 
-		glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTextureParameteri(myRendererID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTextureParameteri(myRendererID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-		glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTextureParameteri(myRendererID, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTextureParameteri(myRendererID, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	}
 
 	OpenGLTexture2D::OpenGLTexture2D(const std::string& path)
-		: m_Path(path)
+		: myPath(path)
 	{
 		GE_PROFILE_FUNCTION();
 
@@ -66,10 +66,10 @@ namespace GameEngine {
 			
 		if (data)
 		{
-			m_IsLoaded = true;
+			myIsLoaded = true;
 
-			m_Width = width;
-			m_Height = height;
+			myWidth = width;
+			myHeight = height;
 
 			GLenum internalFormat = 0, dataFormat = 0;
 			if (channels == 4)
@@ -83,21 +83,21 @@ namespace GameEngine {
 				dataFormat = GL_RGB;
 			}
 
-			m_InternalFormat = internalFormat;
-			m_DataFormat = dataFormat;
+			myInternalFormat = internalFormat;
+			myDataFormat = dataFormat;
 
 			GE_CORE_ASSERT(internalFormat & dataFormat, "Format not supported!");
 
-			glCreateTextures(GL_TEXTURE_2D, 1, &m_RendererID);
-			glTextureStorage2D(m_RendererID, 1, internalFormat, m_Width, m_Height);
+			glCreateTextures(GL_TEXTURE_2D, 1, &myRendererID);
+			glTextureStorage2D(myRendererID, 1, internalFormat, myWidth, myHeight);
 
-			glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-			glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTextureParameteri(myRendererID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTextureParameteri(myRendererID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-			glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_S, GL_REPEAT);
-			glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_T, GL_REPEAT);
+			glTextureParameteri(myRendererID, GL_TEXTURE_WRAP_S, GL_REPEAT);
+			glTextureParameteri(myRendererID, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-			glTextureSubImage2D(m_RendererID, 0, 0, 0, m_Width, m_Height, dataFormat, GL_UNSIGNED_BYTE, data);
+			glTextureSubImage2D(myRendererID, 0, 0, 0, myWidth, myHeight, dataFormat, GL_UNSIGNED_BYTE, data);
 
 			stbi_image_free(data);
 		}
@@ -107,22 +107,22 @@ namespace GameEngine {
 	{
 		GE_PROFILE_FUNCTION();
 
-		glDeleteTextures(1, &m_RendererID);
+		glDeleteTextures(1, &myRendererID);
 	}
 
 	void OpenGLTexture2D::SetData(void* data, uint32_t size)
 	{
 		GE_PROFILE_FUNCTION();
 
-		uint32_t bpp = m_DataFormat == GL_RGBA ? 4 : 3;
-		GE_CORE_ASSERT(size == m_Width * m_Height * bpp, "Data must be entire texture!");
-		glTextureSubImage2D(m_RendererID, 0, 0, 0, m_Width, m_Height, m_DataFormat, GL_UNSIGNED_BYTE, data);
+		uint32_t bpp = myDataFormat == GL_RGBA ? 4 : 3;
+		GE_CORE_ASSERT(size == myWidth * myHeight * bpp, "Data must be entire texture!");
+		glTextureSubImage2D(myRendererID, 0, 0, 0, myWidth, myHeight, myDataFormat, GL_UNSIGNED_BYTE, data);
 	}
 
 	void OpenGLTexture2D::Bind(uint32_t slot) const
 	{
 		GE_PROFILE_FUNCTION();
 
-		glBindTextureUnit(slot, m_RendererID);
+		glBindTextureUnit(slot, myRendererID);
 	}
 }

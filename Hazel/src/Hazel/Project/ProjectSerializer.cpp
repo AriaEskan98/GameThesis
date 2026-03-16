@@ -6,14 +6,14 @@
 
 namespace GameEngine {
 
-	ProjectSerializer::ProjectSerializer(Ref<Project> project)
-		: m_Project(project)
+	ProjectSerializer::ProjectSerializer(Handle<Project> project)
+		: myProject(project)
 	{
 	}
 
 	bool ProjectSerializer::Serialize(const std::filesystem::path& filepath)
 	{
-		const auto& config = m_Project->GetConfig();
+		const auto& config = myProject->GetConfig();
 
 		YAML::Emitter out;
 		{
@@ -38,7 +38,7 @@ namespace GameEngine {
 
 	bool ProjectSerializer::Deserialize(const std::filesystem::path& filepath)
 	{
-		auto& config = m_Project->GetConfig();
+		auto& config = myProject->GetConfig();
 
 		YAML::Node data;
 		try

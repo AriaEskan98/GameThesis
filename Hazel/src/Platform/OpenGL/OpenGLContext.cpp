@@ -7,7 +7,7 @@
 namespace GameEngine {
 
 	OpenGLContext::OpenGLContext(GLFWwindow* windowHandle)
-		: m_WindowHandle(windowHandle)
+		: myWindowHandle(windowHandle)
 	{
 		GE_CORE_ASSERT(windowHandle, "Window handle is null!")
 	}
@@ -16,7 +16,7 @@ namespace GameEngine {
 	{
 		GE_PROFILE_FUNCTION();
 
-		glfwMakeContextCurrent(m_WindowHandle);
+		glfwMakeContextCurrent(myWindowHandle);
 		int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 		GE_CORE_ASSERT(status, "Failed to initialize Glad!");
 
@@ -32,7 +32,7 @@ namespace GameEngine {
 	{
 		GE_PROFILE_FUNCTION();
 
-		glfwSwapBuffers(m_WindowHandle);
+		glfwSwapBuffers(myWindowHandle);
 	}
 
 }

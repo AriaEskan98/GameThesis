@@ -167,8 +167,8 @@ namespace GameEngine {
 		return Rigidbody2DComponent::BodyType::Static;
 	}
 
-	SceneSerializer::SceneSerializer(const Ref<Scene>& scene)
-		: m_Scene(scene)
+	SceneSerializer::SceneSerializer(const Handle<Scene>& scene)
+		: myScene(scene)
 	{
 	}
 
@@ -237,7 +237,7 @@ namespace GameEngine {
 			out << YAML::Key << "ClassName" << YAML::Value << scriptComponent.ClassName;
 
 			// Fields
-			Ref<ScriptClass> entityClass = ScriptEngine::GetEntityClass(scriptComponent.ClassName);
+			Handle<ScriptClass> entityClass = ScriptEngine::GetEntityClass(scriptComponent.ClassName);
 			const auto& fields = entityClass->GetFields();
 			if (fields.size() > 0)
 			{
@@ -379,9 +379,9 @@ namespace GameEngine {
 		out << YAML::BeginMap;
 		out << YAML::Key << "Scene" << YAML::Value << "Untitled";
 		out << YAML::Key << "Entities" << YAML::Value << YAML::BeginSeq;
-		m_Scene->m_Registry.each([&](auto entityID)
+		myScene->myRegistry.each([&](auto entityID)
 		{
-			Entity entity = { entityID, m_Scene.get() };
+			Entity entity = { entityID, myScene.get() };
 			if (!entity)
 				return;
 
@@ -433,7 +433,7 @@ namespace GameEngine {
 
 				GE_CORE_TRACE("Deserialized entity with ID = {0}, name = {1}", uuid, name);
 
-				Entity deserializedEntity = m_Scene->CreateEntityWithUUID(uuid, name);
+				Entity deserializedEntity = myScene->CreateEntityWithUUID(uuid, name);
 
 				auto transformComponent = entity["TransformComponent"];
 				if (transformComponent)
@@ -474,7 +474,7 @@ namespace GameEngine {
 					auto scriptFields = scriptComponent["ScriptFields"];
 					if (scriptFields)
 					{
-						Ref<ScriptClass> entityClass = ScriptEngine::GetEntityClass(sc.ClassName);
+						Handle<ScriptClass> entityClass = ScriptEngine::GetEntityClass(sc.ClassName);
 						if (entityClass)
 						{
 							const auto& fields = entityClass->GetFields();

@@ -5,22 +5,22 @@
 
 namespace GameEngine {
 
-	Ref<Project> Project::New()
+	Handle<Project> Project::New()
 	{
-		s_ActiveProject = CreateRef<Project>();
-		return s_ActiveProject;
+		gsActiveProject = MakeHandle<Project>();
+		return gsActiveProject;
 	}
 
-	Ref<Project> Project::Load(const std::filesystem::path& path)
+	Handle<Project> Project::Load(const std::filesystem::path& path)
 	{
-		Ref<Project> project = CreateRef<Project>();
+		Handle<Project> project = MakeHandle<Project>();
 
 		ProjectSerializer serializer(project);
 		if (serializer.Deserialize(path))
 		{
-			project->m_ProjectDirectory = path.parent_path();
-			s_ActiveProject = project;
-			return s_ActiveProject;
+			project->myProjectDirectory = path.parent_path();
+			gsActiveProject = project;
+			return gsActiveProject;
 		}
 
 		return nullptr;
@@ -28,10 +28,10 @@ namespace GameEngine {
 
 	bool Project::SaveActive(const std::filesystem::path& path)
 	{
-		ProjectSerializer serializer(s_ActiveProject);
+		ProjectSerializer serializer(gsActiveProject);
 		if (serializer.Serialize(path))
 		{
-			s_ActiveProject->m_ProjectDirectory = path.parent_path();
+			gsActiveProject->myProjectDirectory = path.parent_path();
 			return true;
 		}
 

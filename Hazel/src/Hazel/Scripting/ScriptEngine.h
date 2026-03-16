@@ -44,24 +44,24 @@ namespace GameEngine {
 
 		ScriptFieldInstance()
 		{
-			memset(m_Buffer, 0, sizeof(m_Buffer));
+			memset(myBuffer, 0, sizeof(myBuffer));
 		}
 
 		template<typename T>
 		T GetValue()
 		{
 			static_assert(sizeof(T) <= 16, "Type too large!");
-			return *(T*)m_Buffer;
+			return *(T*)myBuffer;
 		}
 
 		template<typename T>
 		void SetValue(T value)
 		{
 			static_assert(sizeof(T) <= 16, "Type too large!");
-			memcpy(m_Buffer, &value, sizeof(T));
+			memcpy(myBuffer, &value, sizeof(T));
 		}
 	private:
-		uint8_t m_Buffer[16];
+		uint8_t myBuffer[16];
 
 		friend class ScriptEngine;
 		friend class ScriptInstance;
@@ -79,14 +79,14 @@ namespace GameEngine {
 		MonoMethod* GetMethod(const std::string& name, int parameterCount);
 		MonoObject* InvokeMethod(MonoObject* instance, MonoMethod* method, void** params = nullptr);
 
-		const std::map<std::string, ScriptField>& GetFields() const { return m_Fields; }
+		const std::map<std::string, ScriptField>& GetFields() const { return myFields; }
 	private:
-		std::string m_ClassNamespace;
-		std::string m_ClassName;
+		std::string myClassNamespace;
+		std::string myClassName;
 
-		std::map<std::string, ScriptField> m_Fields;
+		std::map<std::string, ScriptField> myFields;
 
-		MonoClass* m_MonoClass = nullptr;
+		MonoClass* myMonoClass = nullptr;
 
 		friend class ScriptEngine;
 	};
@@ -94,23 +94,23 @@ namespace GameEngine {
 	class ScriptInstance
 	{
 	public:
-		ScriptInstance(Ref<ScriptClass> scriptClass, Entity entity);
+		ScriptInstance(Handle<ScriptClass> scriptClass, Entity entity);
 
 		void InvokeOnCreate();
 		void InvokeOnUpdate(float ts);
 
-		Ref<ScriptClass> GetScriptClass() { return m_ScriptClass; }
+		Handle<ScriptClass> GetScriptClass() { return myScriptClass; }
 
 		template<typename T>
 		T GetFieldValue(const std::string& name)
 		{
 			static_assert(sizeof(T) <= 16, "Type too large!");
 
-			bool success = GetFieldValueInternal(name, s_FieldValueBuffer);	
+			bool success = GetFieldValueInternal(name, gsFieldValueBuffer);	
 			if (!success)
 				return T();
 
-			return *(T*)s_FieldValueBuffer;
+			return *(T*)gsFieldValueBuffer;
 		}
 
 		template<typename T>
@@ -121,19 +121,19 @@ namespace GameEngine {
 			SetFieldValueInternal(name, &value);
 		}
 
-		MonoObject* GetManagedObject() { return m_Instance; }
+		MonoObject* GetManagedObject() { return myInstance; }
 	private:
 		bool GetFieldValueInternal(const std::string& name, void* buffer);
 		bool SetFieldValueInternal(const std::string& name, const void* value);
 	private:
-		Ref<ScriptClass> m_ScriptClass;
+		Handle<ScriptClass> myScriptClass;
 
-		MonoObject* m_Instance = nullptr;
-		MonoMethod* m_Constructor = nullptr;
-		MonoMethod* m_OnCreateMethod = nullptr;
-		MonoMethod* m_OnUpdateMethod = nullptr;
+		MonoObject* myInstance = nullptr;
+		MonoMethod* myConstructor = nullptr;
+		MonoMethod* myOnCreateMethod = nullptr;
+		MonoMethod* myOnUpdateMethod = nullptr;
 
-		inline static char s_FieldValueBuffer[16];
+		inline static char gsFieldValueBuffer[16];
 
 		friend class ScriptEngine;
 		friend struct ScriptFieldInstance;
@@ -158,10 +158,10 @@ namespace GameEngine {
 		static void OnUpdateEntity(Entity entity, Timestep ts);
 
 		static Scene* GetSceneContext();
-		static Ref<ScriptInstance> GetEntityScriptInstance(UUID entityID);
+		static Handle<ScriptInstance> GetEntityScriptInstance(UUID entityID);
 		
-		static Ref<ScriptClass> GetEntityClass(const std::string& name);
-		static std::unordered_map<std::string, Ref<ScriptClass>> GetEntityClasses();
+		static Handle<ScriptClass> GetEntityClass(const std::string& name);
+		static std::unordered_map<std::string, Handle<ScriptClass>> GetEntityClasses();
 		static ScriptFieldMap& GetScriptFieldMap(Entity entity);
 		
 		static MonoImage* GetCoreAssemblyImage();

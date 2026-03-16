@@ -87,7 +87,7 @@ namespace GameEngine {
 	}
 
 	OpenGLShader::OpenGLShader(const std::string& filepath)
-		: m_FilePath(filepath)
+		: myFilePath(filepath)
 	{
 		GE_PROFILE_FUNCTION();
 
@@ -109,11 +109,11 @@ namespace GameEngine {
 		lastSlash = lastSlash == std::string::npos ? 0 : lastSlash + 1;
 		auto lastDot = filepath.rfind('.');
 		auto count = lastDot == std::string::npos ? filepath.size() - lastSlash : lastDot - lastSlash;
-		m_Name = filepath.substr(lastSlash, count);
+		myName = filepath.substr(lastSlash, count);
 	}
 
 	OpenGLShader::OpenGLShader(const std::string& name, const std::string& vertexSrc, const std::string& fragmentSrc)
-		: m_Name(name)
+		: myName(name)
 	{
 		GE_PROFILE_FUNCTION();
 
@@ -130,7 +130,7 @@ namespace GameEngine {
 	{
 		GE_PROFILE_FUNCTION();
 
-		glDeleteProgram(m_RendererID);
+		glDeleteProgram(myRendererID);
 	}
 
 	std::string OpenGLShader::ReadFile(const std::string& filepath)
@@ -202,11 +202,11 @@ namespace GameEngine {
 
 		std::filesystem::path cacheDirectory = Utils::GetCacheDirectory();
 
-		auto& shaderData = m_VulkanSPIRV;
+		auto& shaderData = myVulkanSPIRV;
 		shaderData.clear();
 		for (auto&& [stage, source] : shaderSources)
 		{
-			std::filesystem::path shaderFilePath = m_FilePath;
+			std::filesystem::path shaderFilePath = myFilePath;
 			std::filesystem::path cachedPath = cacheDirectory / (shaderFilePath.filename().string() + Utils::GLShaderStageCachedVulkanFileExtension(stage));
 
 			std::ifstream in(cachedPath, std::ios::in | std::ios::binary);
@@ -222,7 +222,7 @@ namespace GameEngine {
 			}
 			else
 			{
-				shaderc::SpvCompilationResult module = compiler.CompileGlslToSpv(source, Utils::GLShaderStageToShaderC(stage), m_FilePath.c_str(), options);
+				shaderc::SpvCompilationResult module = compiler.CompileGlslToSpv(source, Utils::GLShaderStageToShaderC(stage), myFilePath.c_str(), options);
 				if (module.GetCompilationStatus() != shaderc_compilation_status_success)
 				{
 					GE_CORE_ERROR(module.GetErrorMessage());
@@ -248,7 +248,7 @@ namespace GameEngine {
 
 	void OpenGLShader::CompileOrGetOpenGLBinaries()
 	{
-		auto& shaderData = m_OpenGLSPIRV;
+		auto& shaderData = myOpenGLSPIRV;
 
 		shaderc::Compiler compiler;
 		shaderc::CompileOptions options;
@@ -260,10 +260,10 @@ namespace GameEngine {
 		std::filesystem::path cacheDirectory = Utils::GetCacheDirectory();
 
 		shaderData.clear();
-		m_OpenGLSourceCode.clear();
-		for (auto&& [stage, spirv] : m_VulkanSPIRV)
+		myOpenGLSourceCode.clear();
+		for (auto&& [stage, spirv] : myVulkanSPIRV)
 		{
-			std::filesystem::path shaderFilePath = m_FilePath;
+			std::filesystem::path shaderFilePath = myFilePath;
 			std::filesystem::path cachedPath = cacheDirectory / (shaderFilePath.filename().string() + Utils::GLShaderStageCachedOpenGLFileExtension(stage));
 
 			std::ifstream in(cachedPath, std::ios::in | std::ios::binary);
@@ -280,10 +280,10 @@ namespace GameEngine {
 			else
 			{
 				spirv_cross::CompilerGLSL glslCompiler(spirv);
-				m_OpenGLSourceCode[stage] = glslCompiler.compile();
-				auto& source = m_OpenGLSourceCode[stage];
+				myOpenGLSourceCode[stage] = glslCompiler.compile();
+				auto& source = myOpenGLSourceCode[stage];
 
-				shaderc::SpvCompilationResult module = compiler.CompileGlslToSpv(source, Utils::GLShaderStageToShaderC(stage), m_FilePath.c_str());
+				shaderc::SpvCompilationResult module = compiler.CompileGlslToSpv(source, Utils::GLShaderStageToShaderC(stage), myFilePath.c_str());
 				if (module.GetCompilationStatus() != shaderc_compilation_status_success)
 				{
 					GE_CORE_ERROR(module.GetErrorMessage());
@@ -309,7 +309,7 @@ namespace GameEngine {
 		GLuint program = glCreateProgram();
 
 		std::vector<GLuint> shaderIDs;
-		for (auto&& [stage, spirv] : m_OpenGLSPIRV)
+		for (auto&& [stage, spirv] : myOpenGLSPIRV)
 		{
 			GLuint shaderID = shaderIDs.emplace_back(glCreateShader(stage));
 			glShaderBinary(1, &shaderID, GL_SHADER_BINARY_FORMAT_SPIR_V, spirv.data(), spirv.size() * sizeof(uint32_t));
@@ -328,7 +328,7 @@ namespace GameEngine {
 
 			std::vector<GLchar> infoLog(maxLength);
 			glGetProgramInfoLog(program, maxLength, &maxLength, infoLog.data());
-			GE_CORE_ERROR("Shader linking failed ({0}):\n{1}", m_FilePath, infoLog.data());
+			GE_CORE_ERROR("Shader linking failed ({0}):\n{1}", myFilePath, infoLog.data());
 
 			glDeleteProgram(program);
 
@@ -342,7 +342,7 @@ namespace GameEngine {
 			glDeleteShader(id);
 		}
 
-		m_RendererID = program;
+		myRendererID = program;
 	}
 
 	void OpenGLShader::Reflect(GLenum stage, const std::vector<uint32_t>& shaderData)
@@ -350,7 +350,7 @@ namespace GameEngine {
 		spirv_cross::Compiler compiler(shaderData);
 		spirv_cross::ShaderResources resources = compiler.get_shader_resources();
 
-		GE_CORE_TRACE("OpenGLShader::Reflect - {0} {1}", Utils::GLShaderStageToString(stage), m_FilePath);
+		GE_CORE_TRACE("OpenGLShader::Reflect - {0} {1}", Utils::GLShaderStageToString(stage), myFilePath);
 		GE_CORE_TRACE("    {0} uniform buffers", resources.uniform_buffers.size());
 		GE_CORE_TRACE("    {0} resources", resources.sampled_images.size());
 
@@ -373,7 +373,7 @@ namespace GameEngine {
 	{
 		GE_PROFILE_FUNCTION();
 
-		glUseProgram(m_RendererID);
+		glUseProgram(myRendererID);
 	}
 
 	void OpenGLShader::Unbind() const
@@ -432,49 +432,49 @@ namespace GameEngine {
 
 	void OpenGLShader::UploadUniformInt(const std::string& name, int value)
 	{
-		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
+		GLint location = glGetUniformLocation(myRendererID, name.c_str());
 		glUniform1i(location, value);
 	}
 
 	void OpenGLShader::UploadUniformIntArray(const std::string& name, int* values, uint32_t count)
 	{
-		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
+		GLint location = glGetUniformLocation(myRendererID, name.c_str());
 		glUniform1iv(location, count, values);
 	}
 
 	void OpenGLShader::UploadUniformFloat(const std::string& name, float value)
 	{
-		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
+		GLint location = glGetUniformLocation(myRendererID, name.c_str());
 		glUniform1f(location, value);
 	}
 
 	void OpenGLShader::UploadUniformFloat2(const std::string& name, const glm::vec2& value)
 	{
-		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
+		GLint location = glGetUniformLocation(myRendererID, name.c_str());
 		glUniform2f(location, value.x, value.y);
 	}
 
 	void OpenGLShader::UploadUniformFloat3(const std::string& name, const glm::vec3& value)
 	{
-		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
+		GLint location = glGetUniformLocation(myRendererID, name.c_str());
 		glUniform3f(location, value.x, value.y, value.z);
 	}
 
 	void OpenGLShader::UploadUniformFloat4(const std::string& name, const glm::vec4& value)
 	{
-		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
+		GLint location = glGetUniformLocation(myRendererID, name.c_str());
 		glUniform4f(location, value.x, value.y, value.z, value.w);
 	}
 
 	void OpenGLShader::UploadUniformMat3(const std::string& name, const glm::mat3& matrix)
 	{
-		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
+		GLint location = glGetUniformLocation(myRendererID, name.c_str());
 		glUniformMatrix3fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
 	}
 
 	void OpenGLShader::UploadUniformMat4(const std::string& name, const glm::mat4& matrix)
 	{
-		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
+		GLint location = glGetUniformLocation(myRendererID, name.c_str());
 		glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
 	}
 
