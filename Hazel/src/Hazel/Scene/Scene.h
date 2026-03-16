@@ -8,7 +8,7 @@
 
 class b2World;
 
-namespace Hazel {
+namespace GameEngine {
 
 	class Entity;
 

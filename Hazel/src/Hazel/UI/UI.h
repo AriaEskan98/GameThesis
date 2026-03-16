@@ -2,7 +2,7 @@
 
 #include <imgui/imgui.h>
 
-namespace Hazel::UI {
+namespace GameEngine::UI {
 
 	struct ScopedStyleColor
 	{

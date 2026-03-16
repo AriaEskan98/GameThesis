@@ -4,7 +4,7 @@
 #include "Hazel/Core/Timestep.h"
 #include "Hazel/Events/Event.h"
 
-namespace Hazel {
+namespace GameEngine {
 
 	class Layer
 	{

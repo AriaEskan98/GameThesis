@@ -1,9 +1,9 @@
-#include "hzpch.h"
+#include "gepch.h"
 #include "Hazel/Renderer/RendererAPI.h"
 
 #include "Platform/OpenGL/OpenGLRendererAPI.h"
 
-namespace Hazel {
+namespace GameEngine {
 
 	RendererAPI::API RendererAPI::s_API = RendererAPI::API::OpenGL;
 
@@ -11,11 +11,11 @@ namespace Hazel {
 	{
 		switch (s_API)
 		{
-			case RendererAPI::API::None:    HZ_CORE_ASSERT(false, "RendererAPI::None is currently not supported!"); return nullptr;
+			case RendererAPI::API::None:    GE_CORE_ASSERT(false, "RendererAPI::None is currently not supported!"); return nullptr;
 			case RendererAPI::API::OpenGL:  return CreateScope<OpenGLRendererAPI>();
 		}
 
-		HZ_CORE_ASSERT(false, "Unknown RendererAPI!");
+		GE_CORE_ASSERT(false, "Unknown RendererAPI!");
 		return nullptr;
 	}
 

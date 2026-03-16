@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "gepch.h"
 #include "Hazel/Renderer/Renderer2D.h"
 
 #include "Hazel/Renderer/VertexArray.h"
@@ -11,7 +11,7 @@
 
 #include "MSDFData.h"
 
-namespace Hazel {
+namespace GameEngine {
 
 	struct QuadVertex
 	{
@@ -121,7 +121,7 @@ namespace Hazel {
 
 	void Renderer2D::Init()
 	{
-		HZ_PROFILE_FUNCTION();
+		GE_PROFILE_FUNCTION();
 
 		s_Data.QuadVertexArray = VertexArray::Create();
 
@@ -226,14 +226,14 @@ namespace Hazel {
 
 	void Renderer2D::Shutdown()
 	{
-		HZ_PROFILE_FUNCTION();
+		GE_PROFILE_FUNCTION();
 
 		delete[] s_Data.QuadVertexBufferBase;
 	}
 
 	void Renderer2D::BeginScene(const OrthographicCamera& camera)
 	{
-		HZ_PROFILE_FUNCTION();
+		GE_PROFILE_FUNCTION();
 
 		s_Data.CameraBuffer.ViewProjection = camera.GetViewProjectionMatrix();
 		s_Data.CameraUniformBuffer->SetData(&s_Data.CameraBuffer, sizeof(Renderer2DData::CameraData));
@@ -243,7 +243,7 @@ namespace Hazel {
 
 	void Renderer2D::BeginScene(const Camera& camera, const glm::mat4& transform)
 	{
-		HZ_PROFILE_FUNCTION();
+		GE_PROFILE_FUNCTION();
 
 		s_Data.CameraBuffer.ViewProjection = camera.GetProjection() * glm::inverse(transform);
 		s_Data.CameraUniformBuffer->SetData(&s_Data.CameraBuffer, sizeof(Renderer2DData::CameraData));
@@ -253,7 +253,7 @@ namespace Hazel {
 
 	void Renderer2D::BeginScene(const EditorCamera& camera)
 	{
-		HZ_PROFILE_FUNCTION();
+		GE_PROFILE_FUNCTION();
 
 		s_Data.CameraBuffer.ViewProjection = camera.GetViewProjection();
 		s_Data.CameraUniformBuffer->SetData(&s_Data.CameraBuffer, sizeof(Renderer2DData::CameraData));
@@ -263,7 +263,7 @@ namespace Hazel {
 
 	void Renderer2D::EndScene()
 	{
-		HZ_PROFILE_FUNCTION();
+		GE_PROFILE_FUNCTION();
 
 		Flush();
 	}
@@ -349,7 +349,7 @@ namespace Hazel {
 
 	void Renderer2D::DrawQuad(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color)
 	{
-		HZ_PROFILE_FUNCTION();
+		GE_PROFILE_FUNCTION();
 
 		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position)
 			* glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
@@ -364,7 +364,7 @@ namespace Hazel {
 
 	void Renderer2D::DrawQuad(const glm::vec3& position, const glm::vec2& size, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor)
 	{
-		HZ_PROFILE_FUNCTION();
+		GE_PROFILE_FUNCTION();
 
 		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position)
 			* glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
@@ -374,7 +374,7 @@ namespace Hazel {
 
 	void Renderer2D::DrawQuad(const glm::mat4& transform, const glm::vec4& color, int entityID)
 	{
-		HZ_PROFILE_FUNCTION();
+		GE_PROFILE_FUNCTION();
 
 		constexpr size_t quadVertexCount = 4;
 		const float textureIndex = 0.0f; // White Texture
@@ -402,7 +402,7 @@ namespace Hazel {
 
 	void Renderer2D::DrawQuad(const glm::mat4& transform, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor, int entityID)
 	{
-		HZ_PROFILE_FUNCTION();
+		GE_PROFILE_FUNCTION();
 
 		constexpr size_t quadVertexCount = 4;
 		constexpr glm::vec2 textureCoords[] = { { 0.0f, 0.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f } };
@@ -453,7 +453,7 @@ namespace Hazel {
 
 	void Renderer2D::DrawRotatedQuad(const glm::vec3& position, const glm::vec2& size, float rotation, const glm::vec4& color)
 	{
-		HZ_PROFILE_FUNCTION();
+		GE_PROFILE_FUNCTION();
 
 		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position)
 			* glm::rotate(glm::mat4(1.0f), glm::radians(rotation), { 0.0f, 0.0f, 1.0f })
@@ -469,7 +469,7 @@ namespace Hazel {
 
 	void Renderer2D::DrawRotatedQuad(const glm::vec3& position, const glm::vec2& size, float rotation, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor)
 	{
-		HZ_PROFILE_FUNCTION();
+		GE_PROFILE_FUNCTION();
 
 		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position)
 			* glm::rotate(glm::mat4(1.0f), glm::radians(rotation), { 0.0f, 0.0f, 1.0f })
@@ -480,7 +480,7 @@ namespace Hazel {
 
 	void Renderer2D::DrawCircle(const glm::mat4& transform, const glm::vec4& color, float thickness /*= 1.0f*/, float fade /*= 0.005f*/, int entityID /*= -1*/)
 	{
-		HZ_PROFILE_FUNCTION();
+		GE_PROFILE_FUNCTION();
 
 		// TODO: implement for circles
 		// if (s_Data.QuadIndexCount >= Renderer2DData::MaxIndices)

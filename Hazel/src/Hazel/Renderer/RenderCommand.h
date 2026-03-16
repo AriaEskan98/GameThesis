@@ -2,7 +2,7 @@
 
 #include "Hazel/Renderer/RendererAPI.h"
 
-namespace Hazel {
+namespace GameEngine {
 
 	class RenderCommand
 	{

@@ -2,7 +2,7 @@
 
 #include "Hazel/Core/Buffer.h"
 
-namespace Hazel {
+namespace GameEngine {
 
 	class FileSystem
 	{

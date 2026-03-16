@@ -4,28 +4,28 @@
 
 #include <memory>
 
-#ifdef HZ_DEBUG
-	#if defined(HZ_PLATFORM_WINDOWS)
-		#define HZ_DEBUGBREAK() __debugbreak()
-	#elif defined(HZ_PLATFORM_LINUX)
+#ifdef GE_DEBUG
+	#if defined(GE_PLATFORM_WINDOWS)
+		#define GE_DEBUGBREAK() __debugbreak()
+	#elif defined(GE_PLATFORM_LINUX)
 		#include <signal.h>
-		#define HZ_DEBUGBREAK() raise(SIGTRAP)
+		#define GE_DEBUGBREAK() raise(SIGTRAP)
 	#else
 		#error "Platform doesn't support debugbreak yet!"
 	#endif
-	#define HZ_ENABLE_ASSERTS
+	#define GE_ENABLE_ASSERTS
 #else
-	#define HZ_DEBUGBREAK()
+	#define GE_DEBUGBREAK()
 #endif
 
-#define HZ_EXPAND_MACRO(x) x
-#define HZ_STRINGIFY_MACRO(x) #x
+#define GE_EXPAND_MACRO(x) x
+#define GE_STRINGIFY_MACRO(x) #x
 
 #define BIT(x) (1 << x)
 
-#define HZ_BIND_EVENT_FN(fn) [this](auto&&... args) -> decltype(auto) { return this->fn(std::forward<decltype(args)>(args)...); }
+#define GE_BIND_EVENT_FN(fn) [this](auto&&... args) -> decltype(auto) { return this->fn(std::forward<decltype(args)>(args)...); }
 
-namespace Hazel {
+namespace GameEngine {
 
 	template<typename T>
 	using Scope = std::unique_ptr<T>;

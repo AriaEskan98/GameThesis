@@ -1,10 +1,10 @@
-#include "hzpch.h"
+#include "gepch.h"
 #include "Hazel/Core/Input.h"
 
 #include "Hazel/Core/Application.h"
 #include <GLFW/glfw3.h>
 
-namespace Hazel {
+namespace GameEngine {
 
 	bool Input::IsKeyPressed(const KeyCode key)
 	{

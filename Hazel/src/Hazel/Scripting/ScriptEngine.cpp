@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "gepch.h"
 #include "ScriptEngine.h"
 
 #include "ScriptGlue.h"
@@ -19,7 +19,7 @@
 
 #include "Hazel/Project/Project.h"
 
-namespace Hazel {
+namespace GameEngine {
 
 	static std::unordered_map<std::string, ScriptFieldType> s_ScriptFieldTypeMap =
 	{
@@ -35,11 +35,11 @@ namespace Hazel {
 		{ "System.UInt32", ScriptFieldType::UInt },
 		{ "System.UInt64", ScriptFieldType::ULong },
 
-		{ "Hazel.Vector2", ScriptFieldType::Vector2 },
-		{ "Hazel.Vector3", ScriptFieldType::Vector3 },
-		{ "Hazel.Vector4", ScriptFieldType::Vector4 },
+		{ "GameEngine.Vector2", ScriptFieldType::Vector2 },
+		{ "GameEngine.Vector3", ScriptFieldType::Vector3 },
+		{ "GameEngine.Vector4", ScriptFieldType::Vector4 },
 
-		{ "Hazel.Entity", ScriptFieldType::Entity },
+		{ "GameEngine.Entity", ScriptFieldType::Entity },
 	};
 
 	namespace Utils {
@@ -68,7 +68,7 @@ namespace Hazel {
 				{
 					ScopedBuffer pdbFileData = FileSystem::ReadFileBinary(pdbPath);
 					mono_debug_open_image_from_memory(image, pdbFileData.As<const mono_byte>(), pdbFileData.Size());
-					HZ_CORE_INFO("Loaded PDB {}", pdbPath);
+					GE_CORE_INFO("Loaded PDB {}", pdbPath);
 				}
 			}
 
@@ -92,7 +92,7 @@ namespace Hazel {
 
 				const char* nameSpace = mono_metadata_string_heap(image, cols[MONO_TYPEDEF_NAMESPACE]);
 				const char* name = mono_metadata_string_heap(image, cols[MONO_TYPEDEF_NAME]);
-				HZ_CORE_TRACE("{}.{}", nameSpace, name);
+				GE_CORE_TRACE("{}.{}", nameSpace, name);
 			}
 		}
 
@@ -103,7 +103,7 @@ namespace Hazel {
 			auto it = s_ScriptFieldTypeMap.find(typeName);
 			if (it == s_ScriptFieldTypeMap.end())
 			{
-				HZ_CORE_ERROR("Unknown type: {}", typeName);
+				GE_CORE_ERROR("Unknown type: {}", typeName);
 				return ScriptFieldType::None;
 			}
 
@@ -135,7 +135,7 @@ namespace Hazel {
 		Scope<filewatch::FileWatch<std::string>> AppAssemblyFileWatcher;
 		bool AssemblyReloadPending = false;
 
-#ifdef HZ_DEBUG
+#ifdef GE_DEBUG
 		bool EnableDebugging = true;
 #else
 		bool EnableDebugging = false;
@@ -168,10 +168,10 @@ namespace Hazel {
 		InitMono();
 		ScriptGlue::RegisterFunctions();
 
-		bool status = LoadAssembly("Resources/Scripts/Hazel-ScriptCore.dll");
+		bool status = LoadAssembly("Resources/Scripts/GameEngine-ScriptCore.dll");
 		if (!status)
 		{
-			HZ_CORE_ERROR("[ScriptEngine] Could not load Hazel-ScriptCore assembly.");
+			GE_CORE_ERROR("[ScriptEngine] Could not load GameEngine-ScriptCore assembly.");
 			return;
 		}
 		
@@ -179,7 +179,7 @@ namespace Hazel {
 		status = LoadAppAssembly(scriptModulePath);
 		if (!status)
 		{
-			HZ_CORE_ERROR("[ScriptEngine] Could not load app assembly.");
+			GE_CORE_ERROR("[ScriptEngine] Could not load app assembly.");
 			return;
 		}
 
@@ -188,7 +188,7 @@ namespace Hazel {
 		ScriptGlue::RegisterComponents();
 
 		// Retrieve and instantiate class
-		s_Data->EntityClass = ScriptClass("Hazel", "Entity", true);
+		s_Data->EntityClass = ScriptClass("GameEngine", "Entity", true);
 	}
 
 	void ScriptEngine::Shutdown()
@@ -212,8 +212,8 @@ namespace Hazel {
 			mono_debug_init(MONO_DEBUG_FORMAT_MONO);
 		}
 
-		MonoDomain* rootDomain = mono_jit_init("HazelJITRuntime");
-		HZ_CORE_ASSERT(rootDomain);
+		MonoDomain* rootDomain = mono_jit_init("GameEngineJITRuntime");
+		GE_CORE_ASSERT(rootDomain);
 
 		// Store the root domain pointer
 		s_Data->RootDomain = rootDomain;
@@ -238,7 +238,7 @@ namespace Hazel {
 	bool ScriptEngine::LoadAssembly(const std::filesystem::path& filepath)
 	{
 		// Create an App Domain
-		s_Data->AppDomain = mono_domain_create_appdomain("HazelScriptRuntime", nullptr);
+		s_Data->AppDomain = mono_domain_create_appdomain("GameEngineScriptRuntime", nullptr);
 		mono_domain_set(s_Data->AppDomain, true);
 
 		s_Data->CoreAssemblyFilepath = filepath;
@@ -277,7 +277,7 @@ namespace Hazel {
 		ScriptGlue::RegisterComponents();
 
 		// Retrieve and instantiate class
-		s_Data->EntityClass = ScriptClass("Hazel", "Entity", true);
+		s_Data->EntityClass = ScriptClass("GameEngine", "Entity", true);
 	}
 
 	void ScriptEngine::OnRuntimeStart(Scene* scene)
@@ -322,7 +322,7 @@ namespace Hazel {
 		}
 		else
 		{
-			HZ_CORE_ERROR("Could not find ScriptInstance for entity {}",  entityUUID);
+			GE_CORE_ERROR("Could not find ScriptInstance for entity {}",  entityUUID);
 		}
 	}
 
@@ -363,7 +363,7 @@ namespace Hazel {
 
 	ScriptFieldMap& ScriptEngine::GetScriptFieldMap(Entity entity)
 	{
-		HZ_CORE_ASSERT(entity);
+		GE_CORE_ASSERT(entity);
 
 		UUID entityID = entity.GetUUID();
 		return s_Data->EntityScriptFields[entityID];
@@ -375,7 +375,7 @@ namespace Hazel {
 
 		const MonoTableInfo* typeDefinitionsTable = mono_image_get_table_info(s_Data->AppAssemblyImage, MONO_TABLE_TYPEDEF);
 		int32_t numTypes = mono_table_info_get_rows(typeDefinitionsTable);
-		MonoClass* entityClass = mono_class_from_name(s_Data->CoreAssemblyImage, "Hazel", "Entity");
+		MonoClass* entityClass = mono_class_from_name(s_Data->CoreAssemblyImage, "GameEngine", "Entity");
 
 		for (int32_t i = 0; i < numTypes; i++)
 		{
@@ -408,7 +408,7 @@ namespace Hazel {
 			// to iterate over all of the elements. When no more values are available, the return value is NULL.
 
 			int fieldCount = mono_class_num_fields(monoClass);
-			HZ_CORE_WARN("{} has {} fields:", className, fieldCount);
+			GE_CORE_WARN("{} has {} fields:", className, fieldCount);
 			void* iterator = nullptr;
 			while (MonoClassField* field = mono_class_get_fields(monoClass, &iterator))
 			{
@@ -418,7 +418,7 @@ namespace Hazel {
 				{
 					MonoType* type = mono_field_get_type(field);
 					ScriptFieldType fieldType = Utils::MonoTypeToScriptFieldType(type);
-					HZ_CORE_WARN("  {} ({})", fieldName, Utils::ScriptFieldTypeToString(fieldType));
+					GE_CORE_WARN("  {} ({})", fieldName, Utils::ScriptFieldTypeToString(fieldType));
 
 					scriptClass->m_Fields[fieldName] = { fieldType, fieldName, field };
 				}
@@ -440,7 +440,7 @@ namespace Hazel {
 
 	MonoObject* ScriptEngine::GetManagedInstance(UUID uuid)
 	{
-		HZ_CORE_ASSERT(s_Data->EntityInstances.find(uuid) != s_Data->EntityInstances.end());
+		GE_CORE_ASSERT(s_Data->EntityInstances.find(uuid) != s_Data->EntityInstances.end());
 		return s_Data->EntityInstances.at(uuid)->GetManagedObject();
 	}
 

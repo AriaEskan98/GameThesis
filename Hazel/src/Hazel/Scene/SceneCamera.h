@@ -2,7 +2,7 @@
 
 #include "Hazel/Renderer/Camera.h"
 
-namespace Hazel {
+namespace GameEngine {
 
 	class SceneCamera : public Camera
 	{

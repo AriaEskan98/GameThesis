@@ -2,7 +2,7 @@
 
 #include "Hazel/Renderer/UniformBuffer.h"
 
-namespace Hazel {
+namespace GameEngine {
 
 	class OpenGLUniformBuffer : public UniformBuffer
 	{

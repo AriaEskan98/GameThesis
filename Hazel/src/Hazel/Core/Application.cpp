@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "gepch.h"
 #include "Hazel/Core/Application.h"
 
 #include "Hazel/Core/Log.h"
@@ -9,16 +9,16 @@
 #include "Hazel/Core/Input.h"
 #include "Hazel/Utils/PlatformUtils.h"
 
-namespace Hazel {
+namespace GameEngine {
 
 	Application* Application::s_Instance = nullptr;
 
 	Application::Application(const ApplicationSpecification& specification)
 		: m_Specification(specification)
 	{
-		HZ_PROFILE_FUNCTION();
+		GE_PROFILE_FUNCTION();
 
-		HZ_CORE_ASSERT(!s_Instance, "Application already exists!");
+		GE_CORE_ASSERT(!s_Instance, "Application already exists!");
 		s_Instance = this;
 
 		// Set working directory here
@@ -26,7 +26,7 @@ namespace Hazel {
 			std::filesystem::current_path(m_Specification.WorkingDirectory);
 
 		m_Window = Window::Create(WindowProps(m_Specification.Name));
-		m_Window->SetEventCallback(HZ_BIND_EVENT_FN(Application::OnEvent));
+		m_Window->SetEventCallback(GE_BIND_EVENT_FN(Application::OnEvent));
 
 		Renderer::Init();
 
@@ -36,7 +36,7 @@ namespace Hazel {
 
 	Application::~Application()
 	{
-		HZ_PROFILE_FUNCTION();
+		GE_PROFILE_FUNCTION();
 
 		ScriptEngine::Shutdown();
 		Renderer::Shutdown();
@@ -44,7 +44,7 @@ namespace Hazel {
 
 	void Application::PushLayer(Layer* layer)
 	{
-		HZ_PROFILE_FUNCTION();
+		GE_PROFILE_FUNCTION();
 
 		m_LayerStack.PushLayer(layer);
 		layer->OnAttach();
@@ -52,7 +52,7 @@ namespace Hazel {
 
 	void Application::PushOverlay(Layer* layer)
 	{
-		HZ_PROFILE_FUNCTION();
+		GE_PROFILE_FUNCTION();
 
 		m_LayerStack.PushOverlay(layer);
 		layer->OnAttach();
@@ -72,11 +72,11 @@ namespace Hazel {
 
 	void Application::OnEvent(Event& e)
 	{
-		HZ_PROFILE_FUNCTION();
+		GE_PROFILE_FUNCTION();
 
 		EventDispatcher dispatcher(e);
-		dispatcher.Dispatch<WindowCloseEvent>(HZ_BIND_EVENT_FN(Application::OnWindowClose));
-		dispatcher.Dispatch<WindowResizeEvent>(HZ_BIND_EVENT_FN(Application::OnWindowResize));
+		dispatcher.Dispatch<WindowCloseEvent>(GE_BIND_EVENT_FN(Application::OnWindowClose));
+		dispatcher.Dispatch<WindowResizeEvent>(GE_BIND_EVENT_FN(Application::OnWindowResize));
 
 		for (auto it = m_LayerStack.rbegin(); it != m_LayerStack.rend(); ++it)
 		{
@@ -88,11 +88,11 @@ namespace Hazel {
 
 	void Application::Run()
 	{
-		HZ_PROFILE_FUNCTION();
+		GE_PROFILE_FUNCTION();
 
 		while (m_Running)
 		{
-			HZ_PROFILE_SCOPE("RunLoop");
+			GE_PROFILE_SCOPE("RunLoop");
 
 			float time = Time::GetTime();
 			Timestep timestep = time - m_LastFrameTime;
@@ -103,7 +103,7 @@ namespace Hazel {
 			if (!m_Minimized)
 			{
 				{
-					HZ_PROFILE_SCOPE("LayerStack OnUpdate");
+					GE_PROFILE_SCOPE("LayerStack OnUpdate");
 
 					for (Layer* layer : m_LayerStack)
 						layer->OnUpdate(timestep);
@@ -111,7 +111,7 @@ namespace Hazel {
 
 				m_ImGuiLayer->Begin();
 				{
-					HZ_PROFILE_SCOPE("LayerStack OnImGuiRender");
+					GE_PROFILE_SCOPE("LayerStack OnImGuiRender");
 
 					for (Layer* layer : m_LayerStack)
 						layer->OnImGuiRender();
@@ -131,7 +131,7 @@ namespace Hazel {
 
 	bool Application::OnWindowResize(WindowResizeEvent& e)
 	{
-		HZ_PROFILE_FUNCTION();
+		GE_PROFILE_FUNCTION();
 
 		if (e.GetWidth() == 0 || e.GetHeight() == 0)
 		{

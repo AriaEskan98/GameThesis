@@ -1,9 +1,9 @@
-#include "hzpch.h"
+#include "gepch.h"
 #include "Platform/OpenGL/OpenGLRendererAPI.h"
 
 #include <glad/glad.h>
 
-namespace Hazel {
+namespace GameEngine {
 	
 	void OpenGLMessageCallback(
 		unsigned source,
@@ -16,20 +16,20 @@ namespace Hazel {
 	{
 		switch (severity)
 		{
-			case GL_DEBUG_SEVERITY_HIGH:         HZ_CORE_CRITICAL(message); return;
-			case GL_DEBUG_SEVERITY_MEDIUM:       HZ_CORE_ERROR(message); return;
-			case GL_DEBUG_SEVERITY_LOW:          HZ_CORE_WARN(message); return;
-			case GL_DEBUG_SEVERITY_NOTIFICATION: HZ_CORE_TRACE(message); return;
+			case GL_DEBUG_SEVERITY_HIGH:         GE_CORE_CRITICAL(message); return;
+			case GL_DEBUG_SEVERITY_MEDIUM:       GE_CORE_ERROR(message); return;
+			case GL_DEBUG_SEVERITY_LOW:          GE_CORE_WARN(message); return;
+			case GL_DEBUG_SEVERITY_NOTIFICATION: GE_CORE_TRACE(message); return;
 		}
 		
-		HZ_CORE_ASSERT(false, "Unknown severity level!");
+		GE_CORE_ASSERT(false, "Unknown severity level!");
 	}
 
 	void OpenGLRendererAPI::Init()
 	{
-		HZ_PROFILE_FUNCTION();
+		GE_PROFILE_FUNCTION();
 
-	#ifdef HZ_DEBUG
+	#ifdef GE_DEBUG
 		glEnable(GL_DEBUG_OUTPUT);
 		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 		glDebugMessageCallback(OpenGLMessageCallback, nullptr);

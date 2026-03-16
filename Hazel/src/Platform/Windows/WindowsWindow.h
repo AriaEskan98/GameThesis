@@ -5,7 +5,7 @@
 
 #include <GLFW/glfw3.h>
 
-namespace Hazel {
+namespace GameEngine {
 
 	class WindowsWindow : public Window
 	{

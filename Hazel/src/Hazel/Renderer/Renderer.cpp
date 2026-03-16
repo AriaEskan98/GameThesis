@@ -1,14 +1,14 @@
-#include "hzpch.h"
+#include "gepch.h"
 #include "Hazel/Renderer/Renderer.h"
 #include "Hazel/Renderer/Renderer2D.h"
 
-namespace Hazel {
+namespace GameEngine {
 
 	Scope<Renderer::SceneData> Renderer::s_SceneData = CreateScope<Renderer::SceneData>();
 
 	void Renderer::Init()
 	{
-		HZ_PROFILE_FUNCTION();
+		GE_PROFILE_FUNCTION();
 
 		RenderCommand::Init();
 		Renderer2D::Init();

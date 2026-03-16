@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Hazel {
+namespace GameEngine {
 
 	enum class ShaderDataType
 	{
@@ -24,7 +24,7 @@ namespace Hazel {
 			case ShaderDataType::Bool:     return 1;
 		}
 
-		HZ_CORE_ASSERT(false, "Unknown ShaderDataType!");
+		GE_CORE_ASSERT(false, "Unknown ShaderDataType!");
 		return 0;
 	}
 
@@ -60,7 +60,7 @@ namespace Hazel {
 				case ShaderDataType::Bool:    return 1;
 			}
 
-			HZ_CORE_ASSERT(false, "Unknown ShaderDataType!");
+			GE_CORE_ASSERT(false, "Unknown ShaderDataType!");
 			return 0;
 		}
 	};
@@ -117,7 +117,7 @@ namespace Hazel {
 		static Ref<VertexBuffer> Create(float* vertices, uint32_t size);
 	};
 
-	// Currently Hazel only supports 32-bit index buffers
+	// Currently GameEngine only supports 32-bit index buffers
 	class IndexBuffer
 	{
 	public:

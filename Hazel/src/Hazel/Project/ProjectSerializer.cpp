@@ -1,10 +1,10 @@
-#include "hzpch.h"
+#include "gepch.h"
 #include "ProjectSerializer.h"
 
 #include <fstream>
 #include <yaml-cpp/yaml.h>
 
-namespace Hazel {
+namespace GameEngine {
 
 	ProjectSerializer::ProjectSerializer(Ref<Project> project)
 		: m_Project(project)
@@ -47,7 +47,7 @@ namespace Hazel {
 		}
 		catch (YAML::ParserException e)
 		{
-			HZ_CORE_ERROR("Failed to load project file '{0}'\n     {1}", filepath, e.what());
+			GE_CORE_ERROR("Failed to load project file '{0}'\n     {1}", filepath, e.what());
 			return false;
 		}
 

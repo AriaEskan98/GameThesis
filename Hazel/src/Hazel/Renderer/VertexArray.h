@@ -4,7 +4,7 @@
 
 #include <memory>
 
-namespace Hazel {
+namespace GameEngine {
 
 	class VertexArray
 	{

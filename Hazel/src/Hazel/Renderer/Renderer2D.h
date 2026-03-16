@@ -10,7 +10,7 @@
 
 #include "Hazel/Scene/Components.h"
 
-namespace Hazel {
+namespace GameEngine {
 
 	class Renderer2D
 	{

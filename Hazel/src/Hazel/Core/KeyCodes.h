@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Hazel
+namespace GameEngine
 {
 	using KeyCode = uint16_t;
 	

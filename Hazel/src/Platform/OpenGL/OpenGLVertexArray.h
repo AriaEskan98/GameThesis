@@ -2,7 +2,7 @@
 
 #include "Hazel/Renderer/VertexArray.h"
 
-namespace Hazel {
+namespace GameEngine {
 
 	class OpenGLVertexArray : public VertexArray
 	{

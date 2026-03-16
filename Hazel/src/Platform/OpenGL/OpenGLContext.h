@@ -4,7 +4,7 @@
 
 struct GLFWwindow;
 
-namespace Hazel {
+namespace GameEngine {
 
 	class OpenGLContext : public GraphicsContext
 	{

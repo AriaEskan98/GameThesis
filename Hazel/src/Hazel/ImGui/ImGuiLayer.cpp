@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "gepch.h"
 #include "Hazel/ImGui/ImGuiLayer.h"
 
 #include <imgui.h>
@@ -15,7 +15,7 @@
 
 #include "ImGuizmo.h"
 
-namespace Hazel {
+namespace GameEngine {
 
 	ImGuiLayer::ImGuiLayer()
 		: Layer("ImGuiLayer")
@@ -24,7 +24,7 @@ namespace Hazel {
 
 	void ImGuiLayer::OnAttach()
 	{
-		HZ_PROFILE_FUNCTION();
+		GE_PROFILE_FUNCTION();
 
 		// Setup Dear ImGui context
 		IMGUI_CHECKVERSION();
@@ -65,7 +65,7 @@ namespace Hazel {
 
 	void ImGuiLayer::OnDetach()
 	{
-		HZ_PROFILE_FUNCTION();
+		GE_PROFILE_FUNCTION();
 
 		ImGui_ImplOpenGL3_Shutdown();
 		ImGui_ImplGlfw_Shutdown();
@@ -84,7 +84,7 @@ namespace Hazel {
 	
 	void ImGuiLayer::Begin()
 	{
-		HZ_PROFILE_FUNCTION();
+		GE_PROFILE_FUNCTION();
 
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
@@ -94,7 +94,7 @@ namespace Hazel {
 
 	void ImGuiLayer::End()
 	{
-		HZ_PROFILE_FUNCTION();
+		GE_PROFILE_FUNCTION();
 
 		ImGuiIO& io = ImGui::GetIO();
 		Application& app = Application::Get();

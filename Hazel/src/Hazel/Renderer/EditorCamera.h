@@ -7,7 +7,7 @@
 
 #include <glm/glm.hpp>
 
-namespace Hazel {
+namespace GameEngine {
 
 	class EditorCamera : public Camera
 	{

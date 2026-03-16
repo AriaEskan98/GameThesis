@@ -5,7 +5,7 @@
 
 #include "Hazel/Core/Base.h"
 
-namespace Hazel {
+namespace GameEngine {
 
 	struct ProjectConfig
 	{
@@ -22,20 +22,20 @@ namespace Hazel {
 	public:
 		static const std::filesystem::path& GetProjectDirectory()
 		{
-			HZ_CORE_ASSERT(s_ActiveProject);
+			GE_CORE_ASSERT(s_ActiveProject);
 			return s_ActiveProject->m_ProjectDirectory;
 		}
 
 		static std::filesystem::path GetAssetDirectory()
 		{
-			HZ_CORE_ASSERT(s_ActiveProject);
+			GE_CORE_ASSERT(s_ActiveProject);
 			return GetProjectDirectory() / s_ActiveProject->m_Config.AssetDirectory;
 		}
 
 		// TODO(Yan): move to asset manager when we have one
 		static std::filesystem::path GetAssetFileSystemPath(const std::filesystem::path& path)
 		{
-			HZ_CORE_ASSERT(s_ActiveProject);
+			GE_CORE_ASSERT(s_ActiveProject);
 			return GetAssetDirectory() / path;
 		}
 

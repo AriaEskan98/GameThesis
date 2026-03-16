@@ -3,7 +3,7 @@
 #include "Hazel/Events/Event.h"
 #include "Hazel/Core/MouseCodes.h"
 
-namespace Hazel {
+namespace GameEngine {
 
 	class MouseMovedEvent : public Event
 	{

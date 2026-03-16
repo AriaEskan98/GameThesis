@@ -13,7 +13,7 @@
 
 int main(int argc, char** argv);
 
-namespace Hazel {
+namespace GameEngine {
 
 	struct ApplicationCommandLineArgs
 	{
@@ -22,14 +22,14 @@ namespace Hazel {
 
 		const char* operator[](int index) const
 		{
-			HZ_CORE_ASSERT(index < Count);
+			GE_CORE_ASSERT(index < Count);
 			return Args[index];
 		}
 	};
 
 	struct ApplicationSpecification
 	{
-		std::string Name = "Hazel Application";
+		std::string Name = "GameEngine Application";
 		std::string WorkingDirectory;
 		ApplicationCommandLineArgs CommandLineArgs;
 	};

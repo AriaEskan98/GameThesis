@@ -1,9 +1,9 @@
-#include "hzpch.h"
+#include "gepch.h"
 #include "OpenGLUniformBuffer.h"
 
 #include <glad/glad.h>
 
-namespace Hazel {
+namespace GameEngine {
 
 	OpenGLUniformBuffer::OpenGLUniformBuffer(uint32_t size, uint32_t binding)
 	{

@@ -7,8 +7,8 @@ project "Hazel"
 	targetdir ("%{wks.location}/bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("%{wks.location}/bin-int/" .. outputdir .. "/%{prj.name}")
 
-	pchheader "hzpch.h"
-	pchsource "src/hzpch.cpp"
+	pchheader "gepch.h"
+	pchsource "src/gepch.cpp"
 
 	files
 	{
@@ -81,7 +81,7 @@ project "Hazel"
 		}
 
 	filter "configurations:Debug"
-		defines "HZ_DEBUG"
+		defines "GE_DEBUG"
 		runtime "Debug"
 		symbols "on"
 
@@ -93,7 +93,7 @@ project "Hazel"
 		}
 
 	filter "configurations:Release"
-		defines "HZ_RELEASE"
+		defines "GE_RELEASE"
 		runtime "Release"
 		optimize "on"
 
@@ -105,7 +105,7 @@ project "Hazel"
 		}
 
 	filter "configurations:Dist"
-		defines "HZ_DIST"
+		defines "GE_DIST"
 		runtime "Release"
 		optimize "on"
 

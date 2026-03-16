@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "gepch.h"
 #include "SceneSerializer.h"
 
 #include "Entity.h"
@@ -90,16 +90,16 @@ namespace YAML {
 	};
 
 	template<>
-	struct convert<Hazel::UUID>
+	struct convert<GameEngine::UUID>
 	{
-		static Node encode(const Hazel::UUID& uuid)
+		static Node encode(const GameEngine::UUID& uuid)
 		{
 			Node node;
 			node.push_back((uint64_t)uuid);
 			return node;
 		}
 
-		static bool decode(const Node& node, Hazel::UUID& uuid)
+		static bool decode(const Node& node, GameEngine::UUID& uuid)
 		{
 			uuid = node.as<uint64_t>();
 			return true;
@@ -108,7 +108,7 @@ namespace YAML {
 
 }
 
-namespace Hazel {
+namespace GameEngine {
 
 #define WRITE_SCRIPT_FIELD(FieldType, Type)           \
 			case ScriptFieldType::FieldType:          \
@@ -153,7 +153,7 @@ namespace Hazel {
 			case Rigidbody2DComponent::BodyType::Kinematic: return "Kinematic";
 		}
 
-		HZ_CORE_ASSERT(false, "Unknown body type");
+		GE_CORE_ASSERT(false, "Unknown body type");
 		return {};
 	}
 
@@ -163,7 +163,7 @@ namespace Hazel {
 		if (bodyTypeString == "Dynamic")   return Rigidbody2DComponent::BodyType::Dynamic;
 		if (bodyTypeString == "Kinematic") return Rigidbody2DComponent::BodyType::Kinematic;
 	
-		HZ_CORE_ASSERT(false, "Unknown body type");
+		GE_CORE_ASSERT(false, "Unknown body type");
 		return Rigidbody2DComponent::BodyType::Static;
 	}
 
@@ -174,7 +174,7 @@ namespace Hazel {
 
 	static void SerializeEntity(YAML::Emitter& out, Entity entity)
 	{
-		HZ_CORE_ASSERT(entity.HasComponent<IDComponent>());
+		GE_CORE_ASSERT(entity.HasComponent<IDComponent>());
 
 		out << YAML::BeginMap; // Entity
 		out << YAML::Key << "Entity" << YAML::Value << entity.GetUUID();
@@ -397,7 +397,7 @@ namespace Hazel {
 	void SceneSerializer::SerializeRuntime(const std::string& filepath)
 	{
 		// Not implemented
-		HZ_CORE_ASSERT(false);
+		GE_CORE_ASSERT(false);
 	}
 
 	bool SceneSerializer::Deserialize(const std::string& filepath)
@@ -409,7 +409,7 @@ namespace Hazel {
 		}
 		catch (YAML::ParserException e)
 		{
-			HZ_CORE_ERROR("Failed to load .hazel file '{0}'\n     {1}", filepath, e.what());
+			GE_CORE_ERROR("Failed to load .hazel file '{0}'\n     {1}", filepath, e.what());
 			return false;
 		}
 
@@ -417,7 +417,7 @@ namespace Hazel {
 			return false;
 
 		std::string sceneName = data["Scene"].as<std::string>();
-		HZ_CORE_TRACE("Deserializing scene '{0}'", sceneName);
+		GE_CORE_TRACE("Deserializing scene '{0}'", sceneName);
 
 		auto entities = data["Entities"];
 		if (entities)
@@ -431,7 +431,7 @@ namespace Hazel {
 				if (tagComponent)
 					name = tagComponent["Tag"].as<std::string>();
 
-				HZ_CORE_TRACE("Deserialized entity with ID = {0}, name = {1}", uuid, name);
+				GE_CORE_TRACE("Deserialized entity with ID = {0}, name = {1}", uuid, name);
 
 				Entity deserializedEntity = m_Scene->CreateEntityWithUUID(uuid, name);
 
@@ -489,7 +489,7 @@ namespace Hazel {
 								ScriptFieldInstance& fieldInstance = entityFields[name];
 
 								// TODO(Yan): turn this assert into Hazelnut log warning
-								HZ_CORE_ASSERT(fields.find(name) != fields.end());
+								GE_CORE_ASSERT(fields.find(name) != fields.end());
 
 								if (fields.find(name) == fields.end())
 									continue;
@@ -597,7 +597,7 @@ namespace Hazel {
 	bool SceneSerializer::DeserializeRuntime(const std::string& filepath)
 	{
 		// Not implemented
-		HZ_CORE_ASSERT(false);
+		GE_CORE_ASSERT(false);
 		return false;
 	}
 

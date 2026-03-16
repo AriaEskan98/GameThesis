@@ -1,9 +1,9 @@
-#include "hzpch.h"
+#include "gepch.h"
 #include "Platform/OpenGL/OpenGLFramebuffer.h"
 
 #include <glad/glad.h>
 
-namespace Hazel {
+namespace GameEngine {
 
 	static const uint32_t s_MaxFramebufferSize = 8192;
 
@@ -84,7 +84,7 @@ namespace Hazel {
 				case FramebufferTextureFormat::RED_INTEGER: return GL_RED_INTEGER;
 			}
 
-			HZ_CORE_ASSERT(false);
+			GE_CORE_ASSERT(false);
 			return 0;
 		}
 
@@ -163,7 +163,7 @@ namespace Hazel {
 
 		if (m_ColorAttachments.size() > 1)
 		{
-			HZ_CORE_ASSERT(m_ColorAttachments.size() <= 4);
+			GE_CORE_ASSERT(m_ColorAttachments.size() <= 4);
 			GLenum buffers[4] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 };
 			glDrawBuffers(m_ColorAttachments.size(), buffers);
 		}
@@ -173,7 +173,7 @@ namespace Hazel {
 			glDrawBuffer(GL_NONE);
 		}
 
-		HZ_CORE_ASSERT(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE, "Framebuffer is incomplete!");
+		GE_CORE_ASSERT(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE, "Framebuffer is incomplete!");
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
@@ -193,7 +193,7 @@ namespace Hazel {
 	{
 		if (width == 0 || height == 0 || width > s_MaxFramebufferSize || height > s_MaxFramebufferSize)
 		{
-			HZ_CORE_WARN("Attempted to rezize framebuffer to {0}, {1}", width, height);
+			GE_CORE_WARN("Attempted to rezize framebuffer to {0}, {1}", width, height);
 			return;
 		}
 		m_Specification.Width = width;
@@ -204,7 +204,7 @@ namespace Hazel {
 
 	int OpenGLFramebuffer::ReadPixel(uint32_t attachmentIndex, int x, int y)
 	{
-		HZ_CORE_ASSERT(attachmentIndex < m_ColorAttachments.size());
+		GE_CORE_ASSERT(attachmentIndex < m_ColorAttachments.size());
 
 		glReadBuffer(GL_COLOR_ATTACHMENT0 + attachmentIndex);
 		int pixelData;
@@ -215,7 +215,7 @@ namespace Hazel {
 
 	void OpenGLFramebuffer::ClearAttachment(uint32_t attachmentIndex, int value)
 	{
-		HZ_CORE_ASSERT(attachmentIndex < m_ColorAttachments.size());
+		GE_CORE_ASSERT(attachmentIndex < m_ColorAttachments.size());
 
 		auto& spec = m_ColorAttachmentSpecifications[attachmentIndex];
 		glClearTexImage(m_ColorAttachments[attachmentIndex], 0,

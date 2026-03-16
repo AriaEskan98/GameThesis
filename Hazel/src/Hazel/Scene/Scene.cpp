@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "gepch.h"
 #include "Scene.h"
 #include "Entity.h"
 
@@ -19,7 +19,7 @@
 #include "box2d/b2_polygon_shape.h"
 #include "box2d/b2_circle_shape.h"
 
-namespace Hazel {
+namespace GameEngine {
 
 	Scene::Scene()
 	{

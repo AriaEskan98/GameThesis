@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Hazel {
+namespace GameEngine {
 
 	class UUID
 	{
@@ -20,9 +20,9 @@ namespace std {
 	template <typename T> struct hash;
 
 	template<>
-	struct hash<Hazel::UUID>
+	struct hash<GameEngine::UUID>
 	{
-		std::size_t operator()(const Hazel::UUID& uuid) const
+		std::size_t operator()(const GameEngine::UUID& uuid) const
 		{
 			return (uint64_t)uuid;
 		}

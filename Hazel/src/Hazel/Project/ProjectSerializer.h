@@ -2,7 +2,7 @@
 
 #include "Project.h"
 
-namespace Hazel {
+namespace GameEngine {
 
 	class ProjectSerializer
 	{

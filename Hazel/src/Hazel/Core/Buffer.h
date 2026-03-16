@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include <cstring>
 
-namespace Hazel {
+namespace GameEngine {
 
 	// Non-owning raw buffer class
 	struct Buffer

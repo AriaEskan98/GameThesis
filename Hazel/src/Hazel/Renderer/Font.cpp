@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "gepch.h"
 #include "Font.h"
 
 #undef INFINITE
@@ -8,7 +8,7 @@
 
 #include "MSDFData.h"
 
-namespace Hazel {
+namespace GameEngine {
 
 	template<typename T, typename S, int N, msdf_atlas::GeneratorFunction<S, N> GenFunc>
 	static Ref<Texture2D> CreateAndCacheAtlas(const std::string& fontName, float fontSize, const std::vector<msdf_atlas::GlyphGeometry>& glyphs,
@@ -40,7 +40,7 @@ namespace Hazel {
 		: m_Data(new MSDFData())
 	{
 		msdfgen::FreetypeHandle* ft = msdfgen::initializeFreetype();
-		HZ_CORE_ASSERT(ft);
+		GE_CORE_ASSERT(ft);
 		
 		std::string fileString = filepath.string();
 
@@ -48,7 +48,7 @@ namespace Hazel {
 		msdfgen::FontHandle* font = msdfgen::loadFont(ft, fileString.c_str());
 		if (!font)
 		{
-			HZ_CORE_ERROR("Failed to load font: {}", fileString);
+			GE_CORE_ERROR("Failed to load font: {}", fileString);
 			return;
 		}
 
@@ -73,7 +73,7 @@ namespace Hazel {
 		double fontScale = 1.0;
 		m_Data->FontGeometry = msdf_atlas::FontGeometry(&m_Data->Glyphs);
 		int glyphsLoaded = m_Data->FontGeometry.loadCharset(font, fontScale, charset);
-		HZ_CORE_INFO("Loaded {} glyphs from font (out of {})", glyphsLoaded, charset.size());
+		GE_CORE_INFO("Loaded {} glyphs from font (out of {})", glyphsLoaded, charset.size());
 
 
 		double emSize = 40.0;
@@ -85,7 +85,7 @@ namespace Hazel {
 		atlasPacker.setPadding(0);
 		atlasPacker.setScale(emSize);
 		int remaining = atlasPacker.pack(m_Data->Glyphs.data(), (int)m_Data->Glyphs.size());
-		HZ_CORE_ASSERT(remaining == 0);
+		GE_CORE_ASSERT(remaining == 0);
 
 		int width, height;
 		atlasPacker.getDimensions(width, height);

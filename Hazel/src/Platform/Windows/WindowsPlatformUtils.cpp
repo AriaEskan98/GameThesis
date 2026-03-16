@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "gepch.h"
 #include "Hazel/Utils/PlatformUtils.h"
 #include "Hazel/Core/Application.h"
 
@@ -7,7 +7,7 @@
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3native.h>
 
-namespace Hazel {
+namespace GameEngine {
 
 	float Time::GetTime()
 	{

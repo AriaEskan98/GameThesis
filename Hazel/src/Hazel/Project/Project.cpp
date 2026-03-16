@@ -1,9 +1,9 @@
-#include "hzpch.h"
+#include "gepch.h"
 #include "Project.h"
 
 #include "ProjectSerializer.h"
 
-namespace Hazel {
+namespace GameEngine {
 
 	Ref<Project> Project::New()
 	{

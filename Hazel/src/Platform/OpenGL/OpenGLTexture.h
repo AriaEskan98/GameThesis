@@ -4,7 +4,7 @@
 
 #include <glad/glad.h>
 
-namespace Hazel {
+namespace GameEngine {
 
 	class OpenGLTexture2D : public Texture2D
 	{

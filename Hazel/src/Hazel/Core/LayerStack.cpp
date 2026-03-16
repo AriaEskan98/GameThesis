@@ -1,7 +1,7 @@
-#include "hzpch.h"
+#include "gepch.h"
 #include "Hazel/Core/LayerStack.h"
 
-namespace Hazel {
+namespace GameEngine {
 
 	LayerStack::~LayerStack()
 	{
