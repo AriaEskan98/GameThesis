@@ -34,6 +34,16 @@ group "Dependencies"
 	include "Hazel/vendor/yaml-cpp"
 group ""
 
+-- Vulkan SDK 1.4.x ships only /MD-compiled libs; override all vendor
+-- projects to use runtime Release in Debug config to prevent LNK2038.
+for _, name in ipairs({ "Box2D", "GLFW", "Glad", "msdf-atlas-gen",
+                        "msdfgen", "freetype", "ImGui", "yaml-cpp" }) do
+	project(name)
+		filter "configurations:Debug"
+			runtime "Release"
+		filter {}
+end
+
 group "Core"
 	include "Hazel"
 	include "Hazel-ScriptCore"
