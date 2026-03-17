@@ -6,6 +6,7 @@
 #include "ScriptableEntity.h"
 #include "Hazel/Scripting/ScriptEngine.h"
 #include "Hazel/Renderer/Renderer2D.h"
+#include "Hazel/Renderer/Renderer3D.h"
 #include "Hazel/Physics/Physics2D.h"
 
 #include <glm/glm.hpp>
@@ -471,9 +472,22 @@ namespace GameEngine {
 		}
 
 		Renderer2D::EndScene();
+
+		// Draw 3D meshes
+		Renderer3D::BeginScene(camera);
+		{
+			auto view = myRegistry.view<TransformComponent, MeshRendererComponent>();
+			for (auto entity : view)
+			{
+				auto [transform, mesh] = view.get<TransformComponent, MeshRendererComponent>(entity);
+				if (mesh.Mesh)
+					Renderer3D::Submit(mesh.Mesh, transform.GetTransform(), mesh.Color, (int)entity);
+			}
+		}
+		Renderer3D::EndScene();
 	}
-  
-  template<typename T>
+
+	template<typename T>
 	void Scene::OnComponentAdded(Entity entity, T& component)
 	{
 		static_assert(sizeof(T) == 0);
@@ -538,6 +552,11 @@ namespace GameEngine {
 
 	template<>
 	void Scene::OnComponentAdded<TextComponent>(Entity entity, TextComponent& component)
+	{
+	}
+
+	template<>
+	void Scene::OnComponentAdded<MeshRendererComponent>(Entity entity, MeshRendererComponent& component)
 	{
 	}
 

@@ -4,6 +4,7 @@
 #include "Hazel/Core/UUID.h"
 #include "Hazel/Renderer/Texture.h"
 #include "Hazel/Renderer/Font.h"
+#include "Hazel/Renderer/Mesh.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -170,15 +171,25 @@ namespace GameEngine {
 		float LineSpacing = 0.0f;
 	};
 
+	/// Attaches a 3D mesh to an entity so that it is drawn by Renderer3D each frame.
+	struct MeshRendererComponent
+	{
+		Handle<Mesh> Mesh;
+		glm::vec4 Color = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+		MeshRendererComponent() = default;
+		MeshRendererComponent(const MeshRendererComponent&) = default;
+	};
+
 	template<typename... Component>
 	struct ComponentGroup
 	{
 	};
 
-	using AllComponents = 
+	using AllComponents =
 		ComponentGroup<TransformComponent, SpriteRendererComponent,
 			CircleRendererComponent, CameraComponent, ScriptComponent,
 			NativeScriptComponent, Rigidbody2DComponent, BoxCollider2DComponent,
-			CircleCollider2DComponent, TextComponent>;
+			CircleCollider2DComponent, TextComponent, MeshRendererComponent>;
 
 }
