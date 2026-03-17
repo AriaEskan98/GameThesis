@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "gepch.h"
 #include "Scene.h"
 #include "Entity.h"
 
@@ -19,7 +19,7 @@
 #include "box2d/b2_polygon_shape.h"
 #include "box2d/b2_circle_shape.h"
 
-namespace Hazel {
+namespace GameEngine {
 
 	Scene::Scene()
 	{
@@ -27,7 +27,7 @@ namespace Hazel {
 
 	Scene::~Scene()
 	{
-		delete m_PhysicsWorld;
+		delete myPhysicsWorld;
 	}
 
 	template<typename... Component>
@@ -68,15 +68,15 @@ namespace Hazel {
 		CopyComponentIfExists<Component...>(dst, src);
 	}
 
-	Ref<Scene> Scene::Copy(Ref<Scene> other)
+	Handle<Scene> Scene::Copy(Handle<Scene> other)
 	{
-		Ref<Scene> newScene = CreateRef<Scene>();
+		Handle<Scene> newScene = MakeHandle<Scene>();
 
-		newScene->m_ViewportWidth = other->m_ViewportWidth;
-		newScene->m_ViewportHeight = other->m_ViewportHeight;
+		newScene->myViewportWidth = other->myViewportWidth;
+		newScene->myViewportHeight = other->myViewportHeight;
 
-		auto& srcSceneRegistry = other->m_Registry;
-		auto& dstSceneRegistry = newScene->m_Registry;
+		auto& srcSceneRegistry = other->myRegistry;
+		auto& dstSceneRegistry = newScene->myRegistry;
 		std::unordered_map<UUID, entt::entity> enttMap;
 
 		// Create entities in new scene
@@ -102,26 +102,26 @@ namespace Hazel {
 
 	Entity Scene::CreateEntityWithUUID(UUID uuid, const std::string& name)
 	{
-		Entity entity = { m_Registry.create(), this };
+		Entity entity = { myRegistry.create(), this };
 		entity.AddComponent<IDComponent>(uuid);
 		entity.AddComponent<TransformComponent>();
 		auto& tag = entity.AddComponent<TagComponent>();
 		tag.Tag = name.empty() ? "Entity" : name;
 
-		m_EntityMap[uuid] = entity;
+		myEntityMap[uuid] = entity;
 
 		return entity;
 	}
 
 	void Scene::DestroyEntity(Entity entity)
 	{
-		m_EntityMap.erase(entity.GetUUID());
-		m_Registry.destroy(entity);
+		myEntityMap.erase(entity.GetUUID());
+		myRegistry.destroy(entity);
 	}
 
 	void Scene::OnRuntimeStart()
 	{
-		m_IsRunning = true;
+		myIsRunning = true;
 
 		OnPhysics2DStart();
 
@@ -130,7 +130,7 @@ namespace Hazel {
 			ScriptEngine::OnRuntimeStart(this);
 			// Instantiate all script entities
 
-			auto view = m_Registry.view<ScriptComponent>();
+			auto view = myRegistry.view<ScriptComponent>();
 			for (auto e : view)
 			{
 				Entity entity = { e, this };
@@ -141,7 +141,7 @@ namespace Hazel {
 
 	void Scene::OnRuntimeStop()
 	{
-		m_IsRunning = false;
+		myIsRunning = false;
 
 		OnPhysics2DStop();
 
@@ -160,25 +160,25 @@ namespace Hazel {
 
 	void Scene::OnUpdateRuntime(Timestep ts)
 	{
-		if (!m_IsPaused || m_StepFrames-- > 0)
+		if (!myIsPaused || myStepFrames-- > 0)
 		{
 			// Update scripts
 			{
 				// C# Entity OnUpdate
-				auto view = m_Registry.view<ScriptComponent>();
+				auto view = myRegistry.view<ScriptComponent>();
 				for (auto e : view)
 				{
 					Entity entity = { e, this };
 					ScriptEngine::OnUpdateEntity(entity, ts);
 				}
 
-				m_Registry.view<NativeScriptComponent>().each([=](auto entity, auto& nsc)
+				myRegistry.view<NativeScriptComponent>().each([=](auto entity, auto& nsc)
 					{
 						// TODO: Move to Scene::OnScenePlay
 						if (!nsc.Instance)
 						{
 							nsc.Instance = nsc.InstantiateScript();
-							nsc.Instance->m_Entity = Entity{ entity, this };
+							nsc.Instance->myEntity = Entity{ entity, this };
 							nsc.Instance->OnCreate();
 						}
 
@@ -190,10 +190,10 @@ namespace Hazel {
 			{
 				const int32_t velocityIterations = 6;
 				const int32_t positionIterations = 2;
-				m_PhysicsWorld->Step(ts, velocityIterations, positionIterations);
+				myPhysicsWorld->Step(ts, velocityIterations, positionIterations);
 
 				// Retrieve transform from Box2D
-				auto view = m_Registry.view<Rigidbody2DComponent>();
+				auto view = myRegistry.view<Rigidbody2DComponent>();
 				for (auto e : view)
 				{
 					Entity entity = { e, this };
@@ -214,7 +214,7 @@ namespace Hazel {
 		Camera* mainCamera = nullptr;
 		glm::mat4 cameraTransform;
 		{
-			auto view = m_Registry.view<TransformComponent, CameraComponent>();
+			auto view = myRegistry.view<TransformComponent, CameraComponent>();
 			for (auto entity : view)
 			{
 				auto [transform, camera] = view.get<TransformComponent, CameraComponent>(entity);
@@ -234,7 +234,7 @@ namespace Hazel {
 
 			// Draw sprites
 			{
-				auto group = m_Registry.group<TransformComponent>(entt::get<SpriteRendererComponent>);
+				auto group = myRegistry.group<TransformComponent>(entt::get<SpriteRendererComponent>);
 				for (auto entity : group)
 				{
 					auto [transform, sprite] = group.get<TransformComponent, SpriteRendererComponent>(entity);
@@ -245,7 +245,7 @@ namespace Hazel {
 
 			// Draw circles
 			{
-				auto view = m_Registry.view<TransformComponent, CircleRendererComponent>();
+				auto view = myRegistry.view<TransformComponent, CircleRendererComponent>();
 				for (auto entity : view)
 				{
 					auto [transform, circle] = view.get<TransformComponent, CircleRendererComponent>(entity);
@@ -256,7 +256,7 @@ namespace Hazel {
 
 			// Draw text
 			{
-				auto view = m_Registry.view<TransformComponent, TextComponent>();
+				auto view = myRegistry.view<TransformComponent, TextComponent>();
 				for (auto entity : view)
 				{
 					auto [transform, text] = view.get<TransformComponent, TextComponent>(entity);
@@ -272,16 +272,16 @@ namespace Hazel {
 
 	void Scene::OnUpdateSimulation(Timestep ts, EditorCamera& camera)
 	{
-		if (!m_IsPaused || m_StepFrames-- > 0)
+		if (!myIsPaused || myStepFrames-- > 0)
 		{
 			// Physics
 			{
 				const int32_t velocityIterations = 6;
 				const int32_t positionIterations = 2;
-				m_PhysicsWorld->Step(ts, velocityIterations, positionIterations);
+				myPhysicsWorld->Step(ts, velocityIterations, positionIterations);
 
 				// Retrieve transform from Box2D
-				auto view = m_Registry.view<Rigidbody2DComponent>();
+				auto view = myRegistry.view<Rigidbody2DComponent>();
 				for (auto e : view)
 				{
 					Entity entity = { e, this };
@@ -309,14 +309,14 @@ namespace Hazel {
 
 	void Scene::OnViewportResize(uint32_t width, uint32_t height)
 	{
-		if (m_ViewportWidth == width && m_ViewportHeight == height)
+		if (myViewportWidth == width && myViewportHeight == height)
 			return;
 
-		m_ViewportWidth = width;
-		m_ViewportHeight = height;
+		myViewportWidth = width;
+		myViewportHeight = height;
 
 		// Resize our non-FixedAspectRatio cameras
-		auto view = m_Registry.view<CameraComponent>();
+		auto view = myRegistry.view<CameraComponent>();
 		for (auto entity : view)
 		{
 			auto& cameraComponent = view.get<CameraComponent>(entity);
@@ -327,7 +327,7 @@ namespace Hazel {
 
 	Entity Scene::GetPrimaryCameraEntity()
 	{
-		auto view = m_Registry.view<CameraComponent>();
+		auto view = myRegistry.view<CameraComponent>();
 		for (auto entity : view)
 		{
 			const auto& camera = view.get<CameraComponent>(entity);
@@ -339,7 +339,7 @@ namespace Hazel {
 
 	void Scene::Step(int frames)
 	{
-		m_StepFrames = frames;
+		myStepFrames = frames;
 	}
 
 	Entity Scene::DuplicateEntity(Entity entity)
@@ -353,7 +353,7 @@ namespace Hazel {
 
 	Entity Scene::FindEntityByName(std::string_view name)
 	{
-		auto view = m_Registry.view<TagComponent>();
+		auto view = myRegistry.view<TagComponent>();
 		for (auto entity : view)
 		{
 			const TagComponent& tc = view.get<TagComponent>(entity);
@@ -366,17 +366,17 @@ namespace Hazel {
 	Entity Scene::GetEntityByUUID(UUID uuid)
 	{
 		// TODO(Yan): Maybe should be assert
-		if (m_EntityMap.find(uuid) != m_EntityMap.end())
-			return { m_EntityMap.at(uuid), this };
+		if (myEntityMap.find(uuid) != myEntityMap.end())
+			return { myEntityMap.at(uuid), this };
 
 		return {};
 	}
 
 	void Scene::OnPhysics2DStart()
 	{
-		m_PhysicsWorld = new b2World({ 0.0f, -9.8f });
+		myPhysicsWorld = new b2World({ 0.0f, -9.8f });
 
-		auto view = m_Registry.view<Rigidbody2DComponent>();
+		auto view = myRegistry.view<Rigidbody2DComponent>();
 		for (auto e : view)
 		{
 			Entity entity = { e, this };
@@ -388,7 +388,7 @@ namespace Hazel {
 			bodyDef.position.Set(transform.Translation.x, transform.Translation.y);
 			bodyDef.angle = transform.Rotation.z;
 
-			b2Body* body = m_PhysicsWorld->CreateBody(&bodyDef);
+			b2Body* body = myPhysicsWorld->CreateBody(&bodyDef);
 			body->SetFixedRotation(rb2d.FixedRotation);
 			rb2d.RuntimeBody = body;
 
@@ -413,8 +413,8 @@ namespace Hazel {
 				auto& cc2d = entity.GetComponent<CircleCollider2DComponent>();
 
 				b2CircleShape circleShape;
-				circleShape.m_p.Set(cc2d.Offset.x, cc2d.Offset.y);
-				circleShape.m_radius = transform.Scale.x * cc2d.Radius;
+				circleShape.myp.Set(cc2d.Offset.x, cc2d.Offset.y);
+				circleShape.myradius = transform.Scale.x * cc2d.Radius;
 
 				b2FixtureDef fixtureDef;
 				fixtureDef.shape = &circleShape;
@@ -429,8 +429,8 @@ namespace Hazel {
 
 	void Scene::OnPhysics2DStop()
 	{
-		delete m_PhysicsWorld;
-		m_PhysicsWorld = nullptr;
+		delete myPhysicsWorld;
+		myPhysicsWorld = nullptr;
 	}
 
 	void Scene::RenderScene(EditorCamera& camera)
@@ -439,7 +439,7 @@ namespace Hazel {
 
 		// Draw sprites
 		{
-			auto group = m_Registry.group<TransformComponent>(entt::get<SpriteRendererComponent>);
+			auto group = myRegistry.group<TransformComponent>(entt::get<SpriteRendererComponent>);
 			for (auto entity : group)
 			{
 				auto [transform, sprite] = group.get<TransformComponent, SpriteRendererComponent>(entity);
@@ -450,7 +450,7 @@ namespace Hazel {
 
 		// Draw circles
 		{
-			auto view = m_Registry.view<TransformComponent, CircleRendererComponent>();
+			auto view = myRegistry.view<TransformComponent, CircleRendererComponent>();
 			for (auto entity : view)
 			{
 				auto [transform, circle] = view.get<TransformComponent, CircleRendererComponent>(entity);
@@ -461,7 +461,7 @@ namespace Hazel {
 
 		// Draw text
 		{
-			auto view = m_Registry.view<TransformComponent, TextComponent>();
+			auto view = myRegistry.view<TransformComponent, TextComponent>();
 			for (auto entity : view)
 			{
 				auto [transform, text] = view.get<TransformComponent, TextComponent>(entity);
@@ -492,8 +492,8 @@ namespace Hazel {
 	template<>
 	void Scene::OnComponentAdded<CameraComponent>(Entity entity, CameraComponent& component)
 	{
-		if (m_ViewportWidth > 0 && m_ViewportHeight > 0)
-			component.Camera.SetViewportSize(m_ViewportWidth, m_ViewportHeight);
+		if (myViewportWidth > 0 && myViewportHeight > 0)
+			component.Camera.SetViewportSize(myViewportWidth, myViewportHeight);
 	}
 
 	template<>

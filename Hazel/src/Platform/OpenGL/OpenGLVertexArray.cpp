@@ -1,9 +1,9 @@
-#include "hzpch.h"
+#include "gepch.h"
 #include "Platform/OpenGL/OpenGLVertexArray.h"
 
 #include <glad/glad.h>
 
-namespace Hazel {
+namespace GameEngine {
 
 	static GLenum ShaderDataTypeToOpenGLBaseType(ShaderDataType type)
 	{
@@ -22,45 +22,45 @@ namespace Hazel {
 			case ShaderDataType::Bool:     return GL_BOOL;
 		}
 
-		HZ_CORE_ASSERT(false, "Unknown ShaderDataType!");
+		GE_CORE_ASSERT(false, "Unknown ShaderDataType!");
 		return 0;
 	}
 
 	OpenGLVertexArray::OpenGLVertexArray()
 	{
-		HZ_PROFILE_FUNCTION();
+		GE_PROFILE_FUNCTION();
 
-		glCreateVertexArrays(1, &m_RendererID);
+		glCreateVertexArrays(1, &myRendererID);
 	}
 
 	OpenGLVertexArray::~OpenGLVertexArray()
 	{
-		HZ_PROFILE_FUNCTION();
+		GE_PROFILE_FUNCTION();
 
-		glDeleteVertexArrays(1, &m_RendererID);
+		glDeleteVertexArrays(1, &myRendererID);
 	}
 
 	void OpenGLVertexArray::Bind() const
 	{
-		HZ_PROFILE_FUNCTION();
+		GE_PROFILE_FUNCTION();
 
-		glBindVertexArray(m_RendererID);
+		glBindVertexArray(myRendererID);
 	}
 
 	void OpenGLVertexArray::Unbind() const
 	{
-		HZ_PROFILE_FUNCTION();
+		GE_PROFILE_FUNCTION();
 
 		glBindVertexArray(0);
 	}
 
-	void OpenGLVertexArray::AddVertexBuffer(const Ref<VertexBuffer>& vertexBuffer)
+	void OpenGLVertexArray::AddVertexBuffer(const Handle<VertexBuffer>& vertexBuffer)
 	{
-		HZ_PROFILE_FUNCTION();
+		GE_PROFILE_FUNCTION();
 
-		HZ_CORE_ASSERT(vertexBuffer->GetLayout().GetElements().size(), "Vertex Buffer has no layout!");
+		GE_CORE_ASSERT(vertexBuffer->GetLayout().GetElements().size(), "Vertex Buffer has no layout!");
 
-		glBindVertexArray(m_RendererID);
+		glBindVertexArray(myRendererID);
 		vertexBuffer->Bind();
 
 		const auto& layout = vertexBuffer->GetLayout();
@@ -73,14 +73,14 @@ namespace Hazel {
 				case ShaderDataType::Float3:
 				case ShaderDataType::Float4:
 				{
-					glEnableVertexAttribArray(m_VertexBufferIndex);
-					glVertexAttribPointer(m_VertexBufferIndex,
+					glEnableVertexAttribArray(myVertexBufferIndex);
+					glVertexAttribPointer(myVertexBufferIndex,
 						element.GetComponentCount(),
 						ShaderDataTypeToOpenGLBaseType(element.Type),
 						element.Normalized ? GL_TRUE : GL_FALSE,
 						layout.GetStride(),
 						(const void*)element.Offset);
-					m_VertexBufferIndex++;
+					myVertexBufferIndex++;
 					break;
 				}
 				case ShaderDataType::Int:
@@ -89,13 +89,13 @@ namespace Hazel {
 				case ShaderDataType::Int4:
 				case ShaderDataType::Bool:
 				{
-					glEnableVertexAttribArray(m_VertexBufferIndex);
-					glVertexAttribIPointer(m_VertexBufferIndex,
+					glEnableVertexAttribArray(myVertexBufferIndex);
+					glVertexAttribIPointer(myVertexBufferIndex,
 						element.GetComponentCount(),
 						ShaderDataTypeToOpenGLBaseType(element.Type),
 						layout.GetStride(),
 						(const void*)element.Offset);
-					m_VertexBufferIndex++;
+					myVertexBufferIndex++;
 					break;
 				}
 				case ShaderDataType::Mat3:
@@ -104,34 +104,34 @@ namespace Hazel {
 					uint8_t count = element.GetComponentCount();
 					for (uint8_t i = 0; i < count; i++)
 					{
-						glEnableVertexAttribArray(m_VertexBufferIndex);
-						glVertexAttribPointer(m_VertexBufferIndex,
+						glEnableVertexAttribArray(myVertexBufferIndex);
+						glVertexAttribPointer(myVertexBufferIndex,
 							count,
 							ShaderDataTypeToOpenGLBaseType(element.Type),
 							element.Normalized ? GL_TRUE : GL_FALSE,
 							layout.GetStride(),
 							(const void*)(element.Offset + sizeof(float) * count * i));
-						glVertexAttribDivisor(m_VertexBufferIndex, 1);
-						m_VertexBufferIndex++;
+						glVertexAttribDivisor(myVertexBufferIndex, 1);
+						myVertexBufferIndex++;
 					}
 					break;
 				}
 				default:
-					HZ_CORE_ASSERT(false, "Unknown ShaderDataType!");
+					GE_CORE_ASSERT(false, "Unknown ShaderDataType!");
 			}
 		}
 
-		m_VertexBuffers.push_back(vertexBuffer);
+		myVertexBuffers.push_back(vertexBuffer);
 	}
 
-	void OpenGLVertexArray::SetIndexBuffer(const Ref<IndexBuffer>& indexBuffer)
+	void OpenGLVertexArray::SetIndexBuffer(const Handle<IndexBuffer>& indexBuffer)
 	{
-		HZ_PROFILE_FUNCTION();
+		GE_PROFILE_FUNCTION();
 
-		glBindVertexArray(m_RendererID);
+		glBindVertexArray(myRendererID);
 		indexBuffer->Bind();
 
-		m_IndexBuffer = indexBuffer;
+		myIndexBuffer = indexBuffer;
 	}
 
 }

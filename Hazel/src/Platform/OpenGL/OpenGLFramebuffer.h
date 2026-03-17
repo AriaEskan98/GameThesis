@@ -2,7 +2,7 @@
 
 #include "Hazel/Renderer/Framebuffer.h"
 
-namespace Hazel {
+namespace GameEngine {
 
 	class OpenGLFramebuffer : public Framebuffer
 	{
@@ -20,18 +20,18 @@ namespace Hazel {
 
 		virtual void ClearAttachment(uint32_t attachmentIndex, int value) override;
 
-		virtual uint32_t GetColorAttachmentRendererID(uint32_t index = 0) const override { HZ_CORE_ASSERT(index < m_ColorAttachments.size()); return m_ColorAttachments[index]; }
+		virtual uint32_t GetColorAttachmentRendererID(uint32_t index = 0) const override { GE_CORE_ASSERT(index < myColorAttachments.size()); return myColorAttachments[index]; }
 
-		virtual const FramebufferSpecification& GetSpecification() const override { return m_Specification; }
+		virtual const FramebufferSpecification& GetSpecification() const override { return mySpecification; }
 	private:
-		uint32_t m_RendererID = 0;
-		FramebufferSpecification m_Specification;
+		uint32_t myRendererID = 0;
+		FramebufferSpecification mySpecification;
 
-		std::vector<FramebufferTextureSpecification> m_ColorAttachmentSpecifications;
-		FramebufferTextureSpecification m_DepthAttachmentSpecification = FramebufferTextureFormat::None;
+		std::vector<FramebufferTextureSpecification> myColorAttachmentSpecifications;
+		FramebufferTextureSpecification myDepthAttachmentSpecification = FramebufferTextureFormat::None;
 
-		std::vector<uint32_t> m_ColorAttachments;
-		uint32_t m_DepthAttachment = 0;
+		std::vector<uint32_t> myColorAttachments;
+		uint32_t myDepthAttachment = 0;
 	};
 
 }

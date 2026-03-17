@@ -6,7 +6,7 @@
 // TODO: REMOVE!
 typedef unsigned int GLenum;
 
-namespace Hazel {
+namespace GameEngine {
 
 	class OpenGLShader : public Shader
 	{
@@ -26,7 +26,7 @@ namespace Hazel {
 		virtual void SetFloat4(const std::string& name, const glm::vec4& value) override;
 		virtual void SetMat4(const std::string& name, const glm::mat4& value) override;
 
-		virtual const std::string& GetName() const override { return m_Name; }
+		virtual const std::string& GetName() const override { return myName; }
 
 		void UploadUniformInt(const std::string& name, int value);
 		void UploadUniformIntArray(const std::string& name, int* values, uint32_t count);
@@ -47,14 +47,14 @@ namespace Hazel {
 		void CreateProgram();
 		void Reflect(GLenum stage, const std::vector<uint32_t>& shaderData);
 	private:
-		uint32_t m_RendererID;
-		std::string m_FilePath;
-		std::string m_Name;
+		uint32_t myRendererID;
+		std::string myFilePath;
+		std::string myName;
 
-		std::unordered_map<GLenum, std::vector<uint32_t>> m_VulkanSPIRV;
-		std::unordered_map<GLenum, std::vector<uint32_t>> m_OpenGLSPIRV;
+		std::unordered_map<GLenum, std::vector<uint32_t>> myVulkanSPIRV;
+		std::unordered_map<GLenum, std::vector<uint32_t>> myOpenGLSPIRV;
 
-		std::unordered_map<GLenum, std::string> m_OpenGLSourceCode;
+		std::unordered_map<GLenum, std::string> myOpenGLSourceCode;
 	};
 
 }

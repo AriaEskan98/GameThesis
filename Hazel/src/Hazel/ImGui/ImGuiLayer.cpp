@@ -1,4 +1,4 @@
-#include "hzpch.h"
+#include "gepch.h"
 #include "Hazel/ImGui/ImGuiLayer.h"
 
 #include <imgui.h>
@@ -15,7 +15,7 @@
 
 #include "ImGuizmo.h"
 
-namespace Hazel {
+namespace GameEngine {
 
 	ImGuiLayer::ImGuiLayer()
 		: Layer("ImGuiLayer")
@@ -24,7 +24,7 @@ namespace Hazel {
 
 	void ImGuiLayer::OnAttach()
 	{
-		HZ_PROFILE_FUNCTION();
+		GE_PROFILE_FUNCTION();
 
 		// Setup Dear ImGui context
 		IMGUI_CHECKVERSION();
@@ -55,7 +55,7 @@ namespace Hazel {
 
 		SetDarkThemeColors();
 
-		Application& app = Application::Get();
+		Application& app = Application::GetInstance();
 		GLFWwindow* window = static_cast<GLFWwindow*>(app.GetWindow().GetNativeWindow());
 
 		// Setup Platform/Renderer bindings
@@ -65,7 +65,7 @@ namespace Hazel {
 
 	void ImGuiLayer::OnDetach()
 	{
-		HZ_PROFILE_FUNCTION();
+		GE_PROFILE_FUNCTION();
 
 		ImGui_ImplOpenGL3_Shutdown();
 		ImGui_ImplGlfw_Shutdown();
@@ -74,7 +74,7 @@ namespace Hazel {
 
 	void ImGuiLayer::OnEvent(Event& e)
 	{
-		if (m_BlockEvents)
+		if (myBlockEvents)
 		{
 			ImGuiIO& io = ImGui::GetIO();
 			e.Handled |= e.IsInCategory(EventCategoryMouse) & io.WantCaptureMouse;
@@ -84,7 +84,7 @@ namespace Hazel {
 	
 	void ImGuiLayer::Begin()
 	{
-		HZ_PROFILE_FUNCTION();
+		GE_PROFILE_FUNCTION();
 
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
@@ -94,10 +94,10 @@ namespace Hazel {
 
 	void ImGuiLayer::End()
 	{
-		HZ_PROFILE_FUNCTION();
+		GE_PROFILE_FUNCTION();
 
 		ImGuiIO& io = ImGui::GetIO();
-		Application& app = Application::Get();
+		Application& app = Application::GetInstance();
 		io.DisplaySize = ImVec2((float)app.GetWindow().GetWidth(), (float)app.GetWindow().GetHeight());
 
 		// Rendering

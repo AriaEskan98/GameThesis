@@ -2,28 +2,28 @@
 
 #include "Hazel/Events/Event.h"
 
-namespace Hazel {
+namespace GameEngine {
 
 	class WindowResizeEvent : public Event
 	{
 	public:
 		WindowResizeEvent(unsigned int width, unsigned int height)
-			: m_Width(width), m_Height(height) {}
+			: myWidth(width), myHeight(height) {}
 
-		unsigned int GetWidth() const { return m_Width; }
-		unsigned int GetHeight() const { return m_Height; }
+		unsigned int GetWidth() const { return myWidth; }
+		unsigned int GetHeight() const { return myHeight; }
 
 		std::string ToString() const override
 		{
 			std::stringstream ss;
-			ss << "WindowResizeEvent: " << m_Width << ", " << m_Height;
+			ss << "WindowResizeEvent: " << myWidth << ", " << myHeight;
 			return ss.str();
 		}
 
-		EVENT_CLASS_TYPE(WindowResize)
-		EVENT_CLASS_CATEGORY(EventCategoryApplication)
+		GE_EVENT_TYPE(WindowResize)
+		GE_EVENT_CATEGORY(EventCategoryApplication)
 	private:
-		unsigned int m_Width, m_Height;
+		unsigned int myWidth, myHeight;
 	};
 
 	class WindowCloseEvent : public Event
@@ -31,8 +31,8 @@ namespace Hazel {
 	public:
 		WindowCloseEvent() = default;
 
-		EVENT_CLASS_TYPE(WindowClose)
-		EVENT_CLASS_CATEGORY(EventCategoryApplication)
+		GE_EVENT_TYPE(WindowClose)
+		GE_EVENT_CATEGORY(EventCategoryApplication)
 	};
 
 	class AppTickEvent : public Event
@@ -40,8 +40,8 @@ namespace Hazel {
 	public:
 		AppTickEvent() = default;
 
-		EVENT_CLASS_TYPE(AppTick)
-		EVENT_CLASS_CATEGORY(EventCategoryApplication)
+		GE_EVENT_TYPE(AppTick)
+		GE_EVENT_CATEGORY(EventCategoryApplication)
 	};
 
 	class AppUpdateEvent : public Event
@@ -49,8 +49,8 @@ namespace Hazel {
 	public:
 		AppUpdateEvent() = default;
 
-		EVENT_CLASS_TYPE(AppUpdate)
-		EVENT_CLASS_CATEGORY(EventCategoryApplication)
+		GE_EVENT_TYPE(AppUpdate)
+		GE_EVENT_CATEGORY(EventCategoryApplication)
 	};
 
 	class AppRenderEvent : public Event
@@ -58,7 +58,7 @@ namespace Hazel {
 	public:
 		AppRenderEvent() = default;
 
-		EVENT_CLASS_TYPE(AppRender)
-		EVENT_CLASS_CATEGORY(EventCategoryApplication)
+		GE_EVENT_TYPE(AppRender)
+		GE_EVENT_CATEGORY(EventCategoryApplication)
 	};
 }

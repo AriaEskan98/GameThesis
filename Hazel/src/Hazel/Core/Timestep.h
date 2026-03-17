@@ -1,21 +1,21 @@
 #pragma once
 
-namespace Hazel {
+namespace GameEngine {
 
 	class Timestep
 	{
 	public:
 		Timestep(float time = 0.0f)
-			: m_Time(time)
+			: myTime(time)
 		{
 		}
 
-		operator float() const { return m_Time; }
+		operator float() const { return myTime; }
 
-		float GetSeconds() const { return m_Time; }
-		float GetMilliseconds() const { return m_Time * 1000.0f; }
+		float GetSeconds() const { return myTime; }
+		float GetMilliseconds() const { return myTime * 1000.0f; }
 	private:
-		float m_Time;
+		float myTime;
 	};
 
 }

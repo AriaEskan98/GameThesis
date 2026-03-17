@@ -4,7 +4,7 @@
 
 struct GLFWwindow;
 
-namespace Hazel {
+namespace GameEngine {
 
 	class OpenGLContext : public GraphicsContext
 	{
@@ -14,7 +14,7 @@ namespace Hazel {
 		virtual void Init() override;
 		virtual void SwapBuffers() override;
 	private:
-		GLFWwindow* m_WindowHandle;
+		GLFWwindow* myWindowHandle;
 	};
 
 }

@@ -2,7 +2,7 @@
 
 #include "Entity.h"
 
-namespace Hazel {
+namespace GameEngine {
 
 	class ScriptableEntity
 	{
@@ -12,14 +12,14 @@ namespace Hazel {
 		template<typename T>
 		T& GetComponent()
 		{
-			return m_Entity.GetComponent<T>();
+			return myEntity.GetComponent<T>();
 		}
 	protected:
 		virtual void OnCreate() {}
 		virtual void OnDestroy() {}
 		virtual void OnUpdate(Timestep ts) {}
 	private:
-		Entity m_Entity;
+		Entity myEntity;
 		friend class Scene;
 	};
 

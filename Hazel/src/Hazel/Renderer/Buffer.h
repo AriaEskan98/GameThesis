@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Hazel {
+namespace GameEngine {
 
 	enum class ShaderDataType
 	{
@@ -24,7 +24,7 @@ namespace Hazel {
 			case ShaderDataType::Bool:     return 1;
 		}
 
-		HZ_CORE_ASSERT(false, "Unknown ShaderDataType!");
+		GE_CORE_ASSERT(false, "Unknown ShaderDataType!");
 		return 0;
 	}
 
@@ -60,7 +60,7 @@ namespace Hazel {
 				case ShaderDataType::Bool:    return 1;
 			}
 
-			HZ_CORE_ASSERT(false, "Unknown ShaderDataType!");
+			GE_CORE_ASSERT(false, "Unknown ShaderDataType!");
 			return 0;
 		}
 	};
@@ -71,33 +71,33 @@ namespace Hazel {
 		BufferLayout() {}
 
 		BufferLayout(std::initializer_list<BufferElement> elements)
-			: m_Elements(elements)
+			: myElements(elements)
 		{
 			CalculateOffsetsAndStride();
 		}
 
-		uint32_t GetStride() const { return m_Stride; }
-		const std::vector<BufferElement>& GetElements() const { return m_Elements; }
+		uint32_t GetStride() const { return myStride; }
+		const std::vector<BufferElement>& GetElements() const { return myElements; }
 
-		std::vector<BufferElement>::iterator begin() { return m_Elements.begin(); }
-		std::vector<BufferElement>::iterator end() { return m_Elements.end(); }
-		std::vector<BufferElement>::const_iterator begin() const { return m_Elements.begin(); }
-		std::vector<BufferElement>::const_iterator end() const { return m_Elements.end(); }
+		std::vector<BufferElement>::iterator begin() { return myElements.begin(); }
+		std::vector<BufferElement>::iterator end() { return myElements.end(); }
+		std::vector<BufferElement>::const_iterator begin() const { return myElements.begin(); }
+		std::vector<BufferElement>::const_iterator end() const { return myElements.end(); }
 	private:
 		void CalculateOffsetsAndStride()
 		{
 			size_t offset = 0;
-			m_Stride = 0;
-			for (auto& element : m_Elements)
+			myStride = 0;
+			for (auto& element : myElements)
 			{
 				element.Offset = offset;
 				offset += element.Size;
-				m_Stride += element.Size;
+				myStride += element.Size;
 			}
 		}
 	private:
-		std::vector<BufferElement> m_Elements;
-		uint32_t m_Stride = 0;
+		std::vector<BufferElement> myElements;
+		uint32_t myStride = 0;
 	};
 
 	class VertexBuffer
@@ -113,11 +113,11 @@ namespace Hazel {
 		virtual const BufferLayout& GetLayout() const = 0;
 		virtual void SetLayout(const BufferLayout& layout) = 0;
 
-		static Ref<VertexBuffer> Create(uint32_t size);
-		static Ref<VertexBuffer> Create(float* vertices, uint32_t size);
+		static Handle<VertexBuffer> Create(uint32_t size);
+		static Handle<VertexBuffer> Create(float* vertices, uint32_t size);
 	};
 
-	// Currently Hazel only supports 32-bit index buffers
+	// Currently GameEngine only supports 32-bit index buffers
 	class IndexBuffer
 	{
 	public:
@@ -128,7 +128,7 @@ namespace Hazel {
 
 		virtual uint32_t GetCount() const = 0;
 
-		static Ref<IndexBuffer> Create(uint32_t* indices, uint32_t count);
+		static Handle<IndexBuffer> Create(uint32_t* indices, uint32_t count);
 	};
 
 }

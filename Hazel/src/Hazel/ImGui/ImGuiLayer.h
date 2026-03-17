@@ -6,7 +6,7 @@
 #include "Hazel/Events/KeyEvent.h"
 #include "Hazel/Events/MouseEvent.h"
 
-namespace Hazel {
+namespace GameEngine {
 
 	class ImGuiLayer : public Layer
 	{
@@ -21,13 +21,13 @@ namespace Hazel {
 		void Begin();
 		void End();
 
-		void BlockEvents(bool block) { m_BlockEvents = block; }
+		void BlockEvents(bool block) { myBlockEvents = block; }
 		
 		void SetDarkThemeColors();
 
 		uint32_t GetActiveWidgetID() const;
 	private:
-		bool m_BlockEvents = true;
+		bool myBlockEvents = true;
 	};
 
 }

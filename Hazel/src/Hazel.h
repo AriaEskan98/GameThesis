@@ -1,6 +1,6 @@
 #pragma once
 
-// For use by Hazel applications
+// For use by GameEngine applications
 
 #include "Hazel/Core/Base.h"
 

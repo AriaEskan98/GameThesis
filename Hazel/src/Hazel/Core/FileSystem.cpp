@@ -1,7 +1,7 @@
-#include "hzpch.h"
+#include "gepch.h"
 #include "FileSystem.h"
 
-namespace Hazel {
+namespace GameEngine {
 
 	Buffer FileSystem::ReadFileBinary(const std::filesystem::path& filepath)
 	{

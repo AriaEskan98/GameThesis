@@ -4,7 +4,7 @@
 #include "Hazel/Core/Timestep.h"
 #include "Hazel/Events/Event.h"
 
-namespace Hazel {
+namespace GameEngine {
 
 	class Layer
 	{
@@ -18,9 +18,9 @@ namespace Hazel {
 		virtual void OnImGuiRender() {}
 		virtual void OnEvent(Event& event) {}
 
-		const std::string& GetName() const { return m_DebugName; }
+		const std::string& GetName() const { return myDebugName; }
 	protected:
-		std::string m_DebugName;
+		std::string myDebugName;
 	};
 
 }

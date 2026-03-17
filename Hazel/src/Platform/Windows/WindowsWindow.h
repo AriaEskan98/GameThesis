@@ -5,7 +5,7 @@
 
 #include <GLFW/glfw3.h>
 
-namespace Hazel {
+namespace GameEngine {
 
 	class WindowsWindow : public Window
 	{
@@ -15,21 +15,21 @@ namespace Hazel {
 
 		void OnUpdate() override;
 
-		unsigned int GetWidth() const override { return m_Data.Width; }
-		unsigned int GetHeight() const override { return m_Data.Height; }
+		unsigned int GetWidth() const override { return myData.Width; }
+		unsigned int GetHeight() const override { return myData.Height; }
 
 		// Window attributes
-		void SetEventCallback(const EventCallbackFn& callback) override { m_Data.EventCallback = callback; }
+		void SetEventCallback(const EventCallbackFn& callback) override { myData.EventCallback = callback; }
 		void SetVSync(bool enabled) override;
 		bool IsVSync() const override;
 
-		virtual void* GetNativeWindow() const { return m_Window; }
+		virtual void* GetNativeWindow() const { return myWindow; }
 	private:
 		virtual void Init(const WindowProps& props);
 		virtual void Shutdown();
 	private:
-		GLFWwindow* m_Window;
-		Scope<GraphicsContext> m_Context;
+		GLFWwindow* myWindow;
+		Own<GraphicsContext> myContext;
 
 		struct WindowData
 		{
@@ -40,7 +40,7 @@ namespace Hazel {
 			EventCallbackFn EventCallback;
 		};
 
-		WindowData m_Data;
+		WindowData myData;
 	};
 
 }

@@ -1,13 +1,13 @@
 #pragma once
 
-#include "Hazel/Debug/Instrumentor.h"
+#include "Hazel/Debug/Profiler.h"
 #include "Hazel/Core/Base.h"
 
 #include <functional>
 
-namespace Hazel {
+namespace GameEngine {
 
-	// Events in Hazel are currently blocking, meaning when an event occurs it
+	// Events in GameEngine are currently blocking, meaning when an event occurs it
 	// immediately gets dispatched and must be dealt with right then an there.
 	// For the future, a better strategy might be to buffer events in an event
 	// bus and process them during the "event" part of the update stage.
@@ -24,18 +24,18 @@ namespace Hazel {
 	enum EventCategory
 	{
 		None = 0,
-		EventCategoryApplication    = BIT(0),
-		EventCategoryInput          = BIT(1),
-		EventCategoryKeyboard       = BIT(2),
-		EventCategoryMouse          = BIT(3),
-		EventCategoryMouseButton    = BIT(4)
+		EventCategoryApplication    = FLAG(0),
+		EventCategoryInput          = FLAG(1),
+		EventCategoryKeyboard       = FLAG(2),
+		EventCategoryMouse          = FLAG(3),
+		EventCategoryMouseButton    = FLAG(4)
 	};
 
-#define EVENT_CLASS_TYPE(type) static EventType GetStaticType() { return EventType::type; }\
+#define GE_EVENT_TYPE(type) static EventType GetStaticType() { return EventType::type; }\
 								virtual EventType GetEventType() const override { return GetStaticType(); }\
 								virtual const char* GetName() const override { return #type; }
 
-#define EVENT_CLASS_CATEGORY(category) virtual int GetCategoryFlags() const override { return category; }
+#define GE_EVENT_CATEGORY(category) virtual int GetCategoryFlags() const override { return category; }
 
 	class Event
 	{
@@ -59,7 +59,7 @@ namespace Hazel {
 	{
 	public:
 		EventDispatcher(Event& event)
-			: m_Event(event)
+			: myEvent(event)
 		{
 		}
 		
@@ -67,15 +67,15 @@ namespace Hazel {
 		template<typename T, typename F>
 		bool Dispatch(const F& func)
 		{
-			if (m_Event.GetEventType() == T::GetStaticType())
+			if (myEvent.GetEventType() == T::GetStaticType())
 			{
-				m_Event.Handled |= func(static_cast<T&>(m_Event));
+				myEvent.Handled |= func(static_cast<T&>(myEvent));
 				return true;
 			}
 			return false;
 		}
 	private:
-		Event& m_Event;
+		Event& myEvent;
 	};
 
 	inline std::ostream& operator<<(std::ostream& os, const Event& e)

@@ -8,7 +8,7 @@
 
 class b2World;
 
-namespace Hazel {
+namespace GameEngine {
 
 	class Entity;
 
@@ -18,7 +18,7 @@ namespace Hazel {
 		Scene();
 		~Scene();
 
-		static Ref<Scene> Copy(Ref<Scene> other);
+		static Handle<Scene> Copy(Handle<Scene> other);
 
 		Entity CreateEntity(const std::string& name = std::string());
 		Entity CreateEntityWithUUID(UUID uuid, const std::string& name = std::string());
@@ -42,17 +42,17 @@ namespace Hazel {
 
 		Entity GetPrimaryCameraEntity();
 
-		bool IsRunning() const { return m_IsRunning; }
-		bool IsPaused() const { return m_IsPaused; }
+		bool IsRunning() const { return myIsRunning; }
+		bool IsPaused() const { return myIsPaused; }
 
-		void SetPaused(bool paused) { m_IsPaused = paused; }
+		void SetPaused(bool paused) { myIsPaused = paused; }
 
 		void Step(int frames = 1);
 
 		template<typename... Components>
 		auto GetAllEntitiesWith()
 		{
-			return m_Registry.view<Components...>();
+			return myRegistry.view<Components...>();
 		}
 	private:
 		template<typename T>
@@ -63,15 +63,15 @@ namespace Hazel {
 
 		void RenderScene(EditorCamera& camera);
 	private:
-		entt::registry m_Registry;
-		uint32_t m_ViewportWidth = 0, m_ViewportHeight = 0;
-		bool m_IsRunning = false;
-		bool m_IsPaused = false;
-		int m_StepFrames = 0;
+		entt::registry myRegistry;
+		uint32_t myViewportWidth = 0, myViewportHeight = 0;
+		bool myIsRunning = false;
+		bool myIsPaused = false;
+		int myStepFrames = 0;
 
-		b2World* m_PhysicsWorld = nullptr;
+		b2World* myPhysicsWorld = nullptr;
 
-		std::unordered_map<UUID, entt::entity> m_EntityMap;
+		std::unordered_map<UUID, entt::entity> myEntityMap;
 
 		friend class Entity;
 		friend class SceneSerializer;

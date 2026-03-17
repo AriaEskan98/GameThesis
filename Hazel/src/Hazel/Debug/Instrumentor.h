@@ -11,7 +11,7 @@
 #include <mutex>
 #include <sstream>
 
-namespace Hazel {
+namespace GameEngine {
 
 	using FloatingPointMicroseconds = std::chrono::duration<double, std::micro>;
 
@@ -29,16 +29,16 @@ namespace Hazel {
 		std::string Name;
 	};
 
-	class Instrumentor
+	class Profiler
 	{
 	public:
-		Instrumentor(const Instrumentor&) = delete;
-		Instrumentor(Instrumentor&&) = delete;
+		Profiler(const Profiler&) = delete;
+		Profiler(Profiler&&) = delete;
 
 		void BeginSession(const std::string& name, const std::string& filepath = "results.json")
 		{
-			std::lock_guard lock(m_Mutex);
-			if (m_CurrentSession)
+			std::lock_guard lock(myMutex);
+			if (myCurrentSession)
 			{
 				// If there is already a current session, then close it before beginning new one.
 				// Subsequent profiling output meant for the original session will end up in the
@@ -46,29 +46,29 @@ namespace Hazel {
 				// profiling output.
 				if (Log::GetCoreLogger()) // Edge case: BeginSession() might be before Log::Init()
 				{
-					HZ_CORE_ERROR("Instrumentor::BeginSession('{0}') when session '{1}' already open.", name, m_CurrentSession->Name);
+					GE_CORE_ERROR("Profiler::BeginSession('{0}') when session '{1}' already open.", name, myCurrentSession->Name);
 				}
 				InternalEndSession();
 			}
-			m_OutputStream.open(filepath);
+			myOutputStream.open(filepath);
 
-			if (m_OutputStream.is_open())
+			if (myOutputStream.is_open())
 			{
-				m_CurrentSession = new InstrumentationSession({name});
+				myCurrentSession = new InstrumentationSession({name});
 				WriteHeader();
 			}
 			else
 			{
 				if (Log::GetCoreLogger()) // Edge case: BeginSession() might be before Log::Init()
 				{
-					HZ_CORE_ERROR("Instrumentor could not open results file '{0}'.", filepath);
+					GE_CORE_ERROR("Profiler could not open results file '{0}'.", filepath);
 				}
 			}
 		}
 
 		void EndSession()
 		{
-			std::lock_guard lock(m_Mutex);
+			std::lock_guard lock(myMutex);
 			InternalEndSession();
 		}
 
@@ -87,92 +87,92 @@ namespace Hazel {
 			json << "\"ts\":" << result.Start.count();
 			json << "}";
 
-			std::lock_guard lock(m_Mutex);
-			if (m_CurrentSession)
+			std::lock_guard lock(myMutex);
+			if (myCurrentSession)
 			{
-				m_OutputStream << json.str();
-				m_OutputStream.flush();
+				myOutputStream << json.str();
+				myOutputStream.flush();
 			}
 		}
 
-		static Instrumentor& Get()
+		static Profiler& GetInstance()
 		{
-			static Instrumentor instance;
+			static Profiler instance;
 			return instance;
 		}
 	private:
-		Instrumentor()
-			: m_CurrentSession(nullptr)
+		Profiler()
+			: myCurrentSession(nullptr)
 		{
 		}
 
-		~Instrumentor()
+		~Profiler()
 		{
 			EndSession();
 		}		
 
 		void WriteHeader()
 		{
-			m_OutputStream << "{\"otherData\": {},\"traceEvents\":[{}";
-			m_OutputStream.flush();
+			myOutputStream << "{\"otherData\": {},\"traceEvents\":[{}";
+			myOutputStream.flush();
 		}
 
 		void WriteFooter()
 		{
-			m_OutputStream << "]}";
-			m_OutputStream.flush();
+			myOutputStream << "]}";
+			myOutputStream.flush();
 		}
 
-		// Note: you must already own lock on m_Mutex before
+		// Note: you must already own lock on myMutex before
 		// calling InternalEndSession()
 		void InternalEndSession()
 		{
-			if (m_CurrentSession)
+			if (myCurrentSession)
 			{
 				WriteFooter();
-				m_OutputStream.close();
-				delete m_CurrentSession;
-				m_CurrentSession = nullptr;
+				myOutputStream.close();
+				delete myCurrentSession;
+				myCurrentSession = nullptr;
 			}
 		}
 	private:
-		std::mutex m_Mutex;
-		InstrumentationSession* m_CurrentSession;
-		std::ofstream m_OutputStream;
+		std::mutex myMutex;
+		InstrumentationSession* myCurrentSession;
+		std::ofstream myOutputStream;
 	};
 
-	class InstrumentationTimer
+	class ProfileTimer
 	{
 	public:
-		InstrumentationTimer(const char* name)
-			: m_Name(name), m_Stopped(false)
+		ProfileTimer(const char* name)
+			: myName(name), myStopped(false)
 		{
-			m_StartTimepoint = std::chrono::steady_clock::now();
+			myStartTimepoint = std::chrono::steady_clock::now();
 		}
 
-		~InstrumentationTimer()
+		~ProfileTimer()
 		{
-			if (!m_Stopped)
+			if (!myStopped)
 				Stop();
 		}
 
 		void Stop()
 		{
 			auto endTimepoint = std::chrono::steady_clock::now();
-			auto highResStart = FloatingPointMicroseconds{ m_StartTimepoint.time_since_epoch() };
-			auto elapsedTime = std::chrono::time_point_cast<std::chrono::microseconds>(endTimepoint).time_since_epoch() - std::chrono::time_point_cast<std::chrono::microseconds>(m_StartTimepoint).time_since_epoch();
+			auto highResStart = FloatingPointMicroseconds{ myStartTimepoint.time_since_epoch() };
+			auto elapsedTime = std::chrono::time_point_cast<std::chrono::microseconds>(endTimepoint).time_since_epoch() - std::chrono::time_point_cast<std::chrono::microseconds>(myStartTimepoint).time_since_epoch();
 
-			Instrumentor::Get().WriteProfile({ m_Name, highResStart, elapsedTime, std::this_thread::get_id() });
+			Profiler::GetInstance().WriteProfile({ myName, highResStart, elapsedTime, std::this_thread::get_id() });
 
-			m_Stopped = true;
+			myStopped = true;
 		}
 	private:
-		const char* m_Name;
-		std::chrono::time_point<std::chrono::steady_clock> m_StartTimepoint;
-		bool m_Stopped;
+		const char* myName;
+		std::chrono::time_point<std::chrono::steady_clock> myStartTimepoint;
+		bool myStopped;
 	};
 
-	namespace InstrumentorUtils {
+	namespace ProfilerUtils {
 
 		template <size_t N>
 		struct ChangeResult
@@ -202,39 +202,39 @@ namespace Hazel {
 	}
 }
 
-#define HZ_PROFILE 0
-#if HZ_PROFILE
+#define GE_PROFILE 0
+#if GE_PROFILE
 	// Resolve which function signature macro will be used. Note that this only
 	// is resolved when the (pre)compiler starts, so the syntax highlighting
 	// could mark the wrong one in your editor!
 	#if defined(__GNUC__) || (defined(__MWERKS__) && (__MWERKS__ >= 0x3000)) || (defined(__ICC) && (__ICC >= 600)) || defined(__ghs__)
-		#define HZ_FUNC_SIG __PRETTY_FUNCTION__
+		#define GE_FUNC_SIG __PRETTY_FUNCTION__
 	#elif defined(__DMC__) && (__DMC__ >= 0x810)
-		#define HZ_FUNC_SIG __PRETTY_FUNCTION__
+		#define GE_FUNC_SIG __PRETTY_FUNCTION__
 	#elif (defined(__FUNCSIG__) || (_MSC_VER))
-		#define HZ_FUNC_SIG __FUNCSIG__
+		#define GE_FUNC_SIG __FUNCSIG__
 	#elif (defined(__INTEL_COMPILER) && (__INTEL_COMPILER >= 600)) || (defined(__IBMCPP__) && (__IBMCPP__ >= 500))
-		#define HZ_FUNC_SIG __FUNCTION__
+		#define GE_FUNC_SIG __FUNCTION__
 	#elif defined(__BORLANDC__) && (__BORLANDC__ >= 0x550)
-		#define HZ_FUNC_SIG __FUNC__
+		#define GE_FUNC_SIG __FUNC__
 	#elif defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901)
-		#define HZ_FUNC_SIG __func__
+		#define GE_FUNC_SIG __func__
 	#elif defined(__cplusplus) && (__cplusplus >= 201103)
-		#define HZ_FUNC_SIG __func__
+		#define GE_FUNC_SIG __func__
 	#else
-		#define HZ_FUNC_SIG "HZ_FUNC_SIG unknown!"
+		#define GE_FUNC_SIG "GE_FUNC_SIG unknown!"
 	#endif
 
-	#define HZ_PROFILE_BEGIN_SESSION(name, filepath) ::Hazel::Instrumentor::Get().BeginSession(name, filepath)
-	#define HZ_PROFILE_END_SESSION() ::Hazel::Instrumentor::Get().EndSession()
-	#define HZ_PROFILE_SCOPE_LINE2(name, line) constexpr auto fixedName##line = ::Hazel::InstrumentorUtils::CleanupOutputString(name, "__cdecl ");\
-											   ::Hazel::InstrumentationTimer timer##line(fixedName##line.Data)
-	#define HZ_PROFILE_SCOPE_LINE(name, line) HZ_PROFILE_SCOPE_LINE2(name, line)
-	#define HZ_PROFILE_SCOPE(name) HZ_PROFILE_SCOPE_LINE(name, __LINE__)
-	#define HZ_PROFILE_FUNCTION() HZ_PROFILE_SCOPE(HZ_FUNC_SIG)
+	#define GE_PROFILE_BEGIN_SESSION(name, filepath) ::GameEngine::Profiler::GetInstance().BeginSession(name, filepath)
+	#define GE_PROFILE_END_SESSION() ::GameEngine::Profiler::GetInstance().EndSession()
+	#define GE_PROFILE_SCOPE_LINE2(name, line) constexpr auto fixedName##line = ::GameEngine::ProfilerUtils::CleanupOutputString(name, "__cdecl ");\
+											   ::GameEngine::ProfileTimer timer##line(fixedName##line.Data)
+	#define GE_PROFILE_SCOPE_LINE(name, line) GE_PROFILE_SCOPE_LINE2(name, line)
+	#define GE_PROFILE_SCOPE(name) GE_PROFILE_SCOPE_LINE(name, __LINE__)
+	#define GE_PROFILE_FUNCTION() GE_PROFILE_SCOPE(GE_FUNC_SIG)
 #else
-	#define HZ_PROFILE_BEGIN_SESSION(name, filepath)
-	#define HZ_PROFILE_END_SESSION()
-	#define HZ_PROFILE_SCOPE(name)
-	#define HZ_PROFILE_FUNCTION()
+	#define GE_PROFILE_BEGIN_SESSION(name, filepath)
+	#define GE_PROFILE_END_SESSION()
+	#define GE_PROFILE_SCOPE(name)
+	#define GE_PROFILE_FUNCTION()
 #endif

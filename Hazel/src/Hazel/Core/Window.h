@@ -5,7 +5,7 @@
 
 #include <sstream>
 
-namespace Hazel {
+namespace GameEngine {
 
 	struct WindowProps
 	{
@@ -13,7 +13,7 @@ namespace Hazel {
 		uint32_t Width;
 		uint32_t Height;
 
-		WindowProps(const std::string& title = "Hazel Engine",
+		WindowProps(const std::string& title = "GameEngine",
 			        uint32_t width = 1600,
 			        uint32_t height = 900)
 			: Title(title), Width(width), Height(height)
@@ -41,7 +41,7 @@ namespace Hazel {
 
 		virtual void* GetNativeWindow() const = 0;
 
-		static Scope<Window> Create(const WindowProps& props = WindowProps());
+		static Own<Window> Create(const WindowProps& props = WindowProps());
 	};
 
 }

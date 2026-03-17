@@ -1,14 +1,14 @@
-#include "hzpch.h"
+#include "gepch.h"
 #include "Hazel/Renderer/Renderer.h"
 #include "Hazel/Renderer/Renderer2D.h"
 
-namespace Hazel {
+namespace GameEngine {
 
-	Scope<Renderer::SceneData> Renderer::s_SceneData = CreateScope<Renderer::SceneData>();
+	Own<Renderer::SceneData> Renderer::gsSceneData = MakeOwn<Renderer::SceneData>();
 
 	void Renderer::Init()
 	{
-		HZ_PROFILE_FUNCTION();
+		GE_PROFILE_FUNCTION();
 
 		RenderCommand::Init();
 		Renderer2D::Init();
@@ -26,17 +26,17 @@ namespace Hazel {
 
 	void Renderer::BeginScene(OrthographicCamera& camera)
 	{
-		s_SceneData->ViewProjectionMatrix = camera.GetViewProjectionMatrix();
+		gsSceneData->ViewProjectionMatrix = camera.GetViewProjectionMatrix();
 	}
 
 	void Renderer::EndScene()
 	{
 	}
 
-	void Renderer::Submit(const Ref<Shader>& shader, const Ref<VertexArray>& vertexArray, const glm::mat4& transform)
+	void Renderer::Submit(const Handle<Shader>& shader, const Handle<VertexArray>& vertexArray, const glm::mat4& transform)
 	{
 		shader->Bind();
-		shader->SetMat4("u_ViewProjection", s_SceneData->ViewProjectionMatrix);
+		shader->SetMat4("u_ViewProjection", gsSceneData->ViewProjectionMatrix);
 		shader->SetMat4("u_Transform", transform);
 
 		vertexArray->Bind();

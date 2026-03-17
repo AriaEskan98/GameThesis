@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Hazel {
+namespace GameEngine {
 
 	class UUID
 	{
@@ -9,9 +9,9 @@ namespace Hazel {
 		UUID(uint64_t uuid);
 		UUID(const UUID&) = default;
 
-		operator uint64_t() const { return m_UUID; }
+		operator uint64_t() const { return myUUID; }
 	private:
-		uint64_t m_UUID;
+		uint64_t myUUID;
 	};
 
 }
@@ -20,9 +20,9 @@ namespace std {
 	template <typename T> struct hash;
 
 	template<>
-	struct hash<Hazel::UUID>
+	struct hash<GameEngine::UUID>
 	{
-		std::size_t operator()(const Hazel::UUID& uuid) const
+		std::size_t operator()(const GameEngine::UUID& uuid) const
 		{
 			return (uint64_t)uuid;
 		}

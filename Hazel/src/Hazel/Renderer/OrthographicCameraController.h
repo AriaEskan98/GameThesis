@@ -6,7 +6,7 @@
 #include "Hazel/Events/ApplicationEvent.h"
 #include "Hazel/Events/MouseEvent.h"
 
-namespace Hazel {
+namespace GameEngine {
 
 	class OrthographicCameraController
 	{
@@ -18,24 +18,24 @@ namespace Hazel {
 
 		void OnResize(float width, float height);
 
-		OrthographicCamera& GetCamera() { return m_Camera; }
-		const OrthographicCamera& GetCamera() const { return m_Camera; }
+		OrthographicCamera& GetCamera() { return myCamera; }
+		const OrthographicCamera& GetCamera() const { return myCamera; }
 
-		float GetZoomLevel() const { return m_ZoomLevel; }
-		void SetZoomLevel(float level) { m_ZoomLevel = level; }
+		float GetZoomLevel() const { return myZoomLevel; }
+		void SetZoomLevel(float level) { myZoomLevel = level; }
 	private:
 		bool OnMouseScrolled(MouseScrolledEvent& e);
 		bool OnWindowResized(WindowResizeEvent& e);
 	private:
-		float m_AspectRatio;
-		float m_ZoomLevel = 1.0f;
-		OrthographicCamera m_Camera;
+		float myAspectRatio;
+		float myZoomLevel = 1.0f;
+		OrthographicCamera myCamera;
 
-		bool m_Rotation;
+		bool myRotation;
 
-		glm::vec3 m_CameraPosition = { 0.0f, 0.0f, 0.0f };
-		float m_CameraRotation = 0.0f; //In degrees, in the anti-clockwise direction
-		float m_CameraTranslationSpeed = 5.0f, m_CameraRotationSpeed = 180.0f;
+		glm::vec3 myCameraPosition = { 0.0f, 0.0f, 0.0f };
+		float myCameraRotation = 0.0f; //In degrees, in the anti-clockwise direction
+		float myCameraTranslationSpeed = 5.0f, myCameraRotationSpeed = 180.0f;
 	};
 
 }

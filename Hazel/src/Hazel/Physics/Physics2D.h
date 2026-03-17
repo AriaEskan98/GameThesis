@@ -4,7 +4,7 @@
 
 #include "box2d/b2_body.h"
 
-namespace Hazel {
+namespace GameEngine {
 
 	namespace Utils {
 
@@ -17,7 +17,7 @@ namespace Hazel {
 				case Rigidbody2DComponent::BodyType::Kinematic: return b2_kinematicBody;
 			}
 
-			HZ_CORE_ASSERT(false, "Unknown body type");
+			GE_CORE_ASSERT(false, "Unknown body type");
 			return b2_staticBody;
 		}
 
@@ -30,7 +30,7 @@ namespace Hazel {
 				case b2_kinematicBody: return Rigidbody2DComponent::BodyType::Kinematic;
 			}
 
-			HZ_CORE_ASSERT(false, "Unknown body type");
+			GE_CORE_ASSERT(false, "Unknown body type");
 			return Rigidbody2DComponent::BodyType::Static;
 		}
 

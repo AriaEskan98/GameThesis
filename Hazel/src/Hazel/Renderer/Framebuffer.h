@@ -2,7 +2,7 @@
 
 #include "Hazel/Core/Base.h"
 
-namespace Hazel {
+namespace GameEngine {
 
 	enum class FramebufferTextureFormat
 	{
@@ -64,7 +64,7 @@ namespace Hazel {
 
 		virtual const FramebufferSpecification& GetSpecification() const = 0;
 
-		static Ref<Framebuffer> Create(const FramebufferSpecification& spec);
+		static Handle<Framebuffer> Create(const FramebufferSpecification& spec);
 	};
 
 
