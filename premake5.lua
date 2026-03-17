@@ -3,7 +3,7 @@ include "Dependencies.lua"
 
 workspace "Hazel"
 	architecture "x86_64"
-	startproject "Hazelnut"
+	startproject "Sandbox"
 
 	configurations
 	{
@@ -37,10 +37,6 @@ group ""
 group "Core"
 	include "Hazel"
 	include "Hazel-ScriptCore"
-group ""
-
-group "Tools"
-	include "Hazelnut"
 group ""
 
 group "Misc"
