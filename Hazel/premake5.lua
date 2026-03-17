@@ -67,6 +67,7 @@ project "Hazel"
 
 	filter "system:windows"
 		systemversion "latest"
+		buildoptions { "/utf-8" }
 
 		defines
 		{
