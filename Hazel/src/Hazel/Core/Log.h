@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Hazel/Core/Base.h"
+#include "Hazel/Core/UUID.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/string_cast.hpp"
@@ -55,6 +56,15 @@ struct fmt::formatter<glm::mat<C, R, T, Q>> : fmt::ostream_formatter {};
 
 template<typename T, glm::qualifier Q>
 struct fmt::formatter<glm::qua<T, Q>> : fmt::ostream_formatter {};
+
+template<>
+struct fmt::formatter<GameEngine::UUID> : fmt::formatter<uint64_t>
+{
+	auto format(const GameEngine::UUID& uuid, fmt::format_context& ctx) const
+	{
+		return fmt::formatter<uint64_t>::format((uint64_t)uuid, ctx);
+	}
+};
 
 // Core log macros
 #define GE_CORE_TRACE(...)    ::GameEngine::Log::GetCoreLogger()->trace(__VA_ARGS__)
