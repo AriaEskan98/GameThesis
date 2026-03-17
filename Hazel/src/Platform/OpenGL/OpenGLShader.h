@@ -47,7 +47,7 @@ namespace GameEngine {
 		void CreateProgram();
 		void Reflect(GLenum stage, const std::vector<uint32_t>& shaderData);
 	private:
-		uint32_t myRendererID;
+		uint32_t myRendererID = 0;
 		std::string myFilePath;
 		std::string myName;
 
