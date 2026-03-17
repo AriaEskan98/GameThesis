@@ -33,7 +33,7 @@ void Sandbox2D::OnUpdate(GameEngine::Timestep ts)
 	GameEngine::Renderer2D::ResetStats();
 	{
 		GE_PROFILE_SCOPE("Renderer Prep");
-		GameEngine::RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1 });
+		GameEngine::RenderCommand::SetClearColor(myBackgroundColor);
 		GameEngine::RenderCommand::Clear();
 	}
 
@@ -68,6 +68,7 @@ void Sandbox2D::OnImGuiRender()
 	GE_PROFILE_FUNCTION();
 
 	ImGui::Begin("Settings");
+	ImGui::ColorEdit4("Background Color", glm::value_ptr(myBackgroundColor));
 
 	auto stats = GameEngine::Renderer2D::GetStats();
 	ImGui::Text("Renderer2D Stats:");

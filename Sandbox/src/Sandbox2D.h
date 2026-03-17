@@ -30,6 +30,7 @@ private:
 		{ 0.2f, 0.3f, 0.8f, 1.0f }
 	};
 	int mySelectedSquare = -1;
+	glm::vec4 myBackgroundColor = { 0.1f, 0.1f, 0.1f, 1.0f };
 
 	bool OnMouseButtonPressed(GameEngine::MouseButtonPressedEvent& e);
 };
