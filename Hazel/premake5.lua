@@ -46,6 +46,8 @@ project "Hazel"
 		"%{IncludeDir.mono}",
 		"%{IncludeDir.yaml_cpp}",
 		"%{IncludeDir.ImGuizmo}",
+		"%{IncludeDir.shaderc}",
+		"%{IncludeDir.SPIRV_Cross}",
 		"%{IncludeDir.VulkanSDK}"
 	}
 
