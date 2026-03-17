@@ -9,6 +9,7 @@
 #pragma warning(push, 0)
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/ostr.h>
+#include <spdlog/fmt/std.h>
 #pragma warning(pop)
 
 namespace GameEngine {
