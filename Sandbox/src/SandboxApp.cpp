@@ -4,11 +4,11 @@
 #include "Sandbox2D.h"
 #include "ExampleLayer.h"
 
-class Sandbox : public Hazel::Application
+class Sandbox : public GameEngine::Application
 {
 public:
-	Sandbox(const Hazel::ApplicationSpecification& specification)
-		: Hazel::Application(specification)
+	Sandbox(const GameEngine::ApplicationSpecification& specification)
+		: GameEngine::Application(specification)
 	{
 		// PushLayer(new ExampleLayer());
 		PushLayer(new Sandbox2D());
@@ -19,7 +19,7 @@ public:
 	}
 };
 
-Hazel::Application* Hazel::CreateApplication(Hazel::ApplicationCommandLineArgs args)
+GameEngine::Application* GameEngine::CreateApplication(GameEngine::ApplicationCommandLineArgs args)
 {
 	ApplicationSpecification spec;
 	spec.Name = "Sandbox";

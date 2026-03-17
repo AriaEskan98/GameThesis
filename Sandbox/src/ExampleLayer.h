@@ -2,7 +2,7 @@
 
 #include "Hazel.h"
 
-class ExampleLayer : public Hazel::Layer
+class ExampleLayer : public GameEngine::Layer
 {
 public:
 	ExampleLayer();
@@ -11,20 +11,19 @@ public:
 	virtual void OnAttach() override;
 	virtual void OnDetach() override;
 
-	void OnUpdate(Hazel::Timestep ts) override;
+	void OnUpdate(GameEngine::Timestep ts) override;
 	virtual void OnImGuiRender() override;
-	void OnEvent(Hazel::Event& e) override;
+	void OnEvent(GameEngine::Event& e) override;
 private:
-	Hazel::ShaderLibrary m_ShaderLibrary;
-	Hazel::Ref<Hazel::Shader> m_Shader;
-	Hazel::Ref<Hazel::VertexArray> m_VertexArray;
+	GameEngine::ShaderLibrary myShaderLibrary;
+	GameEngine::Handle<GameEngine::Shader> myShader;
+	GameEngine::Handle<GameEngine::VertexArray> myVertexArray;
 
-	Hazel::Ref<Hazel::Shader> m_FlatColorShader;
-	Hazel::Ref<Hazel::VertexArray> m_SquareVA;
+	GameEngine::Handle<GameEngine::Shader> myFlatColorShader;
+	GameEngine::Handle<GameEngine::VertexArray> mySquareVA;
 
-	Hazel::Ref<Hazel::Texture2D> m_Texture, m_ChernoLogoTexture;
+	GameEngine::Handle<GameEngine::Texture2D> myTexture, myChernoLogoTexture;
 
-	Hazel::OrthographicCameraController m_CameraController;
-	glm::vec3 m_SquareColor = { 0.2f, 0.3f, 0.8f };
+	GameEngine::OrthographicCameraController myCameraController;
+	glm::vec3 mySquareColor = { 0.2f, 0.3f, 0.8f };
 };
-

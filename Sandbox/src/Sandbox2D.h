@@ -2,7 +2,7 @@
 
 #include "Hazel.h"
 
-class Sandbox2D : public Hazel::Layer
+class Sandbox2D : public GameEngine::Layer
 {
 public:
 	Sandbox2D();
@@ -11,17 +11,17 @@ public:
 	virtual void OnAttach() override;
 	virtual void OnDetach() override;
 
-	void OnUpdate(Hazel::Timestep ts) override;
+	void OnUpdate(GameEngine::Timestep ts) override;
 	virtual void OnImGuiRender() override;
-	void OnEvent(Hazel::Event& e) override;
+	void OnEvent(GameEngine::Event& e) override;
 private:
-	Hazel::OrthographicCameraController m_CameraController;
-	
+	GameEngine::OrthographicCameraController myCameraController;
+
 	// Temp
-	Hazel::Ref<Hazel::VertexArray> m_SquareVA;
-	Hazel::Ref<Hazel::Shader> m_FlatColorShader;
+	GameEngine::Handle<GameEngine::VertexArray> mySquareVA;
+	GameEngine::Handle<GameEngine::Shader> myFlatColorShader;
 
-	Hazel::Ref<Hazel::Texture2D> m_CheckerboardTexture;
+	GameEngine::Handle<GameEngine::Texture2D> myCheckerboardTexture;
 
-	glm::vec4 m_SquareColor = { 0.2f, 0.3f, 0.8f, 1.0f };
+	glm::vec4 mySquareColor = { 0.2f, 0.3f, 0.8f, 1.0f };
 };
