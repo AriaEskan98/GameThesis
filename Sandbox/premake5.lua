@@ -29,18 +29,19 @@ project "Sandbox"
 
 	filter "system:windows"
 		systemversion "latest"
+		buildoptions { "/utf-8" }
 
 	filter "configurations:Debug"
-		defines "HZ_DEBUG"
+		defines "GE_DEBUG"
 		runtime "Debug"
 		symbols "on"
 
 	filter "configurations:Release"
-		defines "HZ_RELEASE"
+		defines "GE_RELEASE"
 		runtime "Release"
 		optimize "on"
 
 	filter "configurations:Dist"
-		defines "HZ_DIST"
+		defines "GE_DIST"
 		runtime "Release"
 		optimize "on"
