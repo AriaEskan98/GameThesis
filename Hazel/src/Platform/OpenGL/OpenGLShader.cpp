@@ -191,8 +191,6 @@ namespace GameEngine {
 
 	void OpenGLShader::CompileOrGetVulkanBinaries(const std::unordered_map<GLenum, std::string>& shaderSources)
 	{
-		GLuint program = glCreateProgram();
-
 		shaderc::Compiler compiler;
 		shaderc::CompileOptions options;
 		options.SetTargetEnvironment(shaderc_target_env_vulkan, shaderc_env_version_vulkan_1_2);
@@ -334,6 +332,8 @@ namespace GameEngine {
 
 			for (auto id : shaderIDs)
 				glDeleteShader(id);
+
+			return;
 		}
 
 		for (auto id : shaderIDs)
