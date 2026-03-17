@@ -23,7 +23,7 @@ GameEngine::Application* GameEngine::CreateApplication(GameEngine::ApplicationCo
 {
 	ApplicationSpecification spec;
 	spec.Name = "Sandbox";
-	spec.WorkingDirectory = "../Hazelnut";
+	spec.WorkingDirectory = "../Sandbox";
 	spec.CommandLineArgs = args;
 
 	return new Sandbox(spec);
