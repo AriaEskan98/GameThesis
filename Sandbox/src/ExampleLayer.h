@@ -15,16 +15,15 @@ public:
 	virtual void OnImGuiRender() override;
 	void OnEvent(Hazel::Event& e) override;
 private:
-	Hazel::ShaderLibrary m_ShaderLibrary;
-	Hazel::Ref<Hazel::Shader> m_Shader;
-	Hazel::Ref<Hazel::VertexArray> m_VertexArray;
+	Hazel::ShaderLibrary myShaderLibrary;
+	Hazel::Handle<Hazel::Shader> myShader;
+	Hazel::Handle<Hazel::VertexArray> myVertexArray;
 
-	Hazel::Ref<Hazel::Shader> m_FlatColorShader;
-	Hazel::Ref<Hazel::VertexArray> m_SquareVA;
+	Hazel::Handle<Hazel::Shader> myFlatColorShader;
+	Hazel::Handle<Hazel::VertexArray> mySquareVA;
 
-	Hazel::Ref<Hazel::Texture2D> m_Texture, m_ChernoLogoTexture;
+	Hazel::Handle<Hazel::Texture2D> myTexture, myChernoLogoTexture;
 
-	Hazel::OrthographicCameraController m_CameraController;
-	glm::vec3 m_SquareColor = { 0.2f, 0.3f, 0.8f };
+	Hazel::OrthographicCameraController myCameraController;
+	glm::vec3 mySquareColor = { 0.2f, 0.3f, 0.8f };
 };
-

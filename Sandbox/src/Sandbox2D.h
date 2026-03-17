@@ -15,13 +15,13 @@ public:
 	virtual void OnImGuiRender() override;
 	void OnEvent(Hazel::Event& e) override;
 private:
-	Hazel::OrthographicCameraController m_CameraController;
-	
+	Hazel::OrthographicCameraController myCameraController;
+
 	// Temp
-	Hazel::Ref<Hazel::VertexArray> m_SquareVA;
-	Hazel::Ref<Hazel::Shader> m_FlatColorShader;
+	Hazel::Handle<Hazel::VertexArray> mySquareVA;
+	Hazel::Handle<Hazel::Shader> myFlatColorShader;
 
-	Hazel::Ref<Hazel::Texture2D> m_CheckerboardTexture;
+	Hazel::Handle<Hazel::Texture2D> myCheckerboardTexture;
 
-	glm::vec4 m_SquareColor = { 0.2f, 0.3f, 0.8f, 1.0f };
+	glm::vec4 mySquareColor = { 0.2f, 0.3f, 0.8f, 1.0f };
 };
