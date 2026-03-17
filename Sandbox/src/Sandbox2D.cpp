@@ -106,10 +106,10 @@ bool Sandbox2D::OnMouseButtonPressed(GameEngine::MouseButtonPressedEvent& e)
 		return false;
 
 	// Convert mouse position to world space
-	auto [mouseX, mouseY] = GameEngine::Input::GetMousePosition();
+	glm::vec2 mousePos = GameEngine::Input::GetMousePosition();
 	auto& window = GameEngine::Application::GetInstance().GetWindow();
-	float ndcX = (mouseX / (float)window.GetWidth())  * 2.0f - 1.0f;
-	float ndcY = 1.0f - (mouseY / (float)window.GetHeight()) * 2.0f;
+	float ndcX = (mousePos.x / (float)window.GetWidth())  * 2.0f - 1.0f;
+	float ndcY = 1.0f - (mousePos.y / (float)window.GetHeight()) * 2.0f;
 
 	glm::mat4 invVP = glm::inverse(myCameraController.GetCamera().GetViewProjectionMatrix());
 	glm::vec4 worldPos = invVP * glm::vec4(ndcX, ndcY, 0.0f, 1.0f);
