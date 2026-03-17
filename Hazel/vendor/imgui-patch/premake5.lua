@@ -42,7 +42,7 @@ project "ImGui"
 		cppdialect "C++17"
 
 	filter "configurations:Debug"
-		runtime "Debug"
+		runtime "Release"
 		symbols "on"
 
 	filter "configurations:Release"

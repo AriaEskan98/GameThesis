@@ -33,7 +33,7 @@ project "Sandbox"
 
 	filter "configurations:Debug"
 		defines "GE_DEBUG"
-		runtime "Debug"
+		runtime "Release"
 		symbols "on"
 
 	filter "configurations:Release"
