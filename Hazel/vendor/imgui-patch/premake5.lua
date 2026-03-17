@@ -1,3 +1,5 @@
+local imgui_dir = _SCRIPT_DIR .. "/../imgui/"
+
 project "ImGui"
 	kind "StaticLib"
 	language "C++"
@@ -9,24 +11,24 @@ project "ImGui"
 	files
 	{
 		-- All files from the imgui submodule except imgui.cpp (which has a bug)
-		"../imgui/imconfig.h",
-		"../imgui/imgui.h",
-		"../imgui/imgui_draw.cpp",
-		"../imgui/imgui_internal.h",
-		"../imgui/imgui_tables.cpp",
-		"../imgui/imgui_widgets.cpp",
-		"../imgui/imstb_rectpack.h",
-		"../imgui/imstb_textedit.h",
-		"../imgui/imstb_truetype.h",
-		"../imgui/imgui_demo.cpp",
+		imgui_dir .. "imconfig.h",
+		imgui_dir .. "imgui.h",
+		imgui_dir .. "imgui_draw.cpp",
+		imgui_dir .. "imgui_internal.h",
+		imgui_dir .. "imgui_tables.cpp",
+		imgui_dir .. "imgui_widgets.cpp",
+		imgui_dir .. "imstb_rectpack.h",
+		imgui_dir .. "imstb_textedit.h",
+		imgui_dir .. "imstb_truetype.h",
+		imgui_dir .. "imgui_demo.cpp",
 
 		-- Patched imgui.cpp (fixes 'DC' undeclared identifier in SetActiveID)
-		"imgui.cpp"
+		_SCRIPT_DIR .. "/imgui.cpp"
 	}
 
 	includedirs
 	{
-		"../imgui"
+		imgui_dir
 	}
 
 	filter "system:windows"
