@@ -30,7 +30,7 @@ group "Dependencies"
 	include "Hazel/vendor/GLFW"
 	include "Hazel/vendor/Glad"
 	include "Hazel/vendor/msdf-atlas-gen"
-	include "Hazel/vendor/imgui"
+	include "Hazel/vendor/imgui-patch"
 	include "Hazel/vendor/yaml-cpp"
 group ""
 
