@@ -15,16 +15,16 @@ project "Sandbox"
 
 	includedirs
 	{
-		"%{wks.location}/Hazel/vendor/spdlog/include",
-		"%{wks.location}/Hazel/src",
-		"%{wks.location}/Hazel/vendor",
+		"%{wks.location}/GameEngine/vendor/spdlog/include",
+		"%{wks.location}/GameEngine/src",
+		"%{wks.location}/GameEngine/vendor",
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.entt}"
 	}
 
 	links
 	{
-		"Hazel"
+		"GameEngine"
 	}
 
 	filter "system:windows"

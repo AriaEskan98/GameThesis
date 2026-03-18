@@ -1,10 +1,10 @@
-project "Hazel-ScriptCore"
+project "GameEngine-ScriptCore"
 	kind "SharedLib"
 	language "C#"
 	dotnetframework "4.7.2"
 
-	targetdir ("../Hazelnut/Resources/Scripts")
-	objdir ("../Hazelnut/Resources/Scripts/Intermediates")
+	targetdir ("../GameEngineEditor/Resources/Scripts")
+	objdir ("../GameEngineEditor/Resources/Scripts/Intermediates")
 
 	files 
 	{
