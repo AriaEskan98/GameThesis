@@ -23,5 +23,14 @@ private:
 
 	GameEngine::Handle<GameEngine::Texture2D> myCheckerboardTexture;
 
-	glm::vec4 mySquareColor = { 0.2f, 0.3f, 0.8f, 1.0f };
+	// Per-quad colors: 0 = rotated red, 1 = flat red, 2 = blue
+	glm::vec4 mySquareColors[3] = {
+		{ 0.8f, 0.2f, 0.3f, 1.0f },
+		{ 0.8f, 0.2f, 0.3f, 1.0f },
+		{ 0.2f, 0.3f, 0.8f, 1.0f }
+	};
+	int mySelectedSquare = -1;
+	glm::vec4 myBackgroundColor = { 0.1f, 0.1f, 0.1f, 1.0f };
+
+	bool OnMouseButtonPressed(GameEngine::MouseButtonPressedEvent& e);
 };

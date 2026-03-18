@@ -1,0 +1,39 @@
+@echo off
+echo Building Assimp static library for MSVC x64...
+
+SET SCRIPT_DIR=%~dp0
+SET SCRIPT_DIR=%SCRIPT_DIR:~0,-1%
+SET BUILD_DIR=%SCRIPT_DIR%\build\msvc_build
+SET OUTPUT_DIR=%SCRIPT_DIR%\build\lib
+
+SET CMAKE_GENERATOR=Visual Studio 17 2022
+SET CMAKE_GENERATOR_PLATFORM=x64
+
+cmake -S "%SCRIPT_DIR%" -B "%BUILD_DIR%" -DBUILD_SHARED_LIBS=OFF -DASSIMP_BUILD_TESTS=OFF -DASSIMP_BUILD_ASSIMP_TOOLS=OFF -DASSIMP_BUILD_SAMPLES=OFF -DASSIMP_WARNINGS_AS_ERRORS=OFF -DASSIMP_INJECT_DEBUG_POSTFIX=OFF
+
+if errorlevel 1 (
+    echo CMake configuration failed.
+    pause
+    exit /b 1
+)
+
+cmake --build "%BUILD_DIR%" --config Release
+
+if errorlevel 1 (
+    echo Build failed.
+    pause
+    exit /b 1
+)
+
+for /r "%BUILD_DIR%\lib\Release" %%f in (assimp*.lib) do (
+    echo Copying %%f to %OUTPUT_DIR%\assimp.lib
+    copy /y "%%f" "%OUTPUT_DIR%\assimp.lib"
+)
+
+if exist "%BUILD_DIR%\include\assimp\config.h" (
+    copy /y "%BUILD_DIR%\include\assimp\config.h" "%SCRIPT_DIR%\build\include\assimp\config.h"
+)
+
+echo.
+echo Done! assimp.lib is ready in %OUTPUT_DIR%
+pause
