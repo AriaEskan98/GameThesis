@@ -31,7 +31,7 @@ LibraryDir["assimp"]    = "%{wks.location}/Hazel/vendor/assimp/build/lib"
 
 Library = {}
 Library["mono"]   = "%{LibraryDir.mono}/libmono-static-sgen.lib"
-Library["assimp"] = "%{LibraryDir.assimp}/libassimp.a"
+Library["assimp"] = "%{LibraryDir.assimp}/assimp.lib"
 
 Library["Vulkan"] = "%{LibraryDir.VulkanSDK}/vulkan-1.lib"
 Library["VulkanUtils"] = "%{LibraryDir.VulkanSDK}/VkLayer_utils.lib"

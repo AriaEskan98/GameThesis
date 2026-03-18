@@ -64,9 +64,8 @@ project "Hazel"
 		"opengl32.lib",
 
 		"%{Library.mono}",
+		"%{Library.assimp}",
 	}
-
-	linkoptions { "%{Library.assimp}" }
 
 	filter "files:vendor/ImGuizmo/**.cpp"
 	flags { "NoPCH" }
