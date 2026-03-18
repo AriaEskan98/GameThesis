@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Hazel/Renderer/Framebuffer.h"
+#include "Engine/Renderer/Framebuffer.h"
 
 namespace GameEngine {
 

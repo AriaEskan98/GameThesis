@@ -1,5 +1,5 @@
 
--- Hazel Dependencies
+-- Engine Dependencies
 
 VULKAN_SDK = os.getenv("VULKAN_SDK")
 

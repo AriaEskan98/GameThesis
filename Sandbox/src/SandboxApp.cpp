@@ -1,5 +1,5 @@
-#include <Hazel.h>
-#include <Hazel/Core/EntryPoint.h>
+#include <Engine.h>
+#include <Engine/Core/EntryPoint.h>
 
 #include "Sandbox2D.h"
 #include "ExampleLayer.h"

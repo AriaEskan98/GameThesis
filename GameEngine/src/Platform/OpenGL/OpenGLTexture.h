@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Hazel/Renderer/Texture.h"
+#include "Engine/Renderer/Texture.h"
 
 #include <glad/glad.h>
 

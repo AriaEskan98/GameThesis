@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Hazel/Renderer/Shader.h"
+#include "Engine/Renderer/Shader.h"
 #include <glm/glm.hpp>
 
 // TODO: REMOVE!

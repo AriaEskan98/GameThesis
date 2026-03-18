@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Hazel/Core/PlatformDetection.h"
+#include "Engine/Core/PlatformDetection.h"
 
 #ifdef GE_PLATFORM_WINDOWS
 	#ifndef NOMINMAX
@@ -23,11 +23,11 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#include "Hazel/Core/Base.h"
+#include "Engine/Core/Base.h"
 
-#include "Hazel/Core/Log.h"
+#include "Engine/Core/Log.h"
 
-#include "Hazel/Debug/Profiler.h"
+#include "Engine/Debug/Profiler.h"
 
 #ifdef GE_PLATFORM_WINDOWS
 	#include <Windows.h>

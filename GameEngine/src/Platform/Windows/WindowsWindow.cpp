@@ -1,13 +1,13 @@
 #include "gepch.h"
 #include "Platform/Windows/WindowsWindow.h"
 
-#include "Hazel/Core/Input.h"
+#include "Engine/Core/Input.h"
 
-#include "Hazel/Events/ApplicationEvent.h"
-#include "Hazel/Events/MouseEvent.h"
-#include "Hazel/Events/KeyEvent.h"
+#include "Engine/Events/ApplicationEvent.h"
+#include "Engine/Events/MouseEvent.h"
+#include "Engine/Events/KeyEvent.h"
 
-#include "Hazel/Renderer/Renderer.h"
+#include "Engine/Renderer/Renderer.h"
 
 #include "Platform/OpenGL/OpenGLContext.h"
 

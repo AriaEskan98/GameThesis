@@ -76,7 +76,7 @@ namespace GameEngine {
 			return false;
 		}
 
-		static GLenum HazelFBTextureFormatToGL(FramebufferTextureFormat format)
+		static GLenum EngineFBTextureFormatToGL(FramebufferTextureFormat format)
 		{
 			switch (format)
 			{
@@ -219,7 +219,7 @@ namespace GameEngine {
 
 		auto& spec = myColorAttachmentSpecifications[attachmentIndex];
 		glClearTexImage(myColorAttachments[attachmentIndex], 0,
-			Utils::HazelFBTextureFormatToGL(spec.TextureFormat), GL_INT, &value);
+			Utils::EngineFBTextureFormatToGL(spec.TextureFormat), GL_INT, &value);
 	}
 
 }

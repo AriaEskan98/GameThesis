@@ -2,42 +2,42 @@
 
 // For use by GameEngine applications
 
-#include "Hazel/Core/Base.h"
+#include "Engine/Core/Base.h"
 
-#include "Hazel/Core/Application.h"
-#include "Hazel/Core/Layer.h"
-#include "Hazel/Core/Log.h"
-#include "Hazel/Core/Assert.h"
+#include "Engine/Core/Application.h"
+#include "Engine/Core/Layer.h"
+#include "Engine/Core/Log.h"
+#include "Engine/Core/Assert.h"
 
-#include "Hazel/Core/Timestep.h"
+#include "Engine/Core/Timestep.h"
 
-#include "Hazel/Core/Input.h"
-#include "Hazel/Core/KeyCodes.h"
-#include "Hazel/Core/MouseCodes.h"
-#include "Hazel/Renderer/OrthographicCameraController.h"
-#include "Hazel/Renderer/FPSCameraController.h"
+#include "Engine/Core/Input.h"
+#include "Engine/Core/KeyCodes.h"
+#include "Engine/Core/MouseCodes.h"
+#include "Engine/Renderer/OrthographicCameraController.h"
+#include "Engine/Renderer/FPSCameraController.h"
 
-#include "Hazel/ImGui/ImGuiLayer.h"
+#include "Engine/ImGui/ImGuiLayer.h"
 
-#include "Hazel/Scene/Scene.h"
-#include "Hazel/Scene/Entity.h"
-#include "Hazel/Scene/ScriptableEntity.h"
-#include "Hazel/Scene/Components.h"
+#include "Engine/Scene/Scene.h"
+#include "Engine/Scene/Entity.h"
+#include "Engine/Scene/ScriptableEntity.h"
+#include "Engine/Scene/Components.h"
 
-#include "Hazel/Project/Project.h"
+#include "Engine/Project/Project.h"
 
 // ---Renderer------------------------
-#include "Hazel/Renderer/Renderer.h"
-#include "Hazel/Renderer/Renderer2D.h"
-#include "Hazel/Renderer/Renderer3D.h"
-#include "Hazel/Renderer/RenderCommand.h"
+#include "Engine/Renderer/Renderer.h"
+#include "Engine/Renderer/Renderer2D.h"
+#include "Engine/Renderer/Renderer3D.h"
+#include "Engine/Renderer/RenderCommand.h"
 
-#include "Hazel/Renderer/Buffer.h"
-#include "Hazel/Renderer/Shader.h"
-#include "Hazel/Renderer/Framebuffer.h"
-#include "Hazel/Renderer/Texture.h"
-#include "Hazel/Renderer/VertexArray.h"
-#include "Hazel/Renderer/Mesh.h"
+#include "Engine/Renderer/Buffer.h"
+#include "Engine/Renderer/Shader.h"
+#include "Engine/Renderer/Framebuffer.h"
+#include "Engine/Renderer/Texture.h"
+#include "Engine/Renderer/VertexArray.h"
+#include "Engine/Renderer/Mesh.h"
 
-#include "Hazel/Renderer/OrthographicCamera.h"
+#include "Engine/Renderer/OrthographicCamera.h"
 // -----------------------------------

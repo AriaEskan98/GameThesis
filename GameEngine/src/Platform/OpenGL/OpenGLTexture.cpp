@@ -7,7 +7,7 @@ namespace GameEngine {
 
 	namespace Utils {
 
-		static GLenum HazelImageFormatToGLDataFormat(ImageFormat format)
+		static GLenum EngineImageFormatToGLDataFormat(ImageFormat format)
 		{
 			switch (format)
 			{
@@ -19,7 +19,7 @@ namespace GameEngine {
 			return 0;
 		}
 		
-		static GLenum HazelImageFormatToGLInternalFormat(ImageFormat format)
+		static GLenum EngineImageFormatToGLInternalFormat(ImageFormat format)
 		{
 			switch (format)
 			{
@@ -38,8 +38,8 @@ namespace GameEngine {
 	{
 		GE_PROFILE_FUNCTION();
 
-		myInternalFormat = Utils::HazelImageFormatToGLInternalFormat(mySpecification.Format);
-		myDataFormat = Utils::HazelImageFormatToGLDataFormat(mySpecification.Format);
+		myInternalFormat = Utils::EngineImageFormatToGLInternalFormat(mySpecification.Format);
+		myDataFormat = Utils::EngineImageFormatToGLDataFormat(mySpecification.Format);
 
 		glCreateTextures(GL_TEXTURE_2D, 1, &myRendererID);
 		glTextureStorage2D(myRendererID, 1, myInternalFormat, myWidth, myHeight);
