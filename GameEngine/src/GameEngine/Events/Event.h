@@ -21,14 +21,14 @@ namespace GameEngine {
 		MouseButtonPressed, MouseButtonReleased, MouseMoved, MouseScrolled
 	};
 
-	enum EventCategory
+	enum EventCategory : int
 	{
-		None = 0,
-		EventCategoryApplication    = FLAG(0),
-		EventCategoryInput          = FLAG(1),
-		EventCategoryKeyboard       = FLAG(2),
-		EventCategoryMouse          = FLAG(3),
-		EventCategoryMouseButton    = FLAG(4)
+		None                        = 0,
+		EventCategoryApplication    = (1 << 0),
+		EventCategoryInput          = (1 << 1),
+		EventCategoryKeyboard       = (1 << 2),
+		EventCategoryMouse          = (1 << 3),
+		EventCategoryMouseButton    = (1 << 4)
 	};
 
 #define GE_EVENT_TYPE(type) static EventType GetStaticType() { return EventType::type; }\
@@ -49,30 +49,28 @@ namespace GameEngine {
 		virtual int GetCategoryFlags() const = 0;
 		virtual std::string ToString() const { return GetName(); }
 
-		bool IsInCategory(EventCategory category)
+		bool IsInCategory(EventCategory category) const
 		{
-			return GetCategoryFlags() & category;
+			return (GetCategoryFlags() & category) != 0;
 		}
 	};
 
 	class EventDispatcher
 	{
 	public:
-		EventDispatcher(Event& event)
+		explicit EventDispatcher(Event& event)
 			: myEvent(event)
 		{
 		}
-		
-		// F will be deduced by the compiler
-		template<typename T, typename F>
-		bool Dispatch(const F& func)
+
+		template<typename T>
+		bool Dispatch(const std::function<bool(T&)>& func)
 		{
-			if (myEvent.GetEventType() == T::GetStaticType())
-			{
-				myEvent.Handled |= func(static_cast<T&>(myEvent));
-				return true;
-			}
-			return false;
+			if (myEvent.GetEventType() != T::GetStaticType())
+				return false;
+
+			myEvent.Handled |= func(static_cast<T&>(myEvent));
+			return true;
 		}
 	private:
 		Event& myEvent;

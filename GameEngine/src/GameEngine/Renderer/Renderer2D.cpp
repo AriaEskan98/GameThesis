@@ -102,7 +102,8 @@ namespace GameEngine {
 
 		std::array<Handle<Texture2D>, MaxTextureSlots> TextureSlots;
 		uint32_t TextureSlotIndex = 1; // 0 = white texture
-		
+		std::unordered_map<Texture2D*, float> TextureSlotMap;
+
 		Handle<Texture2D> FontAtlasTexture;
 
 		glm::vec4 QuadVertexPositions[4];
@@ -283,6 +284,7 @@ namespace GameEngine {
 		gsData.TextVertexBufferPtr = gsData.TextVertexBufferBase;
 
 		gsData.TextureSlotIndex = 1;
+		gsData.TextureSlotMap.clear();
 	}
 
 	void Renderer2D::Flush()
@@ -411,13 +413,10 @@ namespace GameEngine {
 			NextBatch();
 
 		float textureIndex = 0.0f;
-		for (uint32_t i = 1; i < gsData.TextureSlotIndex; i++)
+		auto slotIt = gsData.TextureSlotMap.find(texture.get());
+		if (slotIt != gsData.TextureSlotMap.end())
 		{
-			if (*gsData.TextureSlots[i] == *texture)
-			{
-				textureIndex = (float)i;
-				break;
-			}
+			textureIndex = slotIt->second;
 		}
 
 		if (textureIndex == 0.0f)
@@ -426,6 +425,7 @@ namespace GameEngine {
 				NextBatch();
 
 			textureIndex = (float)gsData.TextureSlotIndex;
+			gsData.TextureSlotMap[texture.get()] = textureIndex;
 			gsData.TextureSlots[gsData.TextureSlotIndex] = texture;
 			gsData.TextureSlotIndex++;
 		}

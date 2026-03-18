@@ -1,18 +1,34 @@
 #include "gepch.h"
 #include "UUID.h"
 
-#include <random>
-
-#include <unordered_map>
+#include <chrono>
 
 namespace GameEngine {
 
-	static std::random_device gsRandomDevice;
-	static std::mt19937_64 gsEngine(gsRandomDevice());
-	static std::uniform_int_distribution<uint64_t> gsUniformDistribution;
+	static uint64_t XorShift64(uint64_t& state)
+	{
+		state ^= state << 13;
+		state ^= state >> 7;
+		state ^= state << 17;
+		return state;
+	}
+
+	static uint64_t gsUUIDState = []()
+	{
+		uint64_t seed = static_cast<uint64_t>(
+			std::chrono::high_resolution_clock::now().time_since_epoch().count()
+		);
+		// Avalanche the seed bits to avoid poor initial states
+		seed ^= seed >> 33;
+		seed *= 0xff51afd7ed558ccdULL;
+		seed ^= seed >> 33;
+		seed *= 0xc4ceb9fe1a85ec53ULL;
+		seed ^= seed >> 33;
+		return seed ? seed : 0xdeadbeefcafe1337ULL;
+	}();
 
 	UUID::UUID()
-		: myUUID(gsUniformDistribution(gsEngine))
+		: myUUID(XorShift64(gsUUIDState))
 	{
 	}
 

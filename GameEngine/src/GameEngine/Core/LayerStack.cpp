@@ -5,7 +5,7 @@ namespace GameEngine {
 
 	LayerStack::~LayerStack()
 	{
-		for (Layer* layer : myLayers)
+		for (Layer* layer : myAll)
 		{
 			layer->OnDetach();
 			delete layer;
@@ -14,34 +14,43 @@ namespace GameEngine {
 
 	void LayerStack::PushLayer(Layer* layer)
 	{
-		myLayers.emplace(myLayers.begin() + myLayerInsertIndex, layer);
-		myLayerInsertIndex++;
+		myLayerList.push_back(layer);
+		RebuildCombined();
 	}
 
 	void LayerStack::PushOverlay(Layer* overlay)
 	{
-		myLayers.emplace_back(overlay);
+		myOverlayList.push_back(overlay);
+		RebuildCombined();
 	}
 
 	void LayerStack::PopLayer(Layer* layer)
 	{
-		auto it = std::find(myLayers.begin(), myLayers.begin() + myLayerInsertIndex, layer);
-		if (it != myLayers.begin() + myLayerInsertIndex)
+		auto it = std::find(myLayerList.begin(), myLayerList.end(), layer);
+		if (it != myLayerList.end())
 		{
 			layer->OnDetach();
-			myLayers.erase(it);
-			myLayerInsertIndex--;
+			myLayerList.erase(it);
+			RebuildCombined();
 		}
 	}
 
 	void LayerStack::PopOverlay(Layer* overlay)
 	{
-		auto it = std::find(myLayers.begin() + myLayerInsertIndex, myLayers.end(), overlay);
-		if (it != myLayers.end())
+		auto it = std::find(myOverlayList.begin(), myOverlayList.end(), overlay);
+		if (it != myOverlayList.end())
 		{
 			overlay->OnDetach();
-			myLayers.erase(it);
+			myOverlayList.erase(it);
+			RebuildCombined();
 		}
+	}
+
+	void LayerStack::RebuildCombined()
+	{
+		myAll.clear();
+		myAll.insert(myAll.end(), myLayerList.begin(), myLayerList.end());
+		myAll.insert(myAll.end(), myOverlayList.begin(), myOverlayList.end());
 	}
 
 }

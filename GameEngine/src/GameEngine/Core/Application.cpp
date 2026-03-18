@@ -66,8 +66,7 @@ namespace GameEngine {
 	void Application::SubmitToMainThread(const std::function<void()>& function)
 	{
 		std::scoped_lock<std::mutex> lock(myMainThreadQueueMutex);
-
-		myMainThreadQueue.emplace_back(function);
+		myMainThreadQueue.push_back(function);
 	}
 
 	void Application::OnEvent(Event& e)
@@ -147,12 +146,14 @@ namespace GameEngine {
 
 	void Application::ExecuteMainThreadQueue()
 	{
-		std::scoped_lock<std::mutex> lock(myMainThreadQueueMutex);
+		std::vector<std::function<void()>> queue;
+		{
+			std::scoped_lock<std::mutex> lock(myMainThreadQueueMutex);
+			queue.swap(myMainThreadQueue);
+		}
 
-		for (auto& func : myMainThreadQueue)
+		for (auto& func : queue)
 			func();
-
-		myMainThreadQueue.clear();
 	}
 
 }
