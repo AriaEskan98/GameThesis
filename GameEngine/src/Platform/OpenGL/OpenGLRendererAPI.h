@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Hazel/Renderer/RendererAPI.h"
+#include "GameEngine/Renderer/RendererAPI.h"
 
 namespace GameEngine {
 

@@ -1,7 +1,7 @@
 #include "gepch.h"
-#include "Hazel/Core/Input.h"
+#include "GameEngine/Core/Input.h"
 
-#include "Hazel/Core/Application.h"
+#include "GameEngine/Core/Application.h"
 #include <GLFW/glfw3.h>
 
 namespace GameEngine {

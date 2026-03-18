@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Hazel.h"
+#include "GameEngine.h"
 
 class ExampleLayer : public GameEngine::Layer
 {
@@ -22,7 +22,7 @@ private:
 	GameEngine::Handle<GameEngine::Shader> myFlatColorShader;
 	GameEngine::Handle<GameEngine::VertexArray> mySquareVA;
 
-	GameEngine::Handle<GameEngine::Texture2D> myTexture, myChernoLogoTexture;
+	GameEngine::Handle<GameEngine::Texture2D> myTexture, myEngineLogoTexture;
 
 	GameEngine::OrthographicCameraController myCameraController;
 	glm::vec3 mySquareColor = { 0.2f, 0.3f, 0.8f };

@@ -1,6 +1,6 @@
 #include "gepch.h"
 #include "Platform/OpenGL/OpenGLShader.h"
-#include "Hazel/Core/Timer.h"
+#include "GameEngine/Core/Timer.h"
 
 #include <fstream>
 #include <glad/glad.h>

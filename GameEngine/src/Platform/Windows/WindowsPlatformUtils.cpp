@@ -1,6 +1,6 @@
 #include "gepch.h"
-#include "Hazel/Utils/PlatformUtils.h"
-#include "Hazel/Core/Application.h"
+#include "GameEngine/Utils/PlatformUtils.h"
+#include "GameEngine/Core/Application.h"
 
 #include <commdlg.h>
 #include <GLFW/glfw3.h>

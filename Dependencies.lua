@@ -1,5 +1,5 @@
 
--- Hazel Dependencies
+-- GameEngine Dependencies
 
 VULKAN_SDK = os.getenv("VULKAN_SDK")
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Hazel/Renderer/UniformBuffer.h"
+#include "GameEngine/Renderer/UniformBuffer.h"
 
 namespace GameEngine {
 

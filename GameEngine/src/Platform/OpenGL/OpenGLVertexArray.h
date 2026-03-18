@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Hazel/Renderer/VertexArray.h"
+#include "GameEngine/Renderer/VertexArray.h"
 
 namespace GameEngine {
 

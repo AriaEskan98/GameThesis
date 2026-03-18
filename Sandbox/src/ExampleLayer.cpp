@@ -122,7 +122,7 @@ ExampleLayer::ExampleLayer()
 	auto textureShader = myShaderLibrary.Load("assets/shaders/Texture.glsl");
 
 	myTexture = GameEngine::Texture2D::Create("assets/textures/Checkerboard.png");
-	myChernoLogoTexture = GameEngine::Texture2D::Create("assets/textures/ChernoLogo.png");
+	myEngineLogoTexture = GameEngine::Texture2D::Create("assets/textures/EngineLogo.png");
 
 	textureShader->Bind();
 	textureShader->SetInt("u_Texture", 0);
@@ -166,7 +166,7 @@ void ExampleLayer::OnUpdate(GameEngine::Timestep ts)
 
 	myTexture->Bind();
 	GameEngine::Renderer::Submit(textureShader, mySquareVA, glm::scale(glm::mat4(1.0f), glm::vec3(1.5f)));
-	myChernoLogoTexture->Bind();
+	myEngineLogoTexture->Bind();
 	GameEngine::Renderer::Submit(textureShader, mySquareVA, glm::scale(glm::mat4(1.0f), glm::vec3(1.5f)));
 
 	// Triangle
