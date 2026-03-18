@@ -475,6 +475,46 @@ namespace GameEngine {
 
 		// Draw 3D meshes
 		Renderer3D::BeginScene(camera);
+
+		// --- Collect scene lights ---
+		{
+			LightEnvironment lights;
+
+			// Directional light — only the first entity wins.
+			{
+				auto view = myRegistry.view<TransformComponent, DirectionalLightComponent>();
+				for (auto entity : view)
+				{
+					auto [transform, light] = view.get<TransformComponent, DirectionalLightComponent>(entity);
+					// Forward direction (-Y rotated by entity rotation) is used as the light direction.
+					glm::vec3 dir = glm::normalize(
+						glm::quat(transform.Rotation) * glm::vec3(0.0f, -1.0f, 0.0f));
+					lights.DirectionalLight = { dir, light.Color, light.Intensity };
+					lights.HasDirectionalLight = true;
+					break;
+				}
+			}
+
+			// Point lights — up to Renderer3D::MaxPointLights.
+			{
+				auto view = myRegistry.view<TransformComponent, PointLightComponent>();
+				for (auto entity : view)
+				{
+					if ((int)lights.PointLights.size() >= Renderer3D::MaxPointLights)
+						break;
+					auto [transform, light] = view.get<TransformComponent, PointLightComponent>(entity);
+					lights.PointLights.push_back({
+						transform.Translation,
+						light.Color, light.Intensity,
+						light.Constant, light.Linear, light.Quadratic
+					});
+				}
+			}
+
+			Renderer3D::SetLightEnvironment(lights);
+		}
+
+		// --- Submit meshes ---
 		{
 			auto view = myRegistry.view<TransformComponent, MeshRendererComponent>();
 			for (auto entity : view)
@@ -484,6 +524,7 @@ namespace GameEngine {
 					Renderer3D::Submit(mesh.Mesh, transform.GetTransform(), mesh.Color, (int)entity);
 			}
 		}
+
 		Renderer3D::EndScene();
 	}
 
@@ -557,6 +598,16 @@ namespace GameEngine {
 
 	template<>
 	void Scene::OnComponentAdded<MeshRendererComponent>(Entity entity, MeshRendererComponent& component)
+	{
+	}
+
+	template<>
+	void Scene::OnComponentAdded<DirectionalLightComponent>(Entity entity, DirectionalLightComponent& component)
+	{
+	}
+
+	template<>
+	void Scene::OnComponentAdded<PointLightComponent>(Entity entity, PointLightComponent& component)
 	{
 	}
 

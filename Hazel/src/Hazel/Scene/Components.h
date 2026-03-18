@@ -171,6 +171,31 @@ namespace GameEngine {
 		float LineSpacing = 0.0f;
 	};
 
+	/// Casts parallel light rays from a fixed direction (derived from the entity's rotation).
+	/// Only the first DirectionalLightComponent in the scene is used.
+	struct DirectionalLightComponent
+	{
+		glm::vec3 Color     = { 1.0f, 1.0f, 1.0f };
+		float     Intensity = 1.0f;
+
+		DirectionalLightComponent() = default;
+		DirectionalLightComponent(const DirectionalLightComponent&) = default;
+	};
+
+	/// A positional light source that attenuates with distance.
+	/// Up to Renderer3D::MaxPointLights (4) are active simultaneously.
+	struct PointLightComponent
+	{
+		glm::vec3 Color     = { 1.0f, 1.0f, 1.0f };
+		float     Intensity = 1.0f;
+		float     Constant  = 1.0f;   ///< Constant attenuation term.
+		float     Linear    = 0.09f;  ///< Linear attenuation term.
+		float     Quadratic = 0.032f; ///< Quadratic attenuation term.
+
+		PointLightComponent() = default;
+		PointLightComponent(const PointLightComponent&) = default;
+	};
+
 	/// Attaches a 3D mesh to an entity so that it is drawn by Renderer3D each frame.
 	struct MeshRendererComponent
 	{
@@ -190,6 +215,7 @@ namespace GameEngine {
 		ComponentGroup<TransformComponent, SpriteRendererComponent,
 			CircleRendererComponent, CameraComponent, ScriptComponent,
 			NativeScriptComponent, Rigidbody2DComponent, BoxCollider2DComponent,
-			CircleCollider2DComponent, TextComponent, MeshRendererComponent>;
+			CircleCollider2DComponent, TextComponent, MeshRendererComponent,
+			DirectionalLightComponent, PointLightComponent>;
 
 }
