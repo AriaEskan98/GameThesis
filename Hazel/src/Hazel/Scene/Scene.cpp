@@ -696,4 +696,14 @@ namespace GameEngine {
 	{
 	}
 
+	template<>
+	void Scene::OnComponentAdded<Rigidbody3DComponent>(Entity entity, Rigidbody3DComponent& component)
+	{
+	}
+
+	template<>
+	void Scene::OnComponentAdded<BoxCollider3DComponent>(Entity entity, BoxCollider3DComponent& component)
+	{
+	}
+
 }
