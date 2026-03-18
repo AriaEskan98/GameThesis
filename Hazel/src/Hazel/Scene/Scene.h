@@ -10,6 +10,8 @@ class b2World;
 
 namespace GameEngine {
 
+class Physics3DWorld;
+
 	class Entity;
 
 	class Scene
@@ -61,6 +63,9 @@ namespace GameEngine {
 		void OnPhysics2DStart();
 		void OnPhysics2DStop();
 
+		void OnPhysics3DStart();
+		void OnPhysics3DStop();
+
 		void RenderScene(EditorCamera& camera);
 	private:
 		entt::registry myRegistry;
@@ -69,7 +74,8 @@ namespace GameEngine {
 		bool myIsPaused = false;
 		int myStepFrames = 0;
 
-		b2World* myPhysicsWorld = nullptr;
+		b2World*         myPhysicsWorld   = nullptr;
+		Physics3DWorld*  myPhysicsWorld3D = nullptr;
 
 		std::unordered_map<UUID, entt::entity> myEntityMap;
 

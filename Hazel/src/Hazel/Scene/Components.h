@@ -206,6 +206,39 @@ namespace GameEngine {
 		MeshRendererComponent(const MeshRendererComponent&) = default;
 	};
 
+	// -----------------------------------------------------------------------
+	// 3-D physics components
+	// -----------------------------------------------------------------------
+
+	/// Rigid body for the 3-D physics simulation.
+	/// A runtime pointer to the Physics3DBody is stored in RuntimeBody.
+	struct Rigidbody3DComponent
+	{
+		enum class BodyType { Static = 0, Dynamic, Kinematic };
+
+		BodyType Type     = BodyType::Dynamic;
+		float    Mass     = 1.0f;      ///< Ignored when Type == Static.
+		float    Friction    = 0.5f;
+		float    Restitution = 0.0f;
+		bool     UseGravity  = true;
+
+		// Set by the physics system at runtime — do not touch in the editor.
+		void* RuntimeBody = nullptr;
+
+		Rigidbody3DComponent() = default;
+		Rigidbody3DComponent(const Rigidbody3DComponent&) = default;
+	};
+
+	/// An axis-aligned box collider for 3-D physics.
+	struct BoxCollider3DComponent
+	{
+		glm::vec3 Offset      = { 0.0f, 0.0f, 0.0f };
+		glm::vec3 HalfExtents = { 0.5f, 0.5f, 0.5f };
+
+		BoxCollider3DComponent() = default;
+		BoxCollider3DComponent(const BoxCollider3DComponent&) = default;
+	};
+
 	template<typename... Component>
 	struct ComponentGroup
 	{
@@ -216,6 +249,7 @@ namespace GameEngine {
 			CircleRendererComponent, CameraComponent, ScriptComponent,
 			NativeScriptComponent, Rigidbody2DComponent, BoxCollider2DComponent,
 			CircleCollider2DComponent, TextComponent, MeshRendererComponent,
-			DirectionalLightComponent, PointLightComponent>;
+			DirectionalLightComponent, PointLightComponent,
+			Rigidbody3DComponent, BoxCollider3DComponent>;
 
 }

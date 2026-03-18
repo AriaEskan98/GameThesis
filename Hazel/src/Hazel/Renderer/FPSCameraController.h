@@ -6,16 +6,23 @@
 #include "Hazel/Events/MouseEvent.h"
 #include "Hazel/Events/ApplicationEvent.h"
 #include "Hazel/Renderer/Camera.h"
+#include "Hazel/Physics/Physics3D.h"
 
 #include <glm/glm.hpp>
 
 namespace GameEngine {
 
-	/// First-person camera controller.
+	/// First-person camera controller with gravity and jump support.
 	///
 	/// Wraps a perspective Camera and tracks position, yaw and pitch independently
 	/// so the player moves in the horizontal plane regardless of where they are
 	/// looking (standard FPS behaviour).
+	///
+	/// Physics integration (optional):
+	///   Call SetPhysicsBody() with a kinematic Physics3DBody to drive movement
+	///   through the physics world (collision response, proper ground detection).
+	///   Without a body the controller uses a simple self-contained gravity simulation
+	///   with an implicit floor at y = EyeHeight.
 	///
 	/// Usage:
 	///   - Call SetFPSMode(true) to lock the cursor and enter game mode.
@@ -26,8 +33,7 @@ namespace GameEngine {
 	/// Key bindings (non-configurable defaults):
 	///   W/S   — forward / backward
 	///   A/D   — strafe left / right
-	///   Space — move up
-	///   Ctrl  — move down
+	///   Space — jump (when grounded)
 	///   Shift — sprint (2× speed)
 	///   Escape — exit FPS mode
 	class FPSCameraController
@@ -65,6 +71,18 @@ namespace GameEngine {
 		void SetMouseSensitivity(float sens)   { myMouseSensitivity = sens;  }
 		void SetAspectRatio(float ratio);
 
+		/// Attach a kinematic physics body so movement and jumping interact with
+		/// the 3D physics world. Pass nullptr to revert to standalone gravity.
+		void SetPhysicsBody(Physics3DBody* body) { myPhysicsBody = body; }
+		Physics3DBody* GetPhysicsBody() const    { return myPhysicsBody; }
+
+		bool IsGrounded() const { return myIsGrounded; }
+
+		// ---- Physics constants ------------------------------------------
+		static constexpr float EyeHeight  = 1.75f; ///< Camera height above feet (m).
+		static constexpr float JumpSpeed  = 5.0f;  ///< Initial vertical speed on jump (m/s).
+		static constexpr float GravityAccel = -9.81f; ///< m/s².
+
 	private:
 		void UpdateProjection();
 		void UpdateView();
@@ -92,6 +110,11 @@ namespace GameEngine {
 		float myLastMouseX  = 0.0f;
 		float myLastMouseY  = 0.0f;
 		bool  myFirstMouse  = true;
+
+		// ---- Physics state -----------------------------------------------
+		Physics3DBody* myPhysicsBody     = nullptr; ///< Optional; owned by Physics3DWorld.
+		float          myVerticalVelocity = 0.0f;   ///< Used when no physics body is set.
+		bool           myIsGrounded       = false;
 	};
 
 }

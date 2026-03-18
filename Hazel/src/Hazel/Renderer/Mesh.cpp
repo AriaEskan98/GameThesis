@@ -1,11 +1,9 @@
 #include "gepch.h"
 #include "Hazel/Renderer/Mesh.h"
 
-#include <fstream>
-#include <sstream>
-#include <unordered_map>
-
-#include <glm/glm.hpp>
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
 
 namespace GameEngine {
 
@@ -33,141 +31,65 @@ namespace GameEngine {
 	}
 
 	// ---------------------------------------------------------------------------
-	// OBJ parsing helpers
-	// ---------------------------------------------------------------------------
-
-	/// Parse an OBJ face-vertex token such as "1", "1/2", "1//3", or "1/2/3".
-	/// Indices are converted from 1-based OBJ convention to 0-based.
-	/// A value of -1 means the component was absent.
-	static void ParseFaceToken(const std::string& token, int& outPos, int& outTex, int& outNorm)
-	{
-		outPos = outTex = outNorm = -1;
-
-		size_t s1 = token.find('/');
-		if (s1 == std::string::npos)
-		{
-			outPos = std::stoi(token) - 1;
-			return;
-		}
-
-		outPos = std::stoi(token.substr(0, s1)) - 1;
-
-		size_t s2 = token.find('/', s1 + 1);
-		if (s2 == std::string::npos)
-		{
-			// "v/t"
-			if (s1 + 1 < token.size())
-				outTex = std::stoi(token.substr(s1 + 1)) - 1;
-			return;
-		}
-
-		// "v/t/n" or "v//n"
-		if (s2 > s1 + 1)
-			outTex = std::stoi(token.substr(s1 + 1, s2 - s1 - 1)) - 1;
-		if (s2 + 1 < token.size())
-			outNorm = std::stoi(token.substr(s2 + 1)) - 1;
-	}
-
-	/// Hash for a (posIdx, texIdx, normIdx) triple used to de-duplicate vertices.
-	struct IndexTripleHash
-	{
-		size_t operator()(const std::tuple<int, int, int>& t) const
-		{
-			size_t h = (size_t)std::get<0>(t);
-			h = h * 100003u ^ (size_t)std::get<1>(t);
-			h = h * 100003u ^ (size_t)std::get<2>(t);
-			return h;
-		}
-	};
-
-	// ---------------------------------------------------------------------------
-	// Mesh::Create
+	// Mesh::Create  —  Assimp-based loader (OBJ, FBX, GLTF, DAE, …)
 	// ---------------------------------------------------------------------------
 
 	Handle<Mesh> Mesh::Create(const std::string& filepath)
 	{
-		std::ifstream file(filepath);
-		if (!file.is_open())
+		Assimp::Importer importer;
+
+		// aiProcess_Triangulate    : convert quads/n-gons to triangles.
+		// aiProcess_GenSmoothNormals: compute normals when absent.
+		// aiProcess_FlipUVs        : flip V for OpenGL (origin at bottom-left).
+		// aiProcess_JoinIdenticalVertices: de-duplicate shared vertices.
+		const aiScene* scene = importer.ReadFile(filepath,
+			aiProcess_Triangulate          |
+			aiProcess_GenSmoothNormals     |
+			aiProcess_FlipUVs              |
+			aiProcess_JoinIdenticalVertices
+		);
+
+		if (!scene || (scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE) || !scene->mRootNode)
 		{
-			GE_CORE_ERROR("Mesh::Create: could not open '{0}'", filepath);
+			GE_CORE_ERROR("Mesh::Create: failed to load '{0}': {1}",
+				filepath, importer.GetErrorString());
 			return nullptr;
 		}
 
-		// Raw OBJ data
-		std::vector<glm::vec3> positions;
-		std::vector<glm::vec3> normals;
-		std::vector<glm::vec2> texcoords;
-
-		// Output geometry
-		std::unordered_map<std::tuple<int, int, int>, uint32_t, IndexTripleHash> vertexCache;
 		std::vector<MeshVertex> vertices;
 		std::vector<uint32_t>   indices;
 
-		std::string line;
-		while (std::getline(file, line))
+		// Merge all sub-meshes in the file into a single vertex/index buffer.
+		for (uint32_t m = 0; m < scene->mNumMeshes; ++m)
 		{
-			if (line.empty() || line[0] == '#')
-				continue;
+			const aiMesh* mesh      = scene->mMeshes[m];
+			const uint32_t baseVert = (uint32_t)vertices.size();
 
-			std::istringstream ss(line);
-			std::string token;
-			ss >> token;
-
-			if (token == "v")
+			for (uint32_t i = 0; i < mesh->mNumVertices; ++i)
 			{
-				glm::vec3 p;
-				ss >> p.x >> p.y >> p.z;
-				positions.push_back(p);
+				MeshVertex v;
+
+				v.Position = { mesh->mVertices[i].x,
+				               mesh->mVertices[i].y,
+				               mesh->mVertices[i].z };
+
+				v.Normal = mesh->HasNormals()
+					? glm::vec3{ mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z }
+					: glm::vec3{ 0.0f, 1.0f, 0.0f };
+
+				// mTextureCoords[0] is the first UV channel (most models only have one).
+				v.TexCoord = mesh->mTextureCoords[0]
+					? glm::vec2{ mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y }
+					: glm::vec2{ 0.0f, 0.0f };
+
+				vertices.push_back(v);
 			}
-			else if (token == "vn")
-			{
-				glm::vec3 n;
-				ss >> n.x >> n.y >> n.z;
-				normals.push_back(n);
-			}
-			else if (token == "vt")
-			{
-				glm::vec2 t;
-				ss >> t.x >> t.y;
-				texcoords.push_back(t);
-			}
-			else if (token == "f")
-			{
-				// Collect all vertex indices for this face, then triangulate as a fan.
-				std::vector<uint32_t> faceVerts;
-				std::string vtok;
-				while (ss >> vtok)
-				{
-					int pi, ti, ni;
-					ParseFaceToken(vtok, pi, ti, ni);
 
-					auto key = std::make_tuple(pi, ti, ni);
-					auto it  = vertexCache.find(key);
-					if (it != vertexCache.end())
-					{
-						faceVerts.push_back(it->second);
-					}
-					else
-					{
-						MeshVertex v;
-						v.Position = (pi >= 0 && pi < (int)positions.size()) ? positions[pi] : glm::vec3(0.0f);
-						v.Normal   = (ni >= 0 && ni < (int)normals.size())   ? normals[ni]   : glm::vec3(0.0f, 1.0f, 0.0f);
-						v.TexCoord = (ti >= 0 && ti < (int)texcoords.size()) ? texcoords[ti] : glm::vec2(0.0f);
-
-						uint32_t idx = (uint32_t)vertices.size();
-						vertices.push_back(v);
-						vertexCache[key] = idx;
-						faceVerts.push_back(idx);
-					}
-				}
-
-				// Fan triangulation: (0,1,2), (0,2,3), (0,3,4), ...
-				for (size_t i = 1; i + 1 < faceVerts.size(); ++i)
-				{
-					indices.push_back(faceVerts[0]);
-					indices.push_back(faceVerts[i]);
-					indices.push_back(faceVerts[i + 1]);
-				}
+			for (uint32_t i = 0; i < mesh->mNumFaces; ++i)
+			{
+				const aiFace& face = mesh->mFaces[i];
+				for (uint32_t j = 0; j < face.mNumIndices; ++j)
+					indices.push_back(baseVert + face.mIndices[j]);
 			}
 		}
 
@@ -175,28 +97,6 @@ namespace GameEngine {
 		{
 			GE_CORE_ERROR("Mesh::Create: no geometry found in '{0}'", filepath);
 			return nullptr;
-		}
-
-		// If the OBJ did not supply normals, compute smooth normals by accumulating
-		// face normals at shared vertices and normalizing.
-		if (normals.empty())
-		{
-			for (auto& v : vertices)
-				v.Normal = glm::vec3(0.0f);
-
-			for (size_t i = 0; i + 2 < indices.size(); i += 3)
-			{
-				MeshVertex& v0 = vertices[indices[i]];
-				MeshVertex& v1 = vertices[indices[i + 1]];
-				MeshVertex& v2 = vertices[indices[i + 2]];
-				glm::vec3 n = glm::normalize(
-					glm::cross(v1.Position - v0.Position, v2.Position - v0.Position));
-				v0.Normal += n;
-				v1.Normal += n;
-				v2.Normal += n;
-			}
-			for (auto& v : vertices)
-				v.Normal = glm::normalize(v.Normal);
 		}
 
 		GE_CORE_INFO("Mesh::Create: loaded '{0}' ({1} vertices, {2} triangles)",

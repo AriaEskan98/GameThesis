@@ -18,16 +18,17 @@ namespace GameEngine {
 		glm::vec2 TexCoord;
 	};
 
-	/// A 3D mesh loaded from a Wavefront OBJ file and stored in GPU-side vertex/index buffers.
-	/// Supports positions, normals, and texture coordinates. Flat normals are generated automatically
-	/// when the source file does not provide them.
+	/// A 3D mesh loaded via Assimp (OBJ, FBX, GLTF, DAE, …) and stored in GPU-side
+	/// vertex/index buffers. Supports positions, normals, and texture coordinates.
+	/// Smooth normals are generated automatically when the source file omits them.
 	class Mesh
 	{
 	public:
 		/// Construct a mesh directly from pre-built vertex and index data.
 		Mesh(const std::vector<MeshVertex>& vertices, const std::vector<uint32_t>& indices);
 
-		/// Load a mesh from a Wavefront OBJ file. Returns nullptr on failure.
+		/// Load a mesh from any Assimp-supported format (OBJ, FBX, GLTF, DAE, …).
+		/// Returns nullptr on failure.
 		static Handle<Mesh> Create(const std::string& filepath);
 
 		const Handle<VertexArray>& GetVertexArray() const { return myVertexArray; }

@@ -77,16 +77,60 @@ namespace GameEngine {
 		                    : myMovementSpeed;
 		const float dt    = ts;
 
-		// Move in the horizontal plane (ignore the Y component of forward so the
-		// player does not drift up or down while looking at the sky or ground).
+		// Horizontal movement — ignore the Y component of forward so the player
+		// moves in the ground plane regardless of pitch.
 		glm::vec3 flatForward = glm::normalize(glm::vec3(myForward.x, 0.0f, myForward.z));
 
-		if (Input::IsKeyPressed(Key::W))          myPosition += flatForward * speed * dt;
-		if (Input::IsKeyPressed(Key::S))          myPosition -= flatForward * speed * dt;
-		if (Input::IsKeyPressed(Key::A))          myPosition -= myRight     * speed * dt;
-		if (Input::IsKeyPressed(Key::D))          myPosition += myRight     * speed * dt;
-		if (Input::IsKeyPressed(Key::Space))      myPosition.y += speed * dt;
-		if (Input::IsKeyPressed(Key::LeftControl))myPosition.y -= speed * dt;
+		glm::vec3 horizontal = { 0.0f, 0.0f, 0.0f };
+		if (Input::IsKeyPressed(Key::W)) horizontal += flatForward * speed;
+		if (Input::IsKeyPressed(Key::S)) horizontal -= flatForward * speed;
+		if (Input::IsKeyPressed(Key::A)) horizontal -= myRight     * speed;
+		if (Input::IsKeyPressed(Key::D)) horizontal += myRight     * speed;
+
+		if (myPhysicsBody)
+		{
+			// ---- Physics-driven path ----------------------------------------
+			// Read last frame's position from the physics body (eye = feet + EyeHeight).
+			myPosition = myPhysicsBody->Position + glm::vec3(0.0f, EyeHeight, 0.0f);
+			myIsGrounded = myPhysicsBody->IsGrounded;
+
+			// Jump: apply an upward velocity impulse when grounded.
+			float verticalVel = myPhysicsBody->Velocity.y;
+			if (Input::IsKeyPressed(Key::Space) && myIsGrounded)
+				verticalVel = JumpSpeed;
+
+			// Write the desired velocity back so the physics world can resolve collisions.
+			myPhysicsBody->Velocity = { horizontal.x, verticalVel, horizontal.z };
+		}
+		else
+		{
+			// ---- Standalone gravity simulation ------------------------------
+			// Apply gravity every frame unless standing on the implicit floor.
+			if (!myIsGrounded)
+				myVerticalVelocity += GravityAccel * dt;
+
+			myPosition += horizontal * dt;
+			myPosition.y += myVerticalVelocity * dt;
+
+			// Implicit floor at EyeHeight (y = 0 is ground level).
+			if (myPosition.y <= EyeHeight)
+			{
+				myPosition.y    = EyeHeight;
+				myVerticalVelocity = 0.0f;
+				myIsGrounded    = true;
+			}
+			else
+			{
+				myIsGrounded = false;
+			}
+
+			// Jump from the floor.
+			if (Input::IsKeyPressed(Key::Space) && myIsGrounded)
+			{
+				myVerticalVelocity = JumpSpeed;
+				myIsGrounded       = false;
+			}
+		}
 
 		UpdateView();
 	}

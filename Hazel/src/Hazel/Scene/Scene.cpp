@@ -8,6 +8,7 @@
 #include "Hazel/Renderer/Renderer2D.h"
 #include "Hazel/Renderer/Renderer3D.h"
 #include "Hazel/Physics/Physics2D.h"
+#include "Hazel/Physics/Physics3D.h"
 
 #include <glm/glm.hpp>
 
@@ -29,6 +30,7 @@ namespace GameEngine {
 	Scene::~Scene()
 	{
 		delete myPhysicsWorld;
+		delete myPhysicsWorld3D;
 	}
 
 	template<typename... Component>
@@ -125,6 +127,7 @@ namespace GameEngine {
 		myIsRunning = true;
 
 		OnPhysics2DStart();
+		OnPhysics3DStart();
 
 		// Scripting
 		{
@@ -145,6 +148,7 @@ namespace GameEngine {
 		myIsRunning = false;
 
 		OnPhysics2DStop();
+		OnPhysics3DStop();
 
 		ScriptEngine::OnRuntimeStop();
 	}
@@ -152,11 +156,13 @@ namespace GameEngine {
 	void Scene::OnSimulationStart()
 	{
 		OnPhysics2DStart();
+		OnPhysics3DStart();
 	}
 
 	void Scene::OnSimulationStop()
 	{
 		OnPhysics2DStop();
+		OnPhysics3DStop();
 	}
 
 	void Scene::OnUpdateRuntime(Timestep ts)
@@ -207,6 +213,25 @@ namespace GameEngine {
 					transform.Translation.x = position.x;
 					transform.Translation.y = position.y;
 					transform.Rotation.z = body->GetAngle();
+				}
+			}
+
+			// 3D Physics
+			{
+				myPhysicsWorld3D->Step(ts);
+
+				auto view3d = myRegistry.view<Rigidbody3DComponent>();
+				for (auto e : view3d)
+				{
+					Entity entity = { e, this };
+					auto& transform = entity.GetComponent<TransformComponent>();
+					auto& rb3d      = entity.GetComponent<Rigidbody3DComponent>();
+
+					if (rb3d.Type == Rigidbody3DComponent::BodyType::Static)
+						continue;
+
+					auto* body = (Physics3DBody*)rb3d.RuntimeBody;
+					transform.Translation = body->Position;
 				}
 			}
 		}
@@ -294,6 +319,25 @@ namespace GameEngine {
 					transform.Translation.x = position.x;
 					transform.Translation.y = position.y;
 					transform.Rotation.z = body->GetAngle();
+				}
+			}
+
+			// 3D Physics
+			{
+				myPhysicsWorld3D->Step(ts);
+
+				auto view3d = myRegistry.view<Rigidbody3DComponent>();
+				for (auto e : view3d)
+				{
+					Entity entity = { e, this };
+					auto& transform = entity.GetComponent<TransformComponent>();
+					auto& rb3d      = entity.GetComponent<Rigidbody3DComponent>();
+
+					if (rb3d.Type == Rigidbody3DComponent::BodyType::Static)
+						continue;
+
+					auto* body = (Physics3DBody*)rb3d.RuntimeBody;
+					transform.Translation = body->Position;
 				}
 			}
 		}
@@ -432,6 +476,47 @@ namespace GameEngine {
 	{
 		delete myPhysicsWorld;
 		myPhysicsWorld = nullptr;
+	}
+
+	void Scene::OnPhysics3DStart()
+	{
+		myPhysicsWorld3D = new Physics3DWorld();
+
+		auto view = myRegistry.view<Rigidbody3DComponent>();
+		for (auto e : view)
+		{
+			Entity entity = { e, this };
+			auto& transform = entity.GetComponent<TransformComponent>();
+			auto& rb3d      = entity.GetComponent<Rigidbody3DComponent>();
+
+			Physics3DBodyDef def;
+			def.Position    = transform.Translation;
+			def.Friction    = rb3d.Friction;
+			def.Restitution = rb3d.Restitution;
+			def.UseGravity  = rb3d.UseGravity;
+			def.IsKinematic = (rb3d.Type == Rigidbody3DComponent::BodyType::Kinematic);
+			// Static bodies have infinite mass (InvMass = 0).
+			def.Mass = (rb3d.Type == Rigidbody3DComponent::BodyType::Static) ? 0.0f : rb3d.Mass;
+
+			if (entity.HasComponent<BoxCollider3DComponent>())
+			{
+				auto& bc3d      = entity.GetComponent<BoxCollider3DComponent>();
+				def.HalfExtents = bc3d.HalfExtents * transform.Scale;
+				def.Position   += bc3d.Offset;
+			}
+			else
+			{
+				def.HalfExtents = transform.Scale * 0.5f;
+			}
+
+			rb3d.RuntimeBody = myPhysicsWorld3D->CreateBody(def);
+		}
+	}
+
+	void Scene::OnPhysics3DStop()
+	{
+		delete myPhysicsWorld3D;
+		myPhysicsWorld3D = nullptr;
 	}
 
 	void Scene::RenderScene(EditorCamera& camera)

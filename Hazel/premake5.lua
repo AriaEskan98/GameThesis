@@ -46,6 +46,8 @@ project "Hazel"
 		"%{IncludeDir.mono}",
 		"%{IncludeDir.yaml_cpp}",
 		"%{IncludeDir.ImGuizmo}",
+		"%{IncludeDir.assimp}",
+		"%{IncludeDir.assimp_config}",
 		"%{IncludeDir.shaderc}",
 		"%{IncludeDir.SPIRV_Cross}",
 		"%{IncludeDir.VulkanSDK}"
@@ -62,6 +64,7 @@ project "Hazel"
 		"opengl32.lib",
 
 		"%{Library.mono}",
+		"%{Library.assimp}",
 	}
 
 	filter "files:vendor/ImGuizmo/**.cpp"

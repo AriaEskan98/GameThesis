@@ -20,14 +20,18 @@ IncludeDir["SPIRV_Cross"] = "%{wks.location}/Hazel/vendor/SPIRV-Cross"
 IncludeDir["VulkanSDK"] = "%{VULKAN_SDK}/Include"
 IncludeDir["msdfgen"] = "%{wks.location}/Hazel/vendor/msdf-atlas-gen/msdfgen"
 IncludeDir["msdf_atlas_gen"] = "%{wks.location}/Hazel/vendor/msdf-atlas-gen/msdf-atlas-gen"
+IncludeDir["assimp"]        = "%{wks.location}/Hazel/vendor/assimp/include"
+IncludeDir["assimp_config"] = "%{wks.location}/Hazel/vendor/assimp/build/include"
 
 LibraryDir = {}
 
 LibraryDir["VulkanSDK"] = "%{VULKAN_SDK}/Lib"
-LibraryDir["mono"] = "%{wks.location}/Hazel/vendor/mono/lib/%{cfg.buildcfg}"
+LibraryDir["mono"]      = "%{wks.location}/Hazel/vendor/mono/lib/%{cfg.buildcfg}"
+LibraryDir["assimp"]    = "%{wks.location}/Hazel/vendor/assimp/build/lib"
 
 Library = {}
-Library["mono"] = "%{LibraryDir.mono}/libmono-static-sgen.lib"
+Library["mono"]   = "%{LibraryDir.mono}/libmono-static-sgen.lib"
+Library["assimp"] = "%{LibraryDir.assimp}/libassimp.a"
 
 Library["Vulkan"] = "%{LibraryDir.VulkanSDK}/vulkan-1.lib"
 Library["VulkanUtils"] = "%{LibraryDir.VulkanSDK}/VkLayer_utils.lib"
