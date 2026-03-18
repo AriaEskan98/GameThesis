@@ -10,7 +10,7 @@ namespace GameEngine {
 	public:
 		KeyCode GetKeyCode() const { return myKeyCode; }
 
-		GE_EVENT_CATEGORY(EventCategoryKeyboard | EventCategoryInput)
+		DECLARE_EVENT_CATEGORY(EventCategoryKeyboard | EventCategoryInput)
 	protected:
 		KeyEvent(const KeyCode keycode)
 			: myKeyCode(keycode) {}
@@ -33,7 +33,7 @@ namespace GameEngine {
 			return ss.str();
 		}
 
-		GE_EVENT_TYPE(KeyPressed)
+		DECLARE_EVENT_TYPE(KeyPressed)
 	private:
 		bool myIsRepeat;
 	};
@@ -51,7 +51,7 @@ namespace GameEngine {
 			return ss.str();
 		}
 
-		GE_EVENT_TYPE(KeyReleased)
+		DECLARE_EVENT_TYPE(KeyReleased)
 	};
 
 	class KeyTypedEvent : public KeyEvent
@@ -67,6 +67,6 @@ namespace GameEngine {
 			return ss.str();
 		}
 
-		GE_EVENT_TYPE(KeyTyped)
+		DECLARE_EVENT_TYPE(KeyTyped)
 	};
 }

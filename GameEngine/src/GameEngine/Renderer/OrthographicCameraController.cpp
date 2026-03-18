@@ -62,8 +62,8 @@ namespace GameEngine {
 		GE_PROFILE_FUNCTION();
 
 		EventDispatcher dispatcher(e);
-		dispatcher.Dispatch<MouseScrolledEvent>(GE_BIND_FN(OrthographicCameraController::OnMouseScrolled));
-		dispatcher.Dispatch<WindowResizeEvent>(GE_BIND_FN(OrthographicCameraController::OnWindowResized));
+		dispatcher.Dispatch<MouseScrolledEvent>([this](MouseScrolledEvent& e) { return OnMouseScrolled(e); });
+		dispatcher.Dispatch<WindowResizeEvent>([this](WindowResizeEvent& e) { return OnWindowResized(e); });
 	}
 
 	void OrthographicCameraController::OnResize(float width, float height)

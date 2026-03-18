@@ -21,10 +21,6 @@
 #define GE_EXPAND_MACRO(x) x
 #define GE_STRINGIFY_MACRO(x) #x
 
-#define FLAG(x) (1 << x)
-
-#define GE_BIND_FN(fn) [this](auto&&... args) -> decltype(auto) { return this->fn(std::forward<decltype(args)>(args)...); }
-
 namespace GameEngine {
 
 	template<typename T>

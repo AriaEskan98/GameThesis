@@ -138,9 +138,9 @@ namespace GameEngine {
 	void FPSCameraController::OnEvent(Event& e)
 	{
 		EventDispatcher dispatcher(e);
-		dispatcher.Dispatch<MouseMovedEvent>     (GE_BIND_FN(OnMouseMoved));
-		dispatcher.Dispatch<WindowResizeEvent>   (GE_BIND_FN(OnWindowResized));
-		dispatcher.Dispatch<KeyPressedEvent>     (GE_BIND_FN(OnKeyPressed));
+		dispatcher.Dispatch<MouseMovedEvent>([this](MouseMovedEvent& e) { return OnMouseMoved(e); });
+		dispatcher.Dispatch<WindowResizeEvent>([this](WindowResizeEvent& e) { return OnWindowResized(e); });
+		dispatcher.Dispatch<KeyPressedEvent>([this](KeyPressedEvent& e) { return OnKeyPressed(e); });
 	}
 
 	// -------------------------------------------------------------------------

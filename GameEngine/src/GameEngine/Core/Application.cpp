@@ -26,7 +26,7 @@ namespace GameEngine {
 			std::filesystem::current_path(mySpecification.WorkingDirectory);
 
 		myWindow = Window::Create(WindowProps(mySpecification.Name));
-		myWindow->SetEventCallback(GE_BIND_FN(Application::OnEvent));
+		myWindow->SetEventCallback([this](Event& e) { OnEvent(e); });
 
 		Renderer::Init();
 
@@ -74,15 +74,11 @@ namespace GameEngine {
 		GE_PROFILE_FUNCTION();
 
 		EventDispatcher dispatcher(e);
-		dispatcher.Dispatch<WindowCloseEvent>(GE_BIND_FN(Application::OnWindowClose));
-		dispatcher.Dispatch<WindowResizeEvent>(GE_BIND_FN(Application::OnWindowResize));
+		dispatcher.Dispatch<WindowCloseEvent>([this](WindowCloseEvent& e) { return OnWindowClose(e); });
+		dispatcher.Dispatch<WindowResizeEvent>([this](WindowResizeEvent& e) { return OnWindowResize(e); });
 
-		for (auto it = myLayerStack.rbegin(); it != myLayerStack.rend(); ++it)
-		{
-			if (e.Handled) 
-				break;
+		for (auto it = myLayerStack.rbegin(); it != myLayerStack.rend() && !e.Handled; ++it)
 			(*it)->OnEvent(e);
-		}
 	}
 
 	void Application::Run()
@@ -93,28 +89,20 @@ namespace GameEngine {
 		{
 			GE_PROFILE_SCOPE("RunLoop");
 
-			float time = Time::GetTime();
-			Timestep timestep = time - myLastFrameTime;
-			myLastFrameTime = time;
+			const float currentTime = Time::GetTime();
+			Timestep timestep = currentTime - myLastFrameTime;
+			myLastFrameTime = currentTime;
 
 			ExecuteMainThreadQueue();
 
 			if (!myMinimized)
 			{
-				{
-					GE_PROFILE_SCOPE("LayerStack OnUpdate");
-
-					for (Layer* layer : myLayerStack)
-						layer->OnUpdate(timestep);
-				}
+				for (Layer* layer : myLayerStack)
+					layer->OnUpdate(timestep);
 
 				myImGuiLayer->Begin();
-				{
-					GE_PROFILE_SCOPE("LayerStack OnImGuiRender");
-
-					for (Layer* layer : myLayerStack)
-						layer->OnImGuiRender();
-				}
+				for (Layer* layer : myLayerStack)
+					layer->OnImGuiRender();
 				myImGuiLayer->End();
 			}
 

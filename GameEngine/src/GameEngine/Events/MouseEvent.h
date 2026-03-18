@@ -21,8 +21,8 @@ namespace GameEngine {
 			return ss.str();
 		}
 
-		GE_EVENT_TYPE(MouseMoved)
-		GE_EVENT_CATEGORY(EventCategoryMouse | EventCategoryInput)
+		DECLARE_EVENT_TYPE(MouseMoved)
+		DECLARE_EVENT_CATEGORY(EventCategoryMouse | EventCategoryInput)
 	private:
 		float myMouseX, myMouseY;
 	};
@@ -43,8 +43,8 @@ namespace GameEngine {
 			return ss.str();
 		}
 
-		GE_EVENT_TYPE(MouseScrolled)
-		GE_EVENT_CATEGORY(EventCategoryMouse | EventCategoryInput)
+		DECLARE_EVENT_TYPE(MouseScrolled)
+		DECLARE_EVENT_CATEGORY(EventCategoryMouse | EventCategoryInput)
 	private:
 		float myXOffset, myYOffset;
 	};
@@ -54,7 +54,7 @@ namespace GameEngine {
 	public:
 		MouseCode GetMouseButton() const { return myButton; }
 
-		GE_EVENT_CATEGORY(EventCategoryMouse | EventCategoryInput | EventCategoryMouseButton)
+		DECLARE_EVENT_CATEGORY(EventCategoryMouse | EventCategoryInput | EventCategoryMouseButton)
 	protected:
 		MouseButtonEvent(const MouseCode button)
 			: myButton(button) {}
@@ -75,7 +75,7 @@ namespace GameEngine {
 			return ss.str();
 		}
 
-		GE_EVENT_TYPE(MouseButtonPressed)
+		DECLARE_EVENT_TYPE(MouseButtonPressed)
 	};
 
 	class MouseButtonReleasedEvent : public MouseButtonEvent
@@ -91,7 +91,7 @@ namespace GameEngine {
 			return ss.str();
 		}
 
-		GE_EVENT_TYPE(MouseButtonReleased)
+		DECLARE_EVENT_TYPE(MouseButtonReleased)
 	};
 
 }

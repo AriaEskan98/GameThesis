@@ -81,7 +81,7 @@ namespace GameEngine {
 	void EditorCamera::OnEvent(Event& e)
 	{
 		EventDispatcher dispatcher(e);
-		dispatcher.Dispatch<MouseScrolledEvent>(GE_BIND_FN(EditorCamera::OnMouseScroll));
+		dispatcher.Dispatch<MouseScrolledEvent>([this](MouseScrolledEvent& e) { return OnMouseScroll(e); });
 	}
 
 	bool EditorCamera::OnMouseScroll(MouseScrolledEvent& e)

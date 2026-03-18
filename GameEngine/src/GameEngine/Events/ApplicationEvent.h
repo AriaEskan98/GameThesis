@@ -20,8 +20,8 @@ namespace GameEngine {
 			return ss.str();
 		}
 
-		GE_EVENT_TYPE(WindowResize)
-		GE_EVENT_CATEGORY(EventCategoryApplication)
+		DECLARE_EVENT_TYPE(WindowResize)
+		DECLARE_EVENT_CATEGORY(EventCategoryApplication)
 	private:
 		unsigned int myWidth, myHeight;
 	};
@@ -31,8 +31,8 @@ namespace GameEngine {
 	public:
 		WindowCloseEvent() = default;
 
-		GE_EVENT_TYPE(WindowClose)
-		GE_EVENT_CATEGORY(EventCategoryApplication)
+		DECLARE_EVENT_TYPE(WindowClose)
+		DECLARE_EVENT_CATEGORY(EventCategoryApplication)
 	};
 
 	class AppTickEvent : public Event
@@ -40,8 +40,8 @@ namespace GameEngine {
 	public:
 		AppTickEvent() = default;
 
-		GE_EVENT_TYPE(AppTick)
-		GE_EVENT_CATEGORY(EventCategoryApplication)
+		DECLARE_EVENT_TYPE(AppTick)
+		DECLARE_EVENT_CATEGORY(EventCategoryApplication)
 	};
 
 	class AppUpdateEvent : public Event
@@ -49,8 +49,8 @@ namespace GameEngine {
 	public:
 		AppUpdateEvent() = default;
 
-		GE_EVENT_TYPE(AppUpdate)
-		GE_EVENT_CATEGORY(EventCategoryApplication)
+		DECLARE_EVENT_TYPE(AppUpdate)
+		DECLARE_EVENT_CATEGORY(EventCategoryApplication)
 	};
 
 	class AppRenderEvent : public Event
@@ -58,7 +58,7 @@ namespace GameEngine {
 	public:
 		AppRenderEvent() = default;
 
-		GE_EVENT_TYPE(AppRender)
-		GE_EVENT_CATEGORY(EventCategoryApplication)
+		DECLARE_EVENT_TYPE(AppRender)
+		DECLARE_EVENT_CATEGORY(EventCategoryApplication)
 	};
 }

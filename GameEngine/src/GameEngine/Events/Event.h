@@ -31,11 +31,12 @@ namespace GameEngine {
 		EventCategoryMouseButton    = (1 << 4)
 	};
 
-#define GE_EVENT_TYPE(type) static EventType GetStaticType() { return EventType::type; }\
-								virtual EventType GetEventType() const override { return GetStaticType(); }\
-								virtual const char* GetName() const override { return #type; }
+#define DECLARE_EVENT_TYPE(type) \
+	static EventType GetStaticType() { return EventType::type; } \
+	EventType GetEventType() const override { return GetStaticType(); } \
+	const char* GetName() const override { return #type; }
 
-#define GE_EVENT_CATEGORY(category) virtual int GetCategoryFlags() const override { return category; }
+#define DECLARE_EVENT_CATEGORY(category) int GetCategoryFlags() const override { return category; }
 
 	class Event
 	{
