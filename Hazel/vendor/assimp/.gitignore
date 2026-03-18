@@ -1,0 +1,6 @@
+# Ignore CMake build artifacts but keep pre-built headers and static library.
+build/*
+!build/include/
+!build/include/**
+!build/lib/
+!build/lib/**
