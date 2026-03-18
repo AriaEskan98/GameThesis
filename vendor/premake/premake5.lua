@@ -12,5 +12,5 @@ project "Premake"
 	postbuildmessage "Regenerating project files with Premake5!"
 	postbuildcommands
 	{
-		"\"%{prj.location}bin/premake5\" %{_ACTION} --file=\"%{wks.location}premake5.lua\" || echo Premake regeneration skipped"
+		"\"%{prj.location}regen.bat\" %{_ACTION} --file=\"%{wks.location}premake5.lua\""
 	}
