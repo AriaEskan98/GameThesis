@@ -21,6 +21,14 @@ namespace GameEngine {
 		}
 	};
 
+	/// Controls how the OS cursor behaves inside the window.
+	enum class CursorMode
+	{
+		Normal  = 0, ///< Visible, free to move.
+		Hidden  = 1, ///< Hidden but not locked (position still bounded).
+		Locked  = 2  ///< Hidden and locked; position is virtual (FPS mode).
+	};
+
 	// Interface representing a desktop system based Window
 	class Window
 	{
@@ -40,6 +48,9 @@ namespace GameEngine {
 		virtual bool IsVSync() const = 0;
 
 		virtual void* GetNativeWindow() const = 0;
+
+		/// Lock / hide the OS cursor for FPS-style input capture.
+		virtual void SetCursorMode(CursorMode mode) = 0;
 
 		static Own<Window> Create(const WindowProps& props = WindowProps());
 	};

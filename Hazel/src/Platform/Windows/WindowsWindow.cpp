@@ -197,4 +197,14 @@ namespace GameEngine {
 		return myData.VSync;
 	}
 
+	void WindowsWindow::SetCursorMode(CursorMode mode)
+	{
+		switch (mode)
+		{
+			case CursorMode::Normal: glfwSetInputMode(myWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);   break;
+			case CursorMode::Hidden: glfwSetInputMode(myWindow, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);   break;
+			case CursorMode::Locked: glfwSetInputMode(myWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED); break;
+		}
+	}
+
 }

@@ -43,6 +43,14 @@ namespace GameEngine {
 		gsData->CameraUBO->SetData(&cam, sizeof(CameraUBOData));
 	}
 
+	void Renderer3D::BeginScene(const glm::mat4& viewProjection, const glm::vec3& cameraPosition)
+	{
+		CameraUBOData cam;
+		cam.ViewProjection = viewProjection;
+		cam.Position       = glm::vec4(cameraPosition, 0.0f);
+		gsData->CameraUBO->SetData(&cam, sizeof(CameraUBOData));
+	}
+
 	void Renderer3D::BeginScene(const Camera& camera, const glm::mat4& cameraTransform)
 	{
 		CameraUBOData cam;

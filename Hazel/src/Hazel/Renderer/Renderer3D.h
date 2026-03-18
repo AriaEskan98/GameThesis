@@ -65,6 +65,10 @@ namespace GameEngine {
 		/// Begin a 3D scene using a runtime camera and its entity world transform.
 		static void BeginScene(const Camera& camera, const glm::mat4& cameraTransform);
 
+		/// Begin a 3D scene with a pre-combined view-projection matrix and camera world position.
+		/// Use this with FPSCameraController: BeginScene(ctrl.GetViewProjection(), ctrl.GetPosition()).
+		static void BeginScene(const glm::mat4& viewProjection, const glm::vec3& cameraPosition);
+
 		static void EndScene();
 
 		/// Upload lighting data for the current scene. Must be called after BeginScene.

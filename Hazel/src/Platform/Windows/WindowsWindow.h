@@ -24,6 +24,7 @@ namespace GameEngine {
 		bool IsVSync() const override;
 
 		virtual void* GetNativeWindow() const { return myWindow; }
+		virtual void SetCursorMode(CursorMode mode) override;
 	private:
 		virtual void Init(const WindowProps& props);
 		virtual void Shutdown();
