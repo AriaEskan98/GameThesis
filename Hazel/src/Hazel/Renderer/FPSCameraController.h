@@ -3,6 +3,7 @@
 #include "Hazel/Core/Timestep.h"
 #include "Hazel/Core/Window.h"
 #include "Hazel/Events/Event.h"
+#include "Hazel/Events/KeyEvent.h"
 #include "Hazel/Events/MouseEvent.h"
 #include "Hazel/Events/ApplicationEvent.h"
 #include "Hazel/Renderer/Camera.h"
