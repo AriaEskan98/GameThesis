@@ -26,7 +26,8 @@ project "GameEngine"
 	defines
 	{
 		"_CRT_SECURE_NO_WARNINGS",
-		"GLFW_INCLUDE_NONE"
+		"GLFW_INCLUDE_NONE",
+		"PX_PHYSX_STATIC_LIB"
 	}
 
 	includedirs

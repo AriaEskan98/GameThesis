@@ -27,6 +27,11 @@ project "Sandbox"
 		"GameEngine"
 	}
 
+	defines
+	{
+		"PX_PHYSX_STATIC_LIB"
+	}
+
 	filter "system:windows"
 		systemversion "latest"
 		buildoptions { "/utf-8" }
