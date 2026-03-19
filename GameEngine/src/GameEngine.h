@@ -5,7 +5,6 @@
 #include "GameEngine/Core/Base.h"
 
 #include "GameEngine/Core/Application.h"
-#include "GameEngine/Core/Layer.h"
 #include "GameEngine/Core/Log.h"
 #include "GameEngine/Core/Assert.h"
 

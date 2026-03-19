@@ -6,7 +6,7 @@
 #include <glm/gtx/transform.hpp>
 
 Sandbox2D::Sandbox2D()
-	: Layer("Sandbox2D"), myCameraController(1280.0f / 720.0f)
+	: myCameraController(1280.0f / 720.0f)
 {
 }
 
@@ -94,7 +94,7 @@ void Sandbox2D::OnEvent(GameEngine::Event& e)
 	myCameraController.OnEvent(e);
 
 	GameEngine::EventDispatcher dispatcher(e);
-	dispatcher.Dispatch<GameEngine::MouseButtonPressedEvent>(GE_BIND_FN(OnMouseButtonPressed));
+	dispatcher.Dispatch<GameEngine::MouseButtonPressedEvent>([this](GameEngine::MouseButtonPressedEvent& e) { return OnMouseButtonPressed(e); });
 }
 
 bool Sandbox2D::OnMouseButtonPressed(GameEngine::MouseButtonPressedEvent& e)

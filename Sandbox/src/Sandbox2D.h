@@ -1,19 +1,20 @@
+// Original implementation
 #pragma once
 
 #include "GameEngine.h"
 
-class Sandbox2D : public GameEngine::Layer
+class Sandbox2D
 {
 public:
 	Sandbox2D();
-	virtual ~Sandbox2D() = default;
+	~Sandbox2D() = default;
 
-	virtual void OnAttach() override;
-	virtual void OnDetach() override;
+	void OnAttach();
+	void OnDetach();
 
-	void OnUpdate(GameEngine::Timestep ts) override;
-	virtual void OnImGuiRender() override;
-	void OnEvent(GameEngine::Event& e) override;
+	void OnUpdate(GameEngine::Timestep ts);
+	void OnImGuiRender();
+	void OnEvent(GameEngine::Event& e);
 private:
 	GameEngine::OrthographicCameraController myCameraController;
 

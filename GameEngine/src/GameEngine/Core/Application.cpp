@@ -1,10 +1,13 @@
+// Adapted from Hazel Engine by TheCherno
+// Source: https://github.com/TheCherno/Hazel
+// Changes: Renamed member variables to use "my" prefix convention;
+//          removed LayerStack — game and ImGui are called directly
 #include "gepch.h"
 #include "GameEngine/Core/Application.h"
 
 #include "GameEngine/Core/Log.h"
 
 #include "GameEngine/Renderer/Renderer.h"
-#include "GameEngine/Scripting/ScriptEngine.h"
 
 #include "GameEngine/Core/Input.h"
 #include "GameEngine/Utils/PlatformUtils.h"
@@ -31,31 +34,17 @@ namespace GameEngine {
 		Renderer::Init();
 
 		myImGuiLayer = new ImGuiLayer();
-		PushOverlay(myImGuiLayer);
+		myImGuiLayer->OnAttach();
 	}
 
 	Application::~Application()
 	{
 		GE_PROFILE_FUNCTION();
 
-		ScriptEngine::Shutdown();
+		myImGuiLayer->OnDetach();
+		delete myImGuiLayer;
+
 		Renderer::Shutdown();
-	}
-
-	void Application::PushLayer(Layer* layer)
-	{
-		GE_PROFILE_FUNCTION();
-
-		myLayerStack.PushLayer(layer);
-		layer->OnAttach();
-	}
-
-	void Application::PushOverlay(Layer* layer)
-	{
-		GE_PROFILE_FUNCTION();
-
-		myLayerStack.PushOverlay(layer);
-		layer->OnAttach();
 	}
 
 	void Application::Close()
@@ -77,8 +66,12 @@ namespace GameEngine {
 		dispatcher.Dispatch<WindowCloseEvent>([this](WindowCloseEvent& e) { return OnWindowClose(e); });
 		dispatcher.Dispatch<WindowResizeEvent>([this](WindowResizeEvent& e) { return OnWindowResize(e); });
 
-		for (auto it = myLayerStack.rbegin(); it != myLayerStack.rend() && !e.Handled; ++it)
-			(*it)->OnEvent(e);
+		// ImGui gets first pick — if it wants the event, game doesn't see it
+		myImGuiLayer->OnEvent(e);
+		if (e.Handled)
+			return;
+
+		OnUserEvent(e);
 	}
 
 	void Application::Run()
@@ -97,12 +90,10 @@ namespace GameEngine {
 
 			if (!myMinimized)
 			{
-				for (Layer* layer : myLayerStack)
-					layer->OnUpdate(timestep);
+				OnUpdate(timestep);
 
 				myImGuiLayer->Begin();
-				for (Layer* layer : myLayerStack)
-					layer->OnImGuiRender();
+				OnImGuiRender();
 				myImGuiLayer->End();
 			}
 

@@ -22,7 +22,6 @@
 namespace GameEngine {
 
 	ImGuiLayer::ImGuiLayer()
-		: Layer("ImGuiLayer")
 	{
 	}
 

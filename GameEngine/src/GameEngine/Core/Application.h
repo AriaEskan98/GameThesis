@@ -3,7 +3,6 @@
 #include "GameEngine/Core/Base.h"
 
 #include "GameEngine/Core/Window.h"
-#include "GameEngine/Core/LayerStack.h"
 #include "GameEngine/Events/Event.h"
 #include "GameEngine/Events/ApplicationEvent.h"
 
@@ -42,9 +41,6 @@ namespace GameEngine {
 
 		void OnEvent(Event& e);
 
-		void PushLayer(Layer* layer);
-		void PushOverlay(Layer* layer);
-
 		Window& GetWindow() { return *myWindow; }
 
 		void Close();
@@ -56,6 +52,13 @@ namespace GameEngine {
 		const ApplicationSpecification& GetSpecification() const { return mySpecification; }
 
 		void SubmitToMainThread(const std::function<void()>& function);
+
+	protected:
+		// Override these in your Application subclass
+		virtual void OnUpdate(Timestep ts) {}
+		virtual void OnImGuiRender() {}
+		virtual void OnUserEvent(Event& e) {}
+
 	private:
 		void Run();
 		bool OnWindowClose(WindowCloseEvent& e);
@@ -68,7 +71,6 @@ namespace GameEngine {
 		ImGuiLayer* myImGuiLayer;
 		bool myRunning = true;
 		bool myMinimized = false;
-		LayerStack myLayerStack;
 		float myLastFrameTime = 0.0f;
 
 		std::vector<std::function<void()>> myMainThreadQueue;
