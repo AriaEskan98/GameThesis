@@ -21,6 +21,7 @@
 
 #include "GameEngine/Scene/Scene.h"
 #include "GameEngine/Scene/Entity.h"
+#include "GameEngine/Scene/ScriptableEntity.h"
 #include "GameEngine/Scene/Components.h"
 
 #include "GameEngine/Project/Project.h"

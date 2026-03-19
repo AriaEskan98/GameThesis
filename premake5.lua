@@ -46,6 +46,7 @@ end
 
 group "Core"
 	include "GameEngine"
+	include "GameEngine-ScriptCore"
 group ""
 
 group "Misc"

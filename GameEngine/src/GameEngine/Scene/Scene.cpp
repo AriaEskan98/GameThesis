@@ -3,6 +3,8 @@
 #include "Entity.h"
 
 #include "Components.h"
+#include "ScriptableEntity.h"
+#include "GameEngine/Scripting/ScriptEngine.h"
 #include "GameEngine/Renderer/Renderer2D.h"
 #include "GameEngine/Renderer/Renderer3D.h"
 #include "GameEngine/Physics/Physics2D.h"
@@ -126,6 +128,19 @@ namespace GameEngine {
 
 		OnPhysics2DStart();
 		OnPhysics3DStart();
+
+		// Scripting
+		{
+			ScriptEngine::OnRuntimeStart(this);
+			// Instantiate all script entities
+
+			auto view = myRegistry.view<ScriptComponent>();
+			for (auto e : view)
+			{
+				Entity entity = { e, this };
+				ScriptEngine::OnCreateEntity(entity);
+			}
+		}
 	}
 
 	void Scene::OnRuntimeStop()
@@ -134,6 +149,8 @@ namespace GameEngine {
 
 		OnPhysics2DStop();
 		OnPhysics3DStop();
+
+		ScriptEngine::OnRuntimeStop();
 	}
 
 	void Scene::OnSimulationStart()
@@ -152,6 +169,30 @@ namespace GameEngine {
 	{
 		if (!myIsPaused || myStepFrames-- > 0)
 		{
+			// Update scripts
+			{
+				// C# Entity OnUpdate
+				auto view = myRegistry.view<ScriptComponent>();
+				for (auto e : view)
+				{
+					Entity entity = { e, this };
+					ScriptEngine::OnUpdateEntity(entity, ts);
+				}
+
+				myRegistry.view<NativeScriptComponent>().each([=](auto entity, auto& nsc)
+					{
+						// TODO: Move to Scene::OnScenePlay
+						if (!nsc.Instance)
+						{
+							nsc.Instance = nsc.InstantiateScript();
+							nsc.Instance->myEntity = Entity{ entity, this };
+							nsc.Instance->OnCreate();
+						}
+
+						nsc.Instance->OnUpdate(ts);
+					});
+			}
+
 			// Physics
 			{
 				const int32_t velocityIterations = 6;
@@ -596,6 +637,11 @@ namespace GameEngine {
 	}
 
 	template<>
+	void Scene::OnComponentAdded<ScriptComponent>(Entity entity, ScriptComponent& component)
+	{
+	}
+
+	template<>
 	void Scene::OnComponentAdded<SpriteRendererComponent>(Entity entity, SpriteRendererComponent& component)
 	{
 	}
@@ -607,6 +653,11 @@ namespace GameEngine {
 
 	template<>
 	void Scene::OnComponentAdded<TagComponent>(Entity entity, TagComponent& component)
+	{
+	}
+
+	template<>
+	void Scene::OnComponentAdded<NativeScriptComponent>(Entity entity, NativeScriptComponent& component)
 	{
 	}
 

@@ -43,6 +43,7 @@ project "GameEngine"
 		"%{IncludeDir.msdf_atlas_gen}",
 		"%{IncludeDir.stb_image}",
 		"%{IncludeDir.entt}",
+		"%{IncludeDir.mono}",
 		"%{IncludeDir.yaml_cpp}",
 		"%{IncludeDir.ImGuizmo}",
 		"%{IncludeDir.assimp}",
@@ -62,6 +63,7 @@ project "GameEngine"
 		"yaml-cpp",
 		"opengl32.lib",
 
+		"%{Library.mono}",
 		"%{Library.assimp}",
 	}
 
@@ -74,6 +76,14 @@ project "GameEngine"
 
 		defines
 		{
+		}
+
+		links
+		{
+			"%{Library.WinSock}",
+			"%{Library.WinMM}",
+			"%{Library.WinVersion}",
+			"%{Library.BCrypt}",
 		}
 
 	filter "configurations:Debug"

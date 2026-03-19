@@ -4,6 +4,7 @@
 #include "GameEngine/Core/Log.h"
 
 #include "GameEngine/Renderer/Renderer.h"
+#include "GameEngine/Scripting/ScriptEngine.h"
 
 #include "GameEngine/Core/Input.h"
 #include "GameEngine/Utils/PlatformUtils.h"
@@ -37,6 +38,7 @@ namespace GameEngine {
 	{
 		GE_PROFILE_FUNCTION();
 
+		ScriptEngine::Shutdown();
 		Renderer::Shutdown();
 	}
 

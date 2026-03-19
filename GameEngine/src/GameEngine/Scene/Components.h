@@ -85,6 +85,32 @@ namespace GameEngine {
 		CameraComponent(const CameraComponent&) = default;
 	};
 
+	struct ScriptComponent
+	{
+		std::string ClassName;
+
+		ScriptComponent() = default;
+		ScriptComponent(const ScriptComponent&) = default;
+	};
+
+	// Forward declaration
+	class ScriptableEntity;
+
+	struct NativeScriptComponent
+	{
+		ScriptableEntity* Instance = nullptr;
+
+		ScriptableEntity*(*InstantiateScript)();
+		void (*DestroyScript)(NativeScriptComponent*);
+
+		template<typename T>
+		void Bind()
+		{
+			InstantiateScript = []() { return static_cast<ScriptableEntity*>(new T()); };
+			DestroyScript = [](NativeScriptComponent* nsc) { delete nsc->Instance; nsc->Instance = nullptr; };
+		}
+	};
+
 	// Physics
 
 	struct Rigidbody2DComponent
@@ -220,9 +246,10 @@ namespace GameEngine {
 
 	using AllComponents =
 		ComponentGroup<TransformComponent, SpriteRendererComponent,
-			CircleRendererComponent, CameraComponent, Rigidbody2DComponent,
-			BoxCollider2DComponent, CircleCollider2DComponent, TextComponent,
-			MeshRendererComponent, DirectionalLightComponent, PointLightComponent,
+			CircleRendererComponent, CameraComponent, ScriptComponent,
+			NativeScriptComponent, Rigidbody2DComponent, BoxCollider2DComponent,
+			CircleCollider2DComponent, TextComponent, MeshRendererComponent,
+			DirectionalLightComponent, PointLightComponent,
 			Rigidbody3DComponent, BoxCollider3DComponent>;
 
 }
