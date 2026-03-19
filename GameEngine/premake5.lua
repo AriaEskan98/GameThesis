@@ -84,7 +84,7 @@ project "GameEngine"
 		}
 
 	filter "configurations:Debug"
-		defines { "GE_DEBUG", "_DEBUG" }
+		defines { "GE_DEBUG", "NDEBUG" }
 		runtime "Release"
 		symbols "on"
 

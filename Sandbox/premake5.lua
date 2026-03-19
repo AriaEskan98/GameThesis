@@ -32,16 +32,16 @@ project "Sandbox"
 		buildoptions { "/utf-8" }
 
 	filter "configurations:Debug"
-		defines "GE_DEBUG"
+		defines { "GE_DEBUG", "NDEBUG" }
 		runtime "Release"
 		symbols "on"
 
 	filter "configurations:Release"
-		defines "GE_RELEASE"
+		defines { "GE_RELEASE", "NDEBUG" }
 		runtime "Release"
 		optimize "on"
 
 	filter "configurations:Dist"
-		defines "GE_DIST"
+		defines { "GE_DIST", "NDEBUG" }
 		runtime "Release"
 		optimize "on"
