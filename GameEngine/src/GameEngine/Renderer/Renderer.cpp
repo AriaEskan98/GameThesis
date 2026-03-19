@@ -1,6 +1,5 @@
 #include "gepch.h"
 #include "GameEngine/Renderer/Renderer.h"
-#include "GameEngine/Renderer/Renderer2D.h"
 #include "GameEngine/Renderer/Renderer3D.h"
 
 namespace GameEngine {
@@ -12,13 +11,11 @@ namespace GameEngine {
 		GE_PROFILE_FUNCTION();
 
 		RenderCommand::Init();
-		Renderer2D::Init();
 		Renderer3D::Init();
 	}
 
 	void Renderer::Shutdown()
 	{
-		Renderer2D::Shutdown();
 		Renderer3D::Shutdown();
 	}
 

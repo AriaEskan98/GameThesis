@@ -12,7 +12,6 @@
 #include "GameEngine/Managers/SceneManager.h"
 #include "GameEngine/Managers/PhysicsManager.h"
 #include "GameEngine/Managers/RenderManager.h"
-#include "GameEngine/Managers/AudioManager.h"
 
 int main(int argc, char** argv);
 
@@ -53,8 +52,6 @@ namespace GameEngine {
 		UIManager&     GetUIManager()     { return *myUIManager; }
 		PhysicsManager& GetPhysicsManager() { return *myPhysicsManager; }
 		RenderManager& GetRenderManager() { return *myRenderManager; }
-		AudioManager&  GetAudioManager()  { return *myAudioManager; }
-
 		// Convenience: direct access to ImGui layer via UIManager
 		ImGuiLayer* GetImGuiLayer() { return myUIManager->GetImGuiLayer(); }
 
@@ -89,7 +86,6 @@ namespace GameEngine {
 		Own<SceneManager>   mySceneManager;
 		Own<RenderManager>  myRenderManager;
 		Own<UIManager>      myUIManager;
-		Own<AudioManager>   myAudioManager;
 
 		std::vector<std::function<void()>> myMainThreadQueue;
 		std::mutex myMainThreadQueueMutex;

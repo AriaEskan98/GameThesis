@@ -13,7 +13,6 @@
 #include "GameEngine/Core/Input.h"
 #include "GameEngine/Core/KeyCodes.h"
 #include "GameEngine/Core/MouseCodes.h"
-#include "GameEngine/Renderer/OrthographicCameraController.h"
 #include "GameEngine/Renderer/FPSCameraController.h"
 
 #include "GameEngine/ImGui/ImGuiLayer.h"
@@ -27,7 +26,6 @@
 
 // ---Renderer------------------------
 #include "GameEngine/Renderer/Renderer.h"
-#include "GameEngine/Renderer/Renderer2D.h"
 #include "GameEngine/Renderer/Renderer3D.h"
 #include "GameEngine/Renderer/RenderCommand.h"
 

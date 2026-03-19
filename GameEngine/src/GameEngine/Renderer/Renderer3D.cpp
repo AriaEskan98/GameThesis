@@ -17,7 +17,7 @@ namespace GameEngine {
 		gsData = MakeOwn<SceneData>();
 
 		// Bindings 1-3: Camera, Object, Lights.
-		// Binding 0 is reserved for Renderer2D's camera buffer.
+		// Binding 0 is reserved for future use.
 		gsData->CameraUBO = UniformBuffer::Create(sizeof(CameraUBOData), 1);
 		gsData->ObjectUBO = UniformBuffer::Create(sizeof(ObjectUBOData), 2);
 		gsData->LightUBO  = UniformBuffer::Create(sizeof(LightUBOData),  3);

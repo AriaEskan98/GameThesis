@@ -5,7 +5,7 @@
 
 namespace GameEngine {
 
-	// Physics simulation is currently managed inside Scene (Box2D / Physics3D).
+	// Physics simulation is currently managed inside Scene (Physics3D).
 	// This manager is the designated home for future extraction of physics into
 	// a standalone system with fixed timestep, substeps, and global queries.
 	class PhysicsManager

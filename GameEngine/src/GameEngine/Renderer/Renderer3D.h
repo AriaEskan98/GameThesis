@@ -50,7 +50,7 @@ namespace GameEngine {
 
 	/// Renderer for 3D meshes using Blinn-Phong shading.
 	/// All GPU data is passed via Uniform Buffer Objects at bindings 1-3,
-	/// leaving binding 0 free for Renderer2D's camera buffer.
+	/// leaving binding 0 free for future use.
 	class Renderer3D
 	{
 	public:

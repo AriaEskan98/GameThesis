@@ -3,7 +3,6 @@
 #include "SceneCamera.h"
 #include "GameEngine/Core/UUID.h"
 #include "GameEngine/Renderer/Texture.h"
-#include "GameEngine/Renderer/Font.h"
 #include "GameEngine/Renderer/Mesh.h"
 
 #include <glm/glm.hpp>
@@ -53,28 +52,6 @@ namespace GameEngine {
 		}
 	};
 
-	struct SpriteRendererComponent
-	{
-		glm::vec4 Color{ 1.0f, 1.0f, 1.0f, 1.0f };
-		Handle<Texture2D> Texture;
-		float TilingFactor = 1.0f;
-
-		SpriteRendererComponent() = default;
-		SpriteRendererComponent(const SpriteRendererComponent&) = default;
-		SpriteRendererComponent(const glm::vec4& color)
-			: Color(color) {}
-	};
-
-	struct CircleRendererComponent
-	{
-		glm::vec4 Color{ 1.0f, 1.0f, 1.0f, 1.0f };
-		float Thickness = 1.0f;
-		float Fade = 0.005f;
-
-		CircleRendererComponent() = default;
-		CircleRendererComponent(const CircleRendererComponent&) = default;
-	};
-
 	struct CameraComponent
 	{
 		SceneCamera Camera;
@@ -83,14 +60,6 @@ namespace GameEngine {
 
 		CameraComponent() = default;
 		CameraComponent(const CameraComponent&) = default;
-	};
-
-	struct ScriptComponent
-	{
-		std::string ClassName;
-
-		ScriptComponent() = default;
-		ScriptComponent(const ScriptComponent&) = default;
 	};
 
 	// Forward declaration
@@ -109,66 +78,6 @@ namespace GameEngine {
 			InstantiateScript = []() { return static_cast<ScriptableEntity*>(new T()); };
 			DestroyScript = [](NativeScriptComponent* nsc) { delete nsc->Instance; nsc->Instance = nullptr; };
 		}
-	};
-
-	// Physics
-
-	struct Rigidbody2DComponent
-	{
-		enum class BodyType { Static = 0, Dynamic, Kinematic };
-		BodyType Type = BodyType::Static;
-		bool FixedRotation = false;
-
-		// Storage for runtime
-		void* RuntimeBody = nullptr;
-
-		Rigidbody2DComponent() = default;
-		Rigidbody2DComponent(const Rigidbody2DComponent&) = default;
-	};
-
-	struct BoxCollider2DComponent
-	{
-		glm::vec2 Offset = { 0.0f, 0.0f };
-		glm::vec2 Size = { 0.5f, 0.5f };
-
-		// TODO(Yan): move into physics material in the future maybe
-		float Density = 1.0f;
-		float Friction = 0.5f;
-		float Restitution = 0.0f;
-		float RestitutionThreshold = 0.5f;
-
-		// Storage for runtime
-		void* RuntimeFixture = nullptr;
-
-		BoxCollider2DComponent() = default;
-		BoxCollider2DComponent(const BoxCollider2DComponent&) = default;
-	};
-
-	struct CircleCollider2DComponent
-	{
-		glm::vec2 Offset = { 0.0f, 0.0f };
-		float Radius = 0.5f;
-
-		// TODO(Yan): move into physics material in the future maybe
-		float Density = 1.0f;
-		float Friction = 0.5f;
-		float Restitution = 0.0f;
-		float RestitutionThreshold = 0.5f;
-
-		// Storage for runtime
-		void* RuntimeFixture = nullptr;
-
-		CircleCollider2DComponent() = default;
-		CircleCollider2DComponent(const CircleCollider2DComponent&) = default;
-	};
-
-	struct TextComponent
-	{
-		std::string TextString;
-		Handle<Font> FontAsset = Font::GetDefault();
-		glm::vec4 Color{ 1.0f };
-		float Kerning = 0.0f;
-		float LineSpacing = 0.0f;
 	};
 
 	/// Casts parallel light rays from a fixed direction (derived from the entity's rotation).
@@ -245,10 +154,8 @@ namespace GameEngine {
 	};
 
 	using AllComponents =
-		ComponentGroup<TransformComponent, SpriteRendererComponent,
-			CircleRendererComponent, CameraComponent, ScriptComponent,
-			NativeScriptComponent, Rigidbody2DComponent, BoxCollider2DComponent,
-			CircleCollider2DComponent, TextComponent, MeshRendererComponent,
+		ComponentGroup<TransformComponent, CameraComponent,
+			NativeScriptComponent, MeshRendererComponent,
 			DirectionalLightComponent, PointLightComponent,
 			Rigidbody3DComponent, BoxCollider3DComponent>;
 

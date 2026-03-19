@@ -33,17 +33,12 @@ project "GameEngine"
 	{
 		"src",
 		"vendor/spdlog/include",
-		"%{IncludeDir.Box2D}",
-		"%{IncludeDir.filewatch}",
 		"%{IncludeDir.GLFW}",
 		"%{IncludeDir.Glad}",
 		"%{IncludeDir.ImGui}",
 		"%{IncludeDir.glm}",
-		"%{IncludeDir.msdfgen}",
-		"%{IncludeDir.msdf_atlas_gen}",
 		"%{IncludeDir.stb_image}",
 		"%{IncludeDir.entt}",
-		"%{IncludeDir.mono}",
 		"%{IncludeDir.yaml_cpp}",
 		"%{IncludeDir.ImGuizmo}",
 		"%{IncludeDir.assimp}",
@@ -55,15 +50,12 @@ project "GameEngine"
 
 	links
 	{
-		"Box2D",
 		"GLFW",
 		"Glad",
 		"ImGui",
-		"msdf-atlas-gen",
 		"yaml-cpp",
 		"opengl32.lib",
 
-		"%{Library.mono}",
 		"%{Library.assimp}",
 	}
 

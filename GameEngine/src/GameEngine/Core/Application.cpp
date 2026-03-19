@@ -37,20 +37,17 @@ namespace GameEngine {
 		mySceneManager   = MakeOwn<SceneManager>();
 		myRenderManager  = MakeOwn<RenderManager>();
 		myUIManager      = MakeOwn<UIManager>();
-		myAudioManager   = MakeOwn<AudioManager>();
 
 		myPhysicsManager->Init();
 		mySceneManager->Init();
 		myRenderManager->Init();
 		myUIManager->Init();
-		myAudioManager->Init();
 	}
 
 	Application::~Application()
 	{
 		GE_PROFILE_FUNCTION();
 
-		myAudioManager->Shutdown();
 		myUIManager->Shutdown();
 		myRenderManager->Shutdown();
 		mySceneManager->Shutdown();
@@ -107,7 +104,6 @@ namespace GameEngine {
 				OnUpdate(timestep);                   // 3. Game logic
 				myRenderManager->Render();            // 4. 3D / 2D render
 				myUIManager->Render([this]() { OnImGuiRender(); }); // 5. UI always last
-				myAudioManager->Update(timestep);     // 6. Audio (runs after render)
 			}
 
 			myWindow->OnUpdate();

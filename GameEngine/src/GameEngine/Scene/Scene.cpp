@@ -4,22 +4,12 @@
 
 #include "Components.h"
 #include "ScriptableEntity.h"
-#include "GameEngine/Scripting/ScriptEngine.h"
-#include "GameEngine/Renderer/Renderer2D.h"
 #include "GameEngine/Renderer/Renderer3D.h"
-#include "GameEngine/Physics/Physics2D.h"
 #include "GameEngine/Physics/Physics3D.h"
 
 #include <glm/glm.hpp>
 
 #include "Entity.h"
-
-// Box2D
-#include "box2d/b2_world.h"
-#include "box2d/b2_body.h"
-#include "box2d/b2_fixture.h"
-#include "box2d/b2_polygon_shape.h"
-#include "box2d/b2_circle_shape.h"
 
 namespace GameEngine {
 
@@ -29,7 +19,6 @@ namespace GameEngine {
 
 	Scene::~Scene()
 	{
-		delete myPhysicsWorld;
 		delete myPhysicsWorld3D;
 	}
 
@@ -126,42 +115,41 @@ namespace GameEngine {
 	{
 		myIsRunning = true;
 
-		OnPhysics2DStart();
 		OnPhysics3DStart();
 
-		// Scripting
+		// Instantiate native scripts
+		myRegistry.view<NativeScriptComponent>().each([=](auto entity, auto& nsc)
 		{
-			ScriptEngine::OnRuntimeStart(this);
-			// Instantiate all script entities
-
-			auto view = myRegistry.view<ScriptComponent>();
-			for (auto e : view)
+			if (!nsc.Instance)
 			{
-				Entity entity = { e, this };
-				ScriptEngine::OnCreateEntity(entity);
+				nsc.Instance = nsc.InstantiateScript();
+				nsc.Instance->myEntity = Entity{ entity, this };
+				nsc.Instance->OnCreate();
 			}
-		}
+		});
 	}
 
 	void Scene::OnRuntimeStop()
 	{
 		myIsRunning = false;
 
-		OnPhysics2DStop();
 		OnPhysics3DStop();
 
-		ScriptEngine::OnRuntimeStop();
+		// Destroy native scripts
+		myRegistry.view<NativeScriptComponent>().each([=](auto entity, auto& nsc)
+		{
+			if (nsc.Instance)
+				nsc.DestroyScript(&nsc);
+		});
 	}
 
 	void Scene::OnSimulationStart()
 	{
-		OnPhysics2DStart();
 		OnPhysics3DStart();
 	}
 
 	void Scene::OnSimulationStop()
 	{
-		OnPhysics2DStop();
 		OnPhysics3DStop();
 	}
 
@@ -169,52 +157,18 @@ namespace GameEngine {
 	{
 		if (!myIsPaused || myStepFrames-- > 0)
 		{
-			// Update scripts
+			// Update native scripts
+			myRegistry.view<NativeScriptComponent>().each([=](auto entity, auto& nsc)
 			{
-				// C# Entity OnUpdate
-				auto view = myRegistry.view<ScriptComponent>();
-				for (auto e : view)
+				if (!nsc.Instance)
 				{
-					Entity entity = { e, this };
-					ScriptEngine::OnUpdateEntity(entity, ts);
+					nsc.Instance = nsc.InstantiateScript();
+					nsc.Instance->myEntity = Entity{ entity, this };
+					nsc.Instance->OnCreate();
 				}
 
-				myRegistry.view<NativeScriptComponent>().each([=](auto entity, auto& nsc)
-					{
-						// TODO: Move to Scene::OnScenePlay
-						if (!nsc.Instance)
-						{
-							nsc.Instance = nsc.InstantiateScript();
-							nsc.Instance->myEntity = Entity{ entity, this };
-							nsc.Instance->OnCreate();
-						}
-
-						nsc.Instance->OnUpdate(ts);
-					});
-			}
-
-			// Physics
-			{
-				const int32_t velocityIterations = 6;
-				const int32_t positionIterations = 2;
-				myPhysicsWorld->Step(ts, velocityIterations, positionIterations);
-
-				// Retrieve transform from Box2D
-				auto view = myRegistry.view<Rigidbody2DComponent>();
-				for (auto e : view)
-				{
-					Entity entity = { e, this };
-					auto& transform = entity.GetComponent<TransformComponent>();
-					auto& rb2d = entity.GetComponent<Rigidbody2DComponent>();
-
-					b2Body* body = (b2Body*)rb2d.RuntimeBody;
-
-					const auto& position = body->GetPosition();
-					transform.Translation.x = position.x;
-					transform.Translation.y = position.y;
-					transform.Rotation.z = body->GetAngle();
-				}
-			}
+				nsc.Instance->OnUpdate(ts);
+			});
 
 			// 3D Physics
 			{
@@ -236,7 +190,7 @@ namespace GameEngine {
 			}
 		}
 
-		// Render 2D
+		// Find primary camera
 		Camera* mainCamera = nullptr;
 		glm::mat4 cameraTransform;
 		{
@@ -244,7 +198,7 @@ namespace GameEngine {
 			for (auto entity : view)
 			{
 				auto [transform, camera] = view.get<TransformComponent, CameraComponent>(entity);
-				
+
 				if (camera.Primary)
 				{
 					mainCamera = &camera.Camera;
@@ -256,72 +210,16 @@ namespace GameEngine {
 
 		if (mainCamera)
 		{
-			Renderer2D::BeginScene(*mainCamera, cameraTransform);
-
-			// Draw sprites
-			{
-				auto group = myRegistry.group<TransformComponent>(entt::get<SpriteRendererComponent>);
-				for (auto entity : group)
-				{
-					auto [transform, sprite] = group.get<TransformComponent, SpriteRendererComponent>(entity);
-
-					Renderer2D::DrawSprite(transform.GetTransform(), sprite, (int)entity);
-				}
-			}
-
-			// Draw circles
-			{
-				auto view = myRegistry.view<TransformComponent, CircleRendererComponent>();
-				for (auto entity : view)
-				{
-					auto [transform, circle] = view.get<TransformComponent, CircleRendererComponent>(entity);
-
-					Renderer2D::DrawCircle(transform.GetTransform(), circle.Color, circle.Thickness, circle.Fade, (int)entity);
-				}
-			}
-
-			// Draw text
-			{
-				auto view = myRegistry.view<TransformComponent, TextComponent>();
-				for (auto entity : view)
-				{
-					auto [transform, text] = view.get<TransformComponent, TextComponent>(entity);
-
-					Renderer2D::DrawString(text.TextString, transform.GetTransform(), text, (int)entity);
-				}
-			}
-
-			Renderer2D::EndScene();
+			Renderer3D::BeginScene(*mainCamera, cameraTransform);
+			RenderMeshes();
+			Renderer3D::EndScene();
 		}
-
 	}
 
 	void Scene::OnUpdateSimulation(Timestep ts, EditorCamera& camera)
 	{
 		if (!myIsPaused || myStepFrames-- > 0)
 		{
-			// Physics
-			{
-				const int32_t velocityIterations = 6;
-				const int32_t positionIterations = 2;
-				myPhysicsWorld->Step(ts, velocityIterations, positionIterations);
-
-				// Retrieve transform from Box2D
-				auto view = myRegistry.view<Rigidbody2DComponent>();
-				for (auto e : view)
-				{
-					Entity entity = { e, this };
-					auto& transform = entity.GetComponent<TransformComponent>();
-					auto& rb2d = entity.GetComponent<Rigidbody2DComponent>();
-
-					b2Body* body = (b2Body*)rb2d.RuntimeBody;
-					const auto& position = body->GetPosition();
-					transform.Translation.x = position.x;
-					transform.Translation.y = position.y;
-					transform.Rotation.z = body->GetAngle();
-				}
-			}
-
 			// 3D Physics
 			{
 				myPhysicsWorld3D->Step(ts);
@@ -342,13 +240,11 @@ namespace GameEngine {
 			}
 		}
 
-		// Render
 		RenderScene(camera);
 	}
 
 	void Scene::OnUpdateEditor(Timestep ts, EditorCamera& camera)
 	{
-		// Render
 		RenderScene(camera);
 	}
 
@@ -389,7 +285,6 @@ namespace GameEngine {
 
 	Entity Scene::DuplicateEntity(Entity entity)
 	{
-		// Copy name because we're going to modify component data structure
 		std::string name = entity.GetName();
 		Entity newEntity = CreateEntity(name);
 		CopyComponentIfExists(AllComponents{}, newEntity, entity);
@@ -410,72 +305,10 @@ namespace GameEngine {
 
 	Entity Scene::GetEntityByUUID(UUID uuid)
 	{
-		// TODO(Yan): Maybe should be assert
 		if (myEntityMap.find(uuid) != myEntityMap.end())
 			return { myEntityMap.at(uuid), this };
 
 		return {};
-	}
-
-	void Scene::OnPhysics2DStart()
-	{
-		myPhysicsWorld = new b2World({ 0.0f, -9.8f });
-
-		auto view = myRegistry.view<Rigidbody2DComponent>();
-		for (auto e : view)
-		{
-			Entity entity = { e, this };
-			auto& transform = entity.GetComponent<TransformComponent>();
-			auto& rb2d = entity.GetComponent<Rigidbody2DComponent>();
-
-			b2BodyDef bodyDef;
-			bodyDef.type = Utils::Rigidbody2DTypeToBox2DBody(rb2d.Type);
-			bodyDef.position.Set(transform.Translation.x, transform.Translation.y);
-			bodyDef.angle = transform.Rotation.z;
-
-			b2Body* body = myPhysicsWorld->CreateBody(&bodyDef);
-			body->SetFixedRotation(rb2d.FixedRotation);
-			rb2d.RuntimeBody = body;
-
-			if (entity.HasComponent<BoxCollider2DComponent>())
-			{
-				auto& bc2d = entity.GetComponent<BoxCollider2DComponent>();
-
-				b2PolygonShape boxShape;
-				boxShape.SetAsBox(bc2d.Size.x * transform.Scale.x, bc2d.Size.y * transform.Scale.y, b2Vec2(bc2d.Offset.x, bc2d.Offset.y), 0.0f);
-
-				b2FixtureDef fixtureDef;
-				fixtureDef.shape = &boxShape;
-				fixtureDef.density = bc2d.Density;
-				fixtureDef.friction = bc2d.Friction;
-				fixtureDef.restitution = bc2d.Restitution;
-				fixtureDef.restitutionThreshold = bc2d.RestitutionThreshold;
-				body->CreateFixture(&fixtureDef);
-			}
-
-			if (entity.HasComponent<CircleCollider2DComponent>())
-			{
-				auto& cc2d = entity.GetComponent<CircleCollider2DComponent>();
-
-				b2CircleShape circleShape;
-				circleShape.m_p.Set(cc2d.Offset.x, cc2d.Offset.y);
-				circleShape.m_radius = transform.Scale.x * cc2d.Radius;
-
-				b2FixtureDef fixtureDef;
-				fixtureDef.shape = &circleShape;
-				fixtureDef.density = cc2d.Density;
-				fixtureDef.friction = cc2d.Friction;
-				fixtureDef.restitution = cc2d.Restitution;
-				fixtureDef.restitutionThreshold = cc2d.RestitutionThreshold;
-				body->CreateFixture(&fixtureDef);
-			}
-		}
-	}
-
-	void Scene::OnPhysics2DStop()
-	{
-		delete myPhysicsWorld;
-		myPhysicsWorld = nullptr;
 	}
 
 	void Scene::OnPhysics3DStart()
@@ -495,7 +328,6 @@ namespace GameEngine {
 			def.Restitution = rb3d.Restitution;
 			def.UseGravity  = rb3d.UseGravity;
 			def.IsKinematic = (rb3d.Type == Rigidbody3DComponent::BodyType::Kinematic);
-			// Static bodies have infinite mass (InvMass = 0).
 			def.Mass = (rb3d.Type == Rigidbody3DComponent::BodyType::Static) ? 0.0f : rb3d.Mass;
 
 			if (entity.HasComponent<BoxCollider3DComponent>())
@@ -519,97 +351,55 @@ namespace GameEngine {
 		myPhysicsWorld3D = nullptr;
 	}
 
+	void Scene::RenderMeshes()
+	{
+		LightEnvironment lights;
+
+		// Directional light — only the first entity wins.
+		{
+			auto view = myRegistry.view<TransformComponent, DirectionalLightComponent>();
+			for (auto entity : view)
+			{
+				auto [transform, light] = view.get<TransformComponent, DirectionalLightComponent>(entity);
+				glm::vec3 dir = glm::normalize(
+					glm::quat(transform.Rotation) * glm::vec3(0.0f, -1.0f, 0.0f));
+				lights.DirectionalLight = { dir, light.Color, light.Intensity };
+				lights.HasDirectionalLight = true;
+				break;
+			}
+		}
+
+		// Point lights — up to Renderer3D::MaxPointLights.
+		{
+			auto view = myRegistry.view<TransformComponent, PointLightComponent>();
+			for (auto entity : view)
+			{
+				if ((int)lights.PointLights.size() >= Renderer3D::MaxPointLights)
+					break;
+				auto [transform, light] = view.get<TransformComponent, PointLightComponent>(entity);
+				lights.PointLights.push_back({
+					transform.Translation,
+					light.Color, light.Intensity,
+					light.Constant, light.Linear, light.Quadratic
+				});
+			}
+		}
+
+		Renderer3D::SetLightEnvironment(lights);
+
+		auto view = myRegistry.view<TransformComponent, MeshRendererComponent>();
+		for (auto entity : view)
+		{
+			auto [transform, mesh] = view.get<TransformComponent, MeshRendererComponent>(entity);
+			if (mesh.Mesh)
+				Renderer3D::Submit(mesh.Mesh, transform.GetTransform(), mesh.Color, (int)entity);
+		}
+	}
+
 	void Scene::RenderScene(EditorCamera& camera)
 	{
-		Renderer2D::BeginScene(camera);
-
-		// Draw sprites
-		{
-			auto group = myRegistry.group<TransformComponent>(entt::get<SpriteRendererComponent>);
-			for (auto entity : group)
-			{
-				auto [transform, sprite] = group.get<TransformComponent, SpriteRendererComponent>(entity);
-
-				Renderer2D::DrawSprite(transform.GetTransform(), sprite, (int)entity);
-			}
-		}
-
-		// Draw circles
-		{
-			auto view = myRegistry.view<TransformComponent, CircleRendererComponent>();
-			for (auto entity : view)
-			{
-				auto [transform, circle] = view.get<TransformComponent, CircleRendererComponent>(entity);
-
-				Renderer2D::DrawCircle(transform.GetTransform(), circle.Color, circle.Thickness, circle.Fade, (int)entity);
-			}
-		}
-
-		// Draw text
-		{
-			auto view = myRegistry.view<TransformComponent, TextComponent>();
-			for (auto entity : view)
-			{
-				auto [transform, text] = view.get<TransformComponent, TextComponent>(entity);
-
-				Renderer2D::DrawString(text.TextString, transform.GetTransform(), text, (int)entity);
-			}
-		}
-
-		Renderer2D::EndScene();
-
-		// Draw 3D meshes
 		Renderer3D::BeginScene(camera);
-
-		// --- Collect scene lights ---
-		{
-			LightEnvironment lights;
-
-			// Directional light — only the first entity wins.
-			{
-				auto view = myRegistry.view<TransformComponent, DirectionalLightComponent>();
-				for (auto entity : view)
-				{
-					auto [transform, light] = view.get<TransformComponent, DirectionalLightComponent>(entity);
-					// Forward direction (-Y rotated by entity rotation) is used as the light direction.
-					glm::vec3 dir = glm::normalize(
-						glm::quat(transform.Rotation) * glm::vec3(0.0f, -1.0f, 0.0f));
-					lights.DirectionalLight = { dir, light.Color, light.Intensity };
-					lights.HasDirectionalLight = true;
-					break;
-				}
-			}
-
-			// Point lights — up to Renderer3D::MaxPointLights.
-			{
-				auto view = myRegistry.view<TransformComponent, PointLightComponent>();
-				for (auto entity : view)
-				{
-					if ((int)lights.PointLights.size() >= Renderer3D::MaxPointLights)
-						break;
-					auto [transform, light] = view.get<TransformComponent, PointLightComponent>(entity);
-					lights.PointLights.push_back({
-						transform.Translation,
-						light.Color, light.Intensity,
-						light.Constant, light.Linear, light.Quadratic
-					});
-				}
-			}
-
-			Renderer3D::SetLightEnvironment(lights);
-		}
-
-		// --- Submit meshes ---
-		{
-			auto view = myRegistry.view<TransformComponent, MeshRendererComponent>();
-			for (auto entity : view)
-			{
-				auto [transform, mesh] = view.get<TransformComponent, MeshRendererComponent>(entity);
-				if (mesh.Mesh)
-					Renderer3D::Submit(mesh.Mesh, transform.GetTransform(), mesh.Color, (int)entity);
-			}
-		}
-
+		RenderMeshes();
 		Renderer3D::EndScene();
 	}
 
@@ -637,47 +427,12 @@ namespace GameEngine {
 	}
 
 	template<>
-	void Scene::OnComponentAdded<ScriptComponent>(Entity entity, ScriptComponent& component)
-	{
-	}
-
-	template<>
-	void Scene::OnComponentAdded<SpriteRendererComponent>(Entity entity, SpriteRendererComponent& component)
-	{
-	}
-
-	template<>
-	void Scene::OnComponentAdded<CircleRendererComponent>(Entity entity, CircleRendererComponent& component)
-	{
-	}
-
-	template<>
 	void Scene::OnComponentAdded<TagComponent>(Entity entity, TagComponent& component)
 	{
 	}
 
 	template<>
 	void Scene::OnComponentAdded<NativeScriptComponent>(Entity entity, NativeScriptComponent& component)
-	{
-	}
-
-	template<>
-	void Scene::OnComponentAdded<Rigidbody2DComponent>(Entity entity, Rigidbody2DComponent& component)
-	{
-	}
-
-	template<>
-	void Scene::OnComponentAdded<BoxCollider2DComponent>(Entity entity, BoxCollider2DComponent& component)
-	{
-	}
-
-	template<>
-	void Scene::OnComponentAdded<CircleCollider2DComponent>(Entity entity, CircleCollider2DComponent& component)
-	{
-	}
-
-	template<>
-	void Scene::OnComponentAdded<TextComponent>(Entity entity, TextComponent& component)
 	{
 	}
 

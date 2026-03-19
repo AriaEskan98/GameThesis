@@ -6,8 +6,6 @@
 
 #include "entt.hpp"
 
-class b2World;
-
 namespace GameEngine {
 
 class Physics3DWorld;
@@ -60,12 +58,10 @@ class Physics3DWorld;
 		template<typename T>
 		void OnComponentAdded(Entity entity, T& component);
 
-		void OnPhysics2DStart();
-		void OnPhysics2DStop();
-
 		void OnPhysics3DStart();
 		void OnPhysics3DStop();
 
+		void RenderMeshes();
 		void RenderScene(EditorCamera& camera);
 	private:
 		entt::registry myRegistry;
@@ -74,7 +70,6 @@ class Physics3DWorld;
 		bool myIsPaused = false;
 		int myStepFrames = 0;
 
-		b2World*         myPhysicsWorld   = nullptr;
 		Physics3DWorld*  myPhysicsWorld3D = nullptr;
 
 		std::unordered_map<UUID, entt::entity> myEntityMap;
