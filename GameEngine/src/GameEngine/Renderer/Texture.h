@@ -3,6 +3,7 @@
 #include "GameEngine/Core/Base.h"
 
 #include <string>
+#include <unordered_map>
 
 namespace GameEngine {
 
@@ -50,6 +51,16 @@ namespace GameEngine {
 	public:
 		static Handle<Texture2D> Create(const TextureSpecification& specification);
 		static Handle<Texture2D> Create(const std::string& path);
+	};
+
+	class TextureLibrary
+	{
+	public:
+		Handle<Texture2D> Load(const std::string& path);
+		Handle<Texture2D> Get(const std::string& path);
+		bool Exists(const std::string& path) const;
+	private:
+		std::unordered_map<std::string, Handle<Texture2D>> myTextures;
 	};
 
 }

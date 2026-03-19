@@ -30,4 +30,25 @@ namespace GameEngine {
 		return nullptr;
 	}
 
+	Handle<Texture2D> TextureLibrary::Load(const std::string& path)
+	{
+		if (Exists(path))
+			return myTextures[path];
+
+		auto texture = Texture2D::Create(path);
+		myTextures[path] = texture;
+		return texture;
+	}
+
+	Handle<Texture2D> TextureLibrary::Get(const std::string& path)
+	{
+		GE_CORE_ASSERT(Exists(path), "Texture not found!");
+		return myTextures[path];
+	}
+
+	bool TextureLibrary::Exists(const std::string& path) const
+	{
+		return myTextures.find(path) != myTextures.end();
+	}
+
 }
