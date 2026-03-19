@@ -88,7 +88,7 @@ project "GameEngine"
 		runtime "Release"
 		symbols "on"
 
-		libdirs { "%{LibraryDir.PhysX_Debug}" }
+		libdirs { "%{LibraryDir.PhysX_Release}" }
 
 		links
 		{
