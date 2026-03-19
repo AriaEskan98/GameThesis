@@ -9,6 +9,7 @@ namespace GameEngine {
 
 	Own<Renderer3D::SceneData> Renderer3D::gsData;
 	Handle<Shader>             Renderer3D::gsMeshShader;
+	TextureLibrary             Renderer3D::gsTextureLibrary;
 
 	void Renderer3D::Init()
 	{
@@ -33,6 +34,7 @@ namespace GameEngine {
 	{
 		gsMeshShader.reset();
 		gsData.reset();
+		gsTextureLibrary = TextureLibrary{};
 	}
 
 	void Renderer3D::BeginScene(const EditorCamera& camera)
@@ -106,6 +108,11 @@ namespace GameEngine {
 
 		gsMeshShader->Bind();
 		RenderCommand::DrawIndexed(mesh->GetVertexArray(), mesh->GetIndexCount());
+	}
+
+	Handle<Texture2D> Renderer3D::LoadTexture(const std::string& path)
+	{
+		return gsTextureLibrary.Load(path);
 	}
 
 }

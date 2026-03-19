@@ -2,6 +2,7 @@
 
 #include "GameEngine/Renderer/Mesh.h"
 #include "GameEngine/Renderer/Shader.h"
+#include "GameEngine/Renderer/Texture.h"
 #include "GameEngine/Renderer/EditorCamera.h"
 #include "GameEngine/Renderer/Camera.h"
 #include "GameEngine/Renderer/UniformBuffer.h"
@@ -78,6 +79,9 @@ namespace GameEngine {
 		static void Submit(const Handle<Mesh>& mesh, const glm::mat4& transform,
 		                   const glm::vec4& color = glm::vec4(1.0f), int entityID = -1);
 
+		/// Load a texture from disk, returning a cached copy if already loaded.
+		static Handle<Texture2D> LoadTexture(const std::string& path);
+
 	private:
 		// ---- GPU buffer layouts (must match GLSL std140 definitions in Mesh.glsl) ----
 
@@ -130,6 +134,7 @@ namespace GameEngine {
 
 		static Own<SceneData>  gsData;
 		static Handle<Shader>  gsMeshShader;
+		static TextureLibrary  gsTextureLibrary;
 	};
 
 }
