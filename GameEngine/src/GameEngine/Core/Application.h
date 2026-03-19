@@ -8,6 +8,7 @@
 
 #include "GameEngine/Core/Timestep.h"
 
+#include "GameEngine/Managers/AssetManager.h"
 #include "GameEngine/Managers/UIManager.h"
 #include "GameEngine/Managers/SceneManager.h"
 #include "GameEngine/Managers/PhysicsManager.h"
@@ -48,6 +49,7 @@ namespace GameEngine {
 
 		void Close();
 
+		AssetManager&  GetAssetManager()  { return *myAssetManager; }
 		SceneManager&  GetSceneManager()  { return *mySceneManager; }
 		UIManager&     GetUIManager()     { return *myUIManager; }
 		PhysicsManager& GetPhysicsManager() { return *myPhysicsManager; }
@@ -82,6 +84,7 @@ namespace GameEngine {
 		float myLastFrameTime = 0.0f;
 
 		// Managers — called in fixed Unity-style order each frame
+		Own<AssetManager>   myAssetManager;
 		Own<PhysicsManager> myPhysicsManager;
 		Own<SceneManager>   mySceneManager;
 		Own<RenderManager>  myRenderManager;

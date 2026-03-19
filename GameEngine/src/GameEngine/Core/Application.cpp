@@ -32,12 +32,15 @@ namespace GameEngine {
 
 		Renderer::Init();
 
-		// Initialise all managers
+		// Initialise all managers (AssetManager first — needs GL context, must
+		// outlive the renderer so GPU resources are freed before GL shutdown)
+		myAssetManager   = MakeOwn<AssetManager>();
 		myPhysicsManager = MakeOwn<PhysicsManager>();
 		mySceneManager   = MakeOwn<SceneManager>();
 		myRenderManager  = MakeOwn<RenderManager>();
 		myUIManager      = MakeOwn<UIManager>();
 
+		myAssetManager->Init();
 		myPhysicsManager->Init();
 		mySceneManager->Init();
 		myRenderManager->Init();
@@ -52,6 +55,7 @@ namespace GameEngine {
 		myRenderManager->Shutdown();
 		mySceneManager->Shutdown();
 		myPhysicsManager->Shutdown();
+		myAssetManager->Shutdown();   // after all systems that use assets
 
 		Renderer::Shutdown();
 	}

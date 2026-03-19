@@ -135,7 +135,6 @@ namespace GameEngine {
 		static Own<SceneData>    gsData;
 		static Handle<Shader>    gsMeshShader;
 		static Handle<Texture2D> gsDefaultTexture;
-		static TextureLibrary    gsTextureLibrary;
 	};
 
 }
