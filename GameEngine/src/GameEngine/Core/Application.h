@@ -8,7 +8,11 @@
 
 #include "GameEngine/Core/Timestep.h"
 
-#include "GameEngine/ImGui/ImGuiLayer.h"
+#include "GameEngine/Managers/UIManager.h"
+#include "GameEngine/Managers/SceneManager.h"
+#include "GameEngine/Managers/PhysicsManager.h"
+#include "GameEngine/Managers/RenderManager.h"
+#include "GameEngine/Managers/AudioManager.h"
 
 int main(int argc, char** argv);
 
@@ -45,7 +49,14 @@ namespace GameEngine {
 
 		void Close();
 
-		ImGuiLayer* GetImGuiLayer() { return myImGuiLayer; }
+		SceneManager&  GetSceneManager()  { return *mySceneManager; }
+		UIManager&     GetUIManager()     { return *myUIManager; }
+		PhysicsManager& GetPhysicsManager() { return *myPhysicsManager; }
+		RenderManager& GetRenderManager() { return *myRenderManager; }
+		AudioManager&  GetAudioManager()  { return *myAudioManager; }
+
+		// Convenience: direct access to ImGui layer via UIManager
+		ImGuiLayer* GetImGuiLayer() { return myUIManager->GetImGuiLayer(); }
 
 		static Application& GetInstance() { return *gsInstance; }
 
@@ -54,7 +65,8 @@ namespace GameEngine {
 		void SubmitToMainThread(const std::function<void()>& function);
 
 	protected:
-		// Override these in your Application subclass
+		// Game-code hooks — override in your Application subclass.
+		// These run between the engine managers in the Unity-style update order.
 		virtual void OnUpdate(Timestep ts) {}
 		virtual void OnImGuiRender() {}
 		virtual void OnUserEvent(Event& e) {}
@@ -68,10 +80,16 @@ namespace GameEngine {
 	private:
 		ApplicationSpecification mySpecification;
 		Own<Window> myWindow;
-		ImGuiLayer* myImGuiLayer;
 		bool myRunning = true;
 		bool myMinimized = false;
 		float myLastFrameTime = 0.0f;
+
+		// Managers — called in fixed Unity-style order each frame
+		Own<PhysicsManager> myPhysicsManager;
+		Own<SceneManager>   mySceneManager;
+		Own<RenderManager>  myRenderManager;
+		Own<UIManager>      myUIManager;
+		Own<AudioManager>   myAudioManager;
 
 		std::vector<std::function<void()>> myMainThreadQueue;
 		std::mutex myMainThreadQueueMutex;

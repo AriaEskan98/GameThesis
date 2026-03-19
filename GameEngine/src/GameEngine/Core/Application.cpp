@@ -1,7 +1,7 @@
 // Adapted from Hazel Engine by TheCherno
 // Source: https://github.com/TheCherno/Hazel
 // Changes: Renamed member variables to use "my" prefix convention;
-//          removed LayerStack — game and ImGui are called directly
+//          replaced LayerStack with Unity-style manager classes
 #include "gepch.h"
 #include "GameEngine/Core/Application.h"
 
@@ -24,7 +24,6 @@ namespace GameEngine {
 		GE_CORE_ASSERT(!gsInstance, "Application already exists!");
 		gsInstance = this;
 
-		// Set working directory here
 		if (!mySpecification.WorkingDirectory.empty())
 			std::filesystem::current_path(mySpecification.WorkingDirectory);
 
@@ -33,16 +32,29 @@ namespace GameEngine {
 
 		Renderer::Init();
 
-		myImGuiLayer = new ImGuiLayer();
-		myImGuiLayer->OnAttach();
+		// Initialise all managers
+		myPhysicsManager = MakeOwn<PhysicsManager>();
+		mySceneManager   = MakeOwn<SceneManager>();
+		myRenderManager  = MakeOwn<RenderManager>();
+		myUIManager      = MakeOwn<UIManager>();
+		myAudioManager   = MakeOwn<AudioManager>();
+
+		myPhysicsManager->Init();
+		mySceneManager->Init();
+		myRenderManager->Init();
+		myUIManager->Init();
+		myAudioManager->Init();
 	}
 
 	Application::~Application()
 	{
 		GE_PROFILE_FUNCTION();
 
-		myImGuiLayer->OnDetach();
-		delete myImGuiLayer;
+		myAudioManager->Shutdown();
+		myUIManager->Shutdown();
+		myRenderManager->Shutdown();
+		mySceneManager->Shutdown();
+		myPhysicsManager->Shutdown();
 
 		Renderer::Shutdown();
 	}
@@ -66,9 +78,8 @@ namespace GameEngine {
 		dispatcher.Dispatch<WindowCloseEvent>([this](WindowCloseEvent& e) { return OnWindowClose(e); });
 		dispatcher.Dispatch<WindowResizeEvent>([this](WindowResizeEvent& e) { return OnWindowResize(e); });
 
-		// ImGui gets first pick — if it wants the event, game doesn't see it
-		myImGuiLayer->OnEvent(e);
-		if (e.Handled)
+		// UI gets first pick — if it wants the event, game doesn't see it
+		if (myUIManager->OnEvent(e))
 			return;
 
 		OnUserEvent(e);
@@ -90,11 +101,13 @@ namespace GameEngine {
 
 			if (!myMinimized)
 			{
-				OnUpdate(timestep);
-
-				myImGuiLayer->Begin();
-				OnImGuiRender();
-				myImGuiLayer->End();
+				// Unity-style update order:
+				myPhysicsManager->Update(timestep);   // 1. Physics (FixedUpdate equivalent)
+				mySceneManager->Update(timestep);     // 2. Scene systems (animation, etc.)
+				OnUpdate(timestep);                   // 3. Game logic
+				myRenderManager->Render();            // 4. 3D / 2D render
+				myUIManager->Render([this]() { OnImGuiRender(); }); // 5. UI always last
+				myAudioManager->Update(timestep);     // 6. Audio (runs after render)
 			}
 
 			myWindow->OnUpdate();
