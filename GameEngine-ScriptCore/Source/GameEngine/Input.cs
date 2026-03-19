@@ -1,4 +1,7 @@
-﻿namespace GameEngine
+﻿// Taken from Hazel Engine by TheCherno
+// Source: https://github.com/TheCherno/Hazel
+// Changes: None
+namespace GameEngine
 {
 	public class Input
 	{

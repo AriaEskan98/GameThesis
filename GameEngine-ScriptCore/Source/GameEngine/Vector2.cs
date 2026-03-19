@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Taken from Hazel Engine by TheCherno
+// Source: https://github.com/TheCherno/Hazel
+// Changes: None
+using System;
 
 namespace GameEngine
 {

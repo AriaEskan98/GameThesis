@@ -1,3 +1,8 @@
+// Adapted from Hazel Engine by TheCherno
+// Source: https://github.com/TheCherno/Hazel
+// Changes: Renamed member variables to use "my" prefix convention; refactored internal
+//          storage to use separate myLayerList/myOverlayList with RebuildCombined()
+//          instead of Hazel's insert-position iterator approach
 #include "gepch.h"
 #include "GameEngine/Core/LayerStack.h"
 

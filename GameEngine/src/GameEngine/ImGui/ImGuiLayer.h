@@ -1,3 +1,7 @@
+// Adapted from Hazel Engine by TheCherno
+// Source: https://github.com/TheCherno/Hazel
+// Changes: Renamed member variables to use "my" prefix convention;
+//          added GetActiveWidgetID(); SetDarkThemeColors() moved from editor into this layer
 #pragma once
 
 #include "GameEngine/Core/Layer.h"
