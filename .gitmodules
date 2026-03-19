@@ -26,6 +26,3 @@
 [submodule "GameEngine/vendor/msdf-atlas-gen"]
 	path = GameEngine/vendor/msdf-atlas-gen
 	url = https://github.com/TheCherno/msdf-atlas-gen
-[submodule "GameEngine/vendor/PhysX"]
-	path = GameEngine/vendor/PhysX
-	url = https://github.com/NVIDIA-Omniverse/PhysX

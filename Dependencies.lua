@@ -17,14 +17,14 @@ IncludeDir["SPIRV_Cross"]   = "%{wks.location}/GameEngine/vendor/SPIRV-Cross"
 IncludeDir["VulkanSDK"]     = "%{VULKAN_SDK}/Include"
 IncludeDir["assimp"]        = "%{wks.location}/GameEngine/vendor/assimp/include"
 IncludeDir["assimp_config"] = "%{wks.location}/GameEngine/vendor/assimp/build/include"
-IncludeDir["PhysX"]         = "%{wks.location}/GameEngine/vendor/PhysX/physx/include"
+IncludeDir["PhysX"]         = "%{wks.location}/GameEngine/vendor/PhysX/include"
 
 LibraryDir = {}
 
 LibraryDir["VulkanSDK"]     = "%{VULKAN_SDK}/Lib"
 LibraryDir["assimp"]        = "%{wks.location}/GameEngine/vendor/assimp/build/lib"
-LibraryDir["PhysX_Debug"]   = "%{wks.location}/GameEngine/vendor/PhysX/physx/bin/win.x86_64.vc143.md/debug"
-LibraryDir["PhysX_Release"] = "%{wks.location}/GameEngine/vendor/PhysX/physx/bin/win.x86_64.vc143.md/release"
+LibraryDir["PhysX_Debug"]   = "%{wks.location}/GameEngine/vendor/PhysX/lib/Debug"
+LibraryDir["PhysX_Release"] = "%{wks.location}/GameEngine/vendor/PhysX/lib/Release"
 
 Library = {}
 Library["assimp"] = "%{LibraryDir.assimp}/assimp.lib"
