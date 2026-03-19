@@ -88,6 +88,8 @@ project "GameEngine"
 		runtime "Release"
 		symbols "on"
 
+		libdirs { "%{LibraryDir.PhysX_Debug}" }
+
 		links
 		{
 			"%{Library.ShaderC_Debug}",
@@ -100,6 +102,8 @@ project "GameEngine"
 		runtime "Release"
 		optimize "on"
 
+		libdirs { "%{LibraryDir.PhysX_Release}" }
+
 		links
 		{
 			"%{Library.ShaderC_Release}",
@@ -111,6 +115,8 @@ project "GameEngine"
 		defines "GE_DIST"
 		runtime "Release"
 		optimize "on"
+
+		libdirs { "%{LibraryDir.PhysX_Release}" }
 
 		links
 		{
