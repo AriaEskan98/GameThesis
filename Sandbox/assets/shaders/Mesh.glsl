@@ -89,6 +89,8 @@ struct PointLightGPU
 
 #define MAX_POINT_LIGHTS 4
 
+layout(binding = 0) uniform sampler2D u_Texture;
+
 // Binding 3 — scene lighting (updated once per BeginScene)
 layout(std140, binding = 3) uniform LightData
 {
@@ -155,7 +157,7 @@ void main()
 	for (int i = 0; i < numPoint; i++)
 		result += CalcPointLight(i, norm, viewDir);
 
-	result *= u_Color.rgb;
-	o_Color    = vec4(result, u_Color.a);
+	result *= u_Color.rgb * texture(u_Texture, v_TexCoord).rgb;
+	o_Color    = vec4(result, u_Color.a * texture(u_Texture, v_TexCoord).a);
 	o_EntityID = u_EntityID;
 }

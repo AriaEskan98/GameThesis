@@ -9,6 +9,7 @@ namespace GameEngine {
 
 	Own<Renderer3D::SceneData> Renderer3D::gsData;
 	Handle<Shader>             Renderer3D::gsMeshShader;
+	Handle<Texture2D>          Renderer3D::gsDefaultTexture;
 	TextureLibrary             Renderer3D::gsTextureLibrary;
 
 	void Renderer3D::Init()
@@ -25,6 +26,15 @@ namespace GameEngine {
 
 		gsMeshShader = Shader::Create("assets/shaders/Mesh.glsl");
 
+		// 1×1 white texture used when a mesh has no diffuse texture.
+		TextureSpecification defaultSpec;
+		defaultSpec.Width = 1;
+		defaultSpec.Height = 1;
+		defaultSpec.Format = ImageFormat::RGBA8;
+		gsDefaultTexture = Texture2D::Create(defaultSpec);
+		uint32_t whitePixel = 0xFFFFFFFF;
+		gsDefaultTexture->SetData(&whitePixel, sizeof(uint32_t));
+
 		// Upload a default (dark-ambient, no lights) environment so the buffer
 		// is never uninitialized even if the caller skips SetLightEnvironment.
 		SetLightEnvironment(LightEnvironment{});
@@ -33,6 +43,7 @@ namespace GameEngine {
 	void Renderer3D::Shutdown()
 	{
 		gsMeshShader.reset();
+		gsDefaultTexture.reset();
 		gsData.reset();
 		gsTextureLibrary = TextureLibrary{};
 	}
@@ -105,6 +116,10 @@ namespace GameEngine {
 		obj.Color     = color;
 		obj.EntityID  = entityID;
 		gsData->ObjectUBO->SetData(&obj, sizeof(ObjectUBOData));
+
+		// Bind diffuse texture (or white fallback) to slot 0.
+		const auto& tex = mesh->GetTexture();
+		(tex ? tex : gsDefaultTexture)->Bind(0);
 
 		gsMeshShader->Bind();
 		RenderCommand::DrawIndexed(mesh->GetVertexArray(), mesh->GetIndexCount());

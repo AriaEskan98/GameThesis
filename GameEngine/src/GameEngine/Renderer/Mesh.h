@@ -1,6 +1,7 @@
 #pragma once
 
 #include "GameEngine/Renderer/Buffer.h"
+#include "GameEngine/Renderer/Texture.h"
 #include "GameEngine/Renderer/VertexArray.h"
 
 #include <glm/glm.hpp>
@@ -34,10 +35,12 @@ namespace GameEngine {
 		const Handle<VertexArray>& GetVertexArray() const { return myVertexArray; }
 		uint32_t GetIndexCount() const { return myIndexCount; }
 		const std::string& GetFilepath() const { return myFilepath; }
+		const Handle<Texture2D>& GetTexture() const { return myTexture; }
 	private:
 		Handle<VertexArray> myVertexArray;
 		uint32_t myIndexCount = 0;
 		std::string myFilepath;
+		Handle<Texture2D> myTexture;
 	};
 
 }

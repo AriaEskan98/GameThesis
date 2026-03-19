@@ -1,6 +1,8 @@
 #include "gepch.h"
 #include "GameEngine/Renderer/Mesh.h"
 
+#include "GameEngine/Renderer/Renderer3D.h"
+
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
@@ -104,6 +106,29 @@ namespace GameEngine {
 
 		auto mesh = MakeHandle<Mesh>(vertices, indices);
 		mesh->myFilepath = filepath;
+
+		// Extract the diffuse texture from the first material that has one.
+		std::string directory = filepath.substr(0, filepath.find_last_of("/\\"));
+		for (uint32_t m = 0; m < scene->mNumMeshes; ++m)
+		{
+			uint32_t matIndex = scene->mMeshes[m]->mMaterialIndex;
+			if (matIndex >= scene->mNumMaterials)
+				continue;
+
+			const aiMaterial* mat = scene->mMaterials[matIndex];
+			if (mat->GetTextureCount(aiTextureType_DIFFUSE) == 0)
+				continue;
+
+			aiString texPath;
+			if (mat->GetTexture(aiTextureType_DIFFUSE, 0, &texPath) == AI_SUCCESS)
+			{
+				std::string fullPath = directory + "/" + texPath.C_Str();
+				mesh->myTexture = Renderer3D::LoadTexture(fullPath);
+				GE_CORE_INFO("Mesh::Create: loaded texture '{0}'", fullPath);
+				break;
+			}
+		}
+
 		return mesh;
 	}
 

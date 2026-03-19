@@ -132,9 +132,10 @@ namespace GameEngine {
 			Handle<UniformBuffer> LightUBO;   // binding 3
 		};
 
-		static Own<SceneData>  gsData;
-		static Handle<Shader>  gsMeshShader;
-		static TextureLibrary  gsTextureLibrary;
+		static Own<SceneData>    gsData;
+		static Handle<Shader>    gsMeshShader;
+		static Handle<Texture2D> gsDefaultTexture;
+		static TextureLibrary    gsTextureLibrary;
 	};
 
 }
