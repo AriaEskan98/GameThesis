@@ -43,6 +43,7 @@ project "GameEngine"
 		"%{IncludeDir.ImGuizmo}",
 		"%{IncludeDir.assimp}",
 		"%{IncludeDir.assimp_config}",
+		"%{IncludeDir.PhysX}",
 		"%{IncludeDir.shaderc}",
 		"%{IncludeDir.SPIRV_Cross}",
 		"%{IncludeDir.VulkanSDK}"
@@ -57,6 +58,10 @@ project "GameEngine"
 		"opengl32.lib",
 
 		"%{Library.assimp}",
+		"%{Library.PhysX}",
+		"%{Library.PhysXCommon}",
+		"%{Library.PhysXFoundation}",
+		"%{Library.PhysXExtensions}",
 	}
 
 	filter "files:vendor/ImGuizmo/**.cpp"

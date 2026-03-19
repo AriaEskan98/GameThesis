@@ -4,34 +4,34 @@
 VULKAN_SDK = os.getenv("VULKAN_SDK")
 
 IncludeDir = {}
-IncludeDir["stb_image"] = "%{wks.location}/GameEngine/vendor/stb_image"
-IncludeDir["yaml_cpp"] = "%{wks.location}/GameEngine/vendor/yaml-cpp/include"
-IncludeDir["Box2D"] = "%{wks.location}/GameEngine/vendor/Box2D/include"
-IncludeDir["filewatch"] = "%{wks.location}/GameEngine/vendor/filewatch"
-IncludeDir["GLFW"] = "%{wks.location}/GameEngine/vendor/GLFW/include"
-IncludeDir["Glad"] = "%{wks.location}/GameEngine/vendor/Glad/include"
-IncludeDir["ImGui"] = "%{wks.location}/GameEngine/vendor/ImGui"
-IncludeDir["ImGuizmo"] = "%{wks.location}/GameEngine/vendor/ImGuizmo"
-IncludeDir["glm"] = "%{wks.location}/GameEngine/vendor/glm"
-IncludeDir["entt"] = "%{wks.location}/GameEngine/vendor/entt/include"
-IncludeDir["mono"] = "%{wks.location}/GameEngine/vendor/mono/include"
-IncludeDir["shaderc"] = "%{wks.location}/GameEngine/vendor/shaderc/include"
-IncludeDir["SPIRV_Cross"] = "%{wks.location}/GameEngine/vendor/SPIRV-Cross"
-IncludeDir["VulkanSDK"] = "%{VULKAN_SDK}/Include"
-IncludeDir["msdfgen"] = "%{wks.location}/GameEngine/vendor/msdf-atlas-gen/msdfgen"
-IncludeDir["msdf_atlas_gen"] = "%{wks.location}/GameEngine/vendor/msdf-atlas-gen/msdf-atlas-gen"
+IncludeDir["stb_image"]     = "%{wks.location}/GameEngine/vendor/stb_image"
+IncludeDir["yaml_cpp"]      = "%{wks.location}/GameEngine/vendor/yaml-cpp/include"
+IncludeDir["GLFW"]          = "%{wks.location}/GameEngine/vendor/GLFW/include"
+IncludeDir["Glad"]          = "%{wks.location}/GameEngine/vendor/Glad/include"
+IncludeDir["ImGui"]         = "%{wks.location}/GameEngine/vendor/ImGui"
+IncludeDir["ImGuizmo"]      = "%{wks.location}/GameEngine/vendor/ImGuizmo"
+IncludeDir["glm"]           = "%{wks.location}/GameEngine/vendor/glm"
+IncludeDir["entt"]          = "%{wks.location}/GameEngine/vendor/entt/include"
+IncludeDir["shaderc"]       = "%{wks.location}/GameEngine/vendor/shaderc/include"
+IncludeDir["SPIRV_Cross"]   = "%{wks.location}/GameEngine/vendor/SPIRV-Cross"
+IncludeDir["VulkanSDK"]     = "%{VULKAN_SDK}/Include"
 IncludeDir["assimp"]        = "%{wks.location}/GameEngine/vendor/assimp/include"
 IncludeDir["assimp_config"] = "%{wks.location}/GameEngine/vendor/assimp/build/include"
+IncludeDir["PhysX"]         = "%{wks.location}/GameEngine/vendor/PhysX/include"
 
 LibraryDir = {}
 
 LibraryDir["VulkanSDK"] = "%{VULKAN_SDK}/Lib"
-LibraryDir["mono"]      = "%{wks.location}/GameEngine/vendor/mono/lib/%{cfg.buildcfg}"
 LibraryDir["assimp"]    = "%{wks.location}/GameEngine/vendor/assimp/build/lib"
+LibraryDir["PhysX"]     = "%{wks.location}/GameEngine/vendor/PhysX/lib/%{cfg.buildcfg}"
 
 Library = {}
-Library["mono"]   = "%{LibraryDir.mono}/libmono-static-sgen.lib"
 Library["assimp"] = "%{LibraryDir.assimp}/assimp.lib"
+
+Library["PhysX"]            = "%{LibraryDir.PhysX}/PhysX_static_64.lib"
+Library["PhysXCommon"]      = "%{LibraryDir.PhysX}/PhysXCommon_static_64.lib"
+Library["PhysXFoundation"]  = "%{LibraryDir.PhysX}/PhysXFoundation_static_64.lib"
+Library["PhysXExtensions"]  = "%{LibraryDir.PhysX}/PhysXExtensions_static_64.lib"
 
 Library["Vulkan"] = "%{LibraryDir.VulkanSDK}/vulkan-1.lib"
 Library["VulkanUtils"] = "%{LibraryDir.VulkanSDK}/VkLayer_utils.lib"
