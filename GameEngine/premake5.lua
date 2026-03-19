@@ -84,7 +84,7 @@ project "GameEngine"
 		}
 
 	filter "configurations:Debug"
-		defines "GE_DEBUG"
+		defines { "GE_DEBUG", "_DEBUG" }
 		runtime "Release"
 		symbols "on"
 
@@ -98,7 +98,7 @@ project "GameEngine"
 		}
 
 	filter "configurations:Release"
-		defines "GE_RELEASE"
+		defines { "GE_RELEASE", "NDEBUG" }
 		runtime "Release"
 		optimize "on"
 
@@ -112,7 +112,7 @@ project "GameEngine"
 		}
 
 	filter "configurations:Dist"
-		defines "GE_DIST"
+		defines { "GE_DIST", "NDEBUG" }
 		runtime "Release"
 		optimize "on"
 
