@@ -1,6 +1,9 @@
 #include <GameEngine.h>
 #include <GameEngine/Core/EntryPoint.h>
 
+#include "Scripts/LanternFlickerScript.h"
+#include "Scripts/RotatingCrateScript.h"
+
 using namespace GameEngine;
 
 // ---------------------------------------------------------------------------
@@ -145,6 +148,7 @@ static Handle<Scene> BuildScene(AssetManager& assets)
         e.AddComponent<MeshRendererComponent>().Mesh = crateMesh;
         e.AddComponent<Rigidbody3DComponent>();   // Dynamic, UseGravity = true by default
         e.AddComponent<BoxCollider3DComponent>();
+        e.AddComponent<NativeScriptComponent>().Bind<RotatingCrateScript>();
     }
 
     // -----------------------------------------------------------------------
@@ -198,6 +202,8 @@ static Handle<Scene> BuildScene(AssetManager& assets)
             pl.Constant  = 1.0f;
             pl.Linear    = 0.14f;
             pl.Quadratic = 0.07f;
+
+            e.AddComponent<NativeScriptComponent>().Bind<LanternFlickerScript>();
         };
 
         addLantern("Lantern_L", { -1.2f, 2.8f, -4.5f });
@@ -275,6 +281,7 @@ protected:
         ImGui::BulletText("AssetManager  — textures auto-loaded from meshes");
         ImGui::BulletText("Physics3D     — player, crate, ramp all simulated");
         ImGui::BulletText("FPSCamera     — drives player via Physics3DBody");
+        ImGui::BulletText("NativeScript  — crate rotates, lanterns flicker");
         ImGui::BulletText("Renderer3D    — Blinn-Phong, 1 dir + 2 point lights");
         ImGui::End();
     }
