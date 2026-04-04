@@ -8,6 +8,8 @@
 #include "GameEngine/Physics/Physics3D.h"
 
 #include <glm/glm.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/quaternion.hpp>
 
 #include "Entity.h"
 
@@ -324,6 +326,7 @@ namespace GameEngine {
 
 			Physics3DBodyDef def;
 			def.Position    = transform.Translation;
+			def.Rotation    = glm::quat(transform.Rotation);
 			def.Friction    = rb3d.Friction;
 			def.Restitution = rb3d.Restitution;
 			def.UseGravity  = rb3d.UseGravity;
@@ -394,6 +397,13 @@ namespace GameEngine {
 			if (mesh.Mesh)
 				Renderer3D::Submit(mesh.Mesh, transform.GetTransform(), mesh.Color, (int)entity);
 		}
+	}
+
+	void Scene::RenderWithCamera(const glm::mat4& viewProjection, const glm::vec3& cameraPos)
+	{
+		Renderer3D::BeginScene(viewProjection, cameraPos);
+		RenderMeshes();
+		Renderer3D::EndScene();
 	}
 
 	void Scene::RenderScene(EditorCamera& camera)

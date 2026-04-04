@@ -25,6 +25,10 @@
 
 #include "GameEngine/Project/Project.h"
 
+// ---Physics-------------------------
+#include "GameEngine/Physics/Physics3D.h"
+// -----------------------------------
+
 // ---Renderer------------------------
 #include "GameEngine/Renderer/Renderer.h"
 #include "GameEngine/Renderer/Renderer3D.h"

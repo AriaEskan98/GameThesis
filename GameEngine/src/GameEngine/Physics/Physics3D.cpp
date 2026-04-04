@@ -80,7 +80,8 @@ namespace GameEngine {
 		auto* body     = new Physics3DBody();
 		body->Position = def.Position;
 
-		const PxTransform  pose(PxVec3(def.Position.x, def.Position.y, def.Position.z));
+		const PxQuat pxRot(def.Rotation.x, def.Rotation.y, def.Rotation.z, def.Rotation.w);
+		const PxTransform  pose(PxVec3(def.Position.x, def.Position.y, def.Position.z), pxRot);
 		const PxBoxGeometry geometry(def.HalfExtents.x, def.HalfExtents.y, def.HalfExtents.z);
 
 		// One material per body using the supplied friction/restitution values.
@@ -144,6 +145,18 @@ namespace GameEngine {
 	{
 		if (deltaTime <= 0.0f)
 			return;
+
+		// Apply any externally-set velocity (e.g. from FPSCameraController) before simulating.
+		// For physics-only bodies (crate, etc.) this is a no-op: the value we write back
+		// equals what PhysX computed last frame, so nothing changes.
+		for (auto* body : myBodies)
+		{
+			auto* actor   = static_cast<PxRigidActor*>(body->Actor);
+			auto* dynamic = actor->is<PxRigidDynamic>();
+			if (!dynamic || dynamic->getRigidBodyFlags().isSet(PxRigidBodyFlag::eKINEMATIC))
+				continue;
+			dynamic->setLinearVelocity(PxVec3(body->Velocity.x, body->Velocity.y, body->Velocity.z));
+		}
 
 		myImpl->Scene->simulate(deltaTime);
 		myImpl->Scene->fetchResults(true);

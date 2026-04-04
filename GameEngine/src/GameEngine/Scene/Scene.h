@@ -5,6 +5,7 @@
 #include "GameEngine/Renderer/EditorCamera.h"
 
 #include "entt.hpp"
+#include <glm/glm.hpp>
 
 namespace GameEngine {
 
@@ -41,6 +42,10 @@ class Physics3DWorld;
 		Entity GetEntityByUUID(UUID uuid);
 
 		Entity GetPrimaryCameraEntity();
+
+		/// Render the scene from an externally-supplied camera (e.g. FPSCameraController).
+		/// Call this instead of relying on the primary CameraComponent entity.
+		void RenderWithCamera(const glm::mat4& viewProjection, const glm::vec3& cameraPos);
 
 		bool IsRunning() const { return myIsRunning; }
 		bool IsPaused() const { return myIsPaused; }

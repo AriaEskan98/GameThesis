@@ -1,6 +1,7 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#include <glm/gtc/quaternion.hpp>
 #include <vector>
 
 namespace GameEngine {
@@ -30,6 +31,7 @@ namespace GameEngine {
 	struct Physics3DBodyDef
 	{
 		glm::vec3 Position    = { 0.0f, 0.0f, 0.0f };
+		glm::quat Rotation    = glm::quat(1.0f, 0.0f, 0.0f, 0.0f); ///< Identity = no rotation.
 		glm::vec3 HalfExtents = { 0.5f, 0.5f, 0.5f };
 		float Mass        = 1.0f;   ///< 0 → static body.
 		float Friction    = 0.5f;
