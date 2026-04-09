@@ -1,6 +1,6 @@
 #include <GameEngine.h>
 #include <GameEngine/Core/EntryPoint.h>
-#include <imgui.h>
+#include <imgui/imgui.h>
 
 #include "Scripts/LanternFlickerScript.h"
 #include "Scripts/RotatingCrateScript.h"
