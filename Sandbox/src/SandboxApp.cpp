@@ -73,13 +73,13 @@ static Handle<Scene> BuildScene(AssetManager& assets)
     }
 
     // -----------------------------------------------------------------------
-    // House — static mesh + wall collider
-    // old_house.obj origin is at ground level; place at world origin.
+    // House — static mesh + wall collider, placed 10 units ahead of spawn.
+    // Player spawns at Z=+4 looking toward -Z; house sits at Z=-8.
     // -----------------------------------------------------------------------
     {
         Entity e = scene->CreateEntity("House");
         auto& t  = e.GetComponent<TransformComponent>();
-        t.Translation = { 0.0f, 0.0f, 0.0f };
+        t.Translation = { 0.0f, 0.0f, -8.0f };
 
         e.AddComponent<MeshRendererComponent>().Mesh = houseMesh;
 
@@ -102,41 +102,34 @@ static Handle<Scene> BuildScene(AssetManager& assets)
     // -----------------------------------------------------------------------
     {
         // -- Visual steps (decorative, no collider) --
-        // Each step box: center_y = 0.125 + step * 0.25,
-        //                center_z = -1.8  - step * 0.6
+        // 5 steps leading from Z=-2 toward the house at Z=-8.
+        // Each step: 0.25 m tall, 0.6 m deep, 3 m wide.
         for (int i = 0; i < 5; ++i)
         {
             Entity e = scene->CreateEntity("Step_" + std::to_string(i));
             auto& t  = e.GetComponent<TransformComponent>();
             t.Translation = { 0.0f,
                               0.125f + i * 0.25f,
-                             -1.8f  - i * 0.6f  };
+                             -2.0f  - i * 0.6f  };
             t.Scale = { 3.0f, 0.25f, 0.6f };
 
-            e.AddComponent<MeshRendererComponent>().Mesh = crateMesh; // scaled box shape
+            e.AddComponent<MeshRendererComponent>().Mesh = crateMesh;
         }
 
         // -- Ramp collider (invisible — no MeshRendererComponent) --
-        // Box tilted to match the staircase slope:
-        //   rise = 1.25 m over run = 3.0 m  →  angle = atan(1.25/3.0) ≈ 22.6°
-        // Center of the ramp is halfway between bottom (z=-1.5) and top (z=-4.5):
-        //   center = (0, 0.625, -3.0)
-        // Hypotenuse (box length along slope) = sqrt(1.25² + 3.0²) ≈ 3.25 m
-        // Half-extents: (1.5, 0.15, 1.625)  →  use Scale=(3.0, 0.3, 3.25)
+        // rise = 1.25 m over run = 3.0 m  →  angle ≈ 22.6°
+        // Center of ramp between bottom (z=-2) and top (z=-5):  z=-3.5
         {
-            constexpr float kRise  = 1.25f;
-            constexpr float kRun   = 3.0f;
-            constexpr float kAngle = glm::radians(22.6f); // atan(1.25/3.0)
+            constexpr float kAngle = glm::radians(22.6f);
 
             Entity ramp = scene->CreateEntity("StairRamp");
             auto& t     = ramp.GetComponent<TransformComponent>();
-            t.Translation = { 0.0f, 0.625f, -3.0f };
-            t.Rotation    = { -kAngle, 0.0f, 0.0f }; // pitch forward to match rise/run
+            t.Translation = { 0.0f, 0.625f, -3.5f };
+            t.Rotation    = { -kAngle, 0.0f, 0.0f };
             t.Scale       = { 3.0f, 0.3f, 3.25f };
 
             auto& rb = ramp.AddComponent<Rigidbody3DComponent>();
             rb.Type  = Rigidbody3DComponent::BodyType::Static;
-            // BoxCollider uses Scale*0.5 as HalfExtents (no explicit component needed)
         }
     }
 
@@ -210,8 +203,8 @@ static Handle<Scene> BuildScene(AssetManager& assets)
             e.AddComponent<NativeScriptComponent>().Bind<LanternFlickerScript>();
         };
 
-        addLantern("Lantern_L", { -1.2f, 2.8f, -4.5f });
-        addLantern("Lantern_R", {  1.2f, 2.8f, -4.5f });
+        addLantern("Lantern_L", { -1.2f, 2.8f, -7.5f });
+        addLantern("Lantern_R", {  1.2f, 2.8f, -7.5f });
     }
 
     return scene;
