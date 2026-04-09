@@ -80,6 +80,7 @@ static Handle<Scene> BuildScene(AssetManager& assets)
         Entity e = scene->CreateEntity("House");
         auto& t  = e.GetComponent<TransformComponent>();
         t.Translation = { 0.0f, 0.0f, -8.0f };
+        t.Rotation    = { glm::radians(-90.0f), 0.0f, 0.0f }; // Fix 3ds Max Z-up → Y-up
 
         e.AddComponent<MeshRendererComponent>().Mesh = houseMesh;
 
