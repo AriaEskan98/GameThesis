@@ -34,7 +34,7 @@ project "Sandbox"
 
 	filter "system:windows"
 		systemversion "latest"
-		buildoptions { "/utf-8" }
+		buildoptions { "/utf-8", "/Zc:preprocessor" }
 
 	filter "configurations:Debug"
 		defines { "GE_DEBUG", "NDEBUG" }

@@ -70,7 +70,7 @@ project "GameEngine"
 
 	filter "system:windows"
 		systemversion "latest"
-		buildoptions { "/utf-8" }
+		buildoptions { "/utf-8", "/Zc:preprocessor" }
 
 		defines
 		{
