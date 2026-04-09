@@ -81,7 +81,9 @@ static Handle<Scene> BuildScene(AssetManager& assets)
         auto& t  = e.GetComponent<TransformComponent>();
         t.Translation = { 0.0f, 0.0f, -8.0f };
 
-        e.AddComponent<MeshRendererComponent>().Mesh = houseMesh;
+        auto& houseRenderer = e.AddComponent<MeshRendererComponent>();
+        houseRenderer.Mesh  = houseMesh;
+        houseRenderer.Color = { 10.0f, 10.0f, 10.0f, 1.0f }; // DEBUG: overbright to force visibility
 
         auto& rb = e.AddComponent<Rigidbody3DComponent>();
         rb.Type  = Rigidbody3DComponent::BodyType::Static;
@@ -248,7 +250,7 @@ protected:
     void OnUpdate(Timestep ts) override
     {
         // Clear framebuffer (color + depth) each frame.
-        RenderCommand::SetClearColor({ 0.15f, 0.15f, 0.2f, 1.0f });
+        RenderCommand::SetClearColor({ 1.0f, 1.0f, 1.0f, 1.0f }); // DEBUG: white background
         RenderCommand::Clear();
 
         // 1. FPS camera reads last frame's physics position and writes desired velocity
