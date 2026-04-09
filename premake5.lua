@@ -30,11 +30,12 @@ group "Dependencies"
 	include "GameEngine/vendor/Glad"
 	include "GameEngine/vendor/imgui-patch"
 	include "GameEngine/vendor/yaml-cpp"
+	include "GameEngine/vendor/assimp/contrib/zlib"
 group ""
 
 -- Vulkan SDK 1.4.x ships only /MD-compiled libs; override all vendor
 -- projects to use runtime Release in Debug config to prevent LNK2038.
-for _, name in ipairs({ "GLFW", "Glad", "ImGui", "yaml-cpp" }) do
+for _, name in ipairs({ "GLFW", "Glad", "ImGui", "yaml-cpp", "zlib" }) do
 	project(name)
 		filter "configurations:Debug"
 			runtime "Release"

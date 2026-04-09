@@ -59,7 +59,7 @@ project "GameEngine"
 		"opengl32.lib",
 
 		"%{Library.assimp}",
-		"%{Library.zlibstatic}",
+		"zlib",
 		"%{Library.PhysX}",
 		"%{Library.PhysXCommon}",
 		"%{Library.PhysXFoundation}",
