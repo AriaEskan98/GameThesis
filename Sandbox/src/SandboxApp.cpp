@@ -49,22 +49,21 @@ using namespace GameEngine;
 static Handle<Scene> BuildScene(AssetManager& assets)
 {
     // ---- Load assets -------------------------------------------------------
-    auto houseMesh  = assets.LoadMesh("assets/models/house.obj");
-    auto crateMesh  = assets.LoadMesh("assets/models/crate.obj");
-    auto groundMesh = assets.LoadMesh("assets/models/ground.obj");
+    // old_house.obj includes the ground plane visually; no separate ground mesh.
+    auto houseMesh = assets.LoadMesh("assets/models/old_house.obj");
+    auto crateMesh = assets.LoadMesh("assets/models/crate.obj");
     assets.LoadShader("assets/shaders/Mesh.glsl");
 
     auto scene = MakeHandle<Scene>();
 
     // -----------------------------------------------------------------------
-    // Ground — large flat static body
+    // Ground — invisible static physics plane (visual ground is part of house mesh)
     // -----------------------------------------------------------------------
     {
         Entity e = scene->CreateEntity("Ground");
         auto& t  = e.GetComponent<TransformComponent>();
-        t.Scale  = { 20.0f, 0.2f, 20.0f };
-
-        e.AddComponent<MeshRendererComponent>().Mesh = groundMesh;
+        t.Translation = { 0.0f, -0.1f, 0.0f };
+        t.Scale       = { 20.0f, 0.2f, 20.0f };
 
         auto& rb = e.AddComponent<Rigidbody3DComponent>();
         rb.Type  = Rigidbody3DComponent::BodyType::Static;
@@ -74,18 +73,22 @@ static Handle<Scene> BuildScene(AssetManager& assets)
     }
 
     // -----------------------------------------------------------------------
-    // House — static mesh + collider, placed behind the staircase
+    // House — static mesh + wall collider
+    // old_house.obj origin is at ground level; place at world origin.
     // -----------------------------------------------------------------------
     {
         Entity e = scene->CreateEntity("House");
         auto& t  = e.GetComponent<TransformComponent>();
-        t.Translation = { 0.0f, 0.0f, -6.0f };
+        t.Translation = { 0.0f, 0.0f, 0.0f };
 
         e.AddComponent<MeshRendererComponent>().Mesh = houseMesh;
 
         auto& rb = e.AddComponent<Rigidbody3DComponent>();
         rb.Type  = Rigidbody3DComponent::BodyType::Static;
-        e.AddComponent<BoxCollider3DComponent>();
+
+        // Rough bounding box for the house walls (player can't walk through).
+        auto& col       = e.AddComponent<BoxCollider3DComponent>();
+        col.HalfExtents = { 5.0f, 3.0f, 5.0f };
     }
 
     // -----------------------------------------------------------------------
@@ -251,6 +254,10 @@ public:
 protected:
     void OnUpdate(Timestep ts) override
     {
+        // Clear framebuffer (color + depth) each frame.
+        RenderCommand::SetClearColor({ 0.15f, 0.15f, 0.2f, 1.0f });
+        RenderCommand::Clear();
+
         // 1. FPS camera reads last frame's physics position and writes desired velocity
         //    to Physics3DBody::Velocity.  Physics3D::Step() will pick it up next.
         myCamera.OnUpdate(ts);
