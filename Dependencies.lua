@@ -27,7 +27,8 @@ LibraryDir["PhysX_Debug"]   = "%{wks.location}/GameEngine/vendor/PhysX/lib/Debug
 LibraryDir["PhysX_Release"] = "%{wks.location}/GameEngine/vendor/PhysX/lib/Release"
 
 Library = {}
-Library["assimp"] = "%{LibraryDir.assimp}/assimp.lib"
+Library["assimp"]       = "%{LibraryDir.assimp}/assimp.lib"
+Library["zlibstatic"]   = "%{LibraryDir.assimp}/zlibstatic.lib"
 
 Library["PhysX"]            = "PhysX_static_64.lib"
 Library["PhysXCommon"]      = "PhysXCommon_static_64.lib"
