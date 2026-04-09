@@ -28,7 +28,7 @@ namespace GameEngine {
 
 	Handle<Texture2D> AssetManager::GetTexture(const std::string& path) const
 	{
-		GE_CORE_ASSERT(TextureExists(path), "AssetManager: texture not loaded: {0}", path);
+		GE_CORE_ASSERT(TextureExists(path), "AssetManager: texture not loaded");
 		// TextureLibrary::Get is non-const, so reach into the map directly.
 		// Cast away const — map lookup on an existing key does not modify state.
 		return const_cast<AssetManager*>(this)->myTextures.Get(path);
@@ -53,7 +53,7 @@ namespace GameEngine {
 
 	Handle<Shader> AssetManager::GetShader(const std::string& name) const
 	{
-		GE_CORE_ASSERT(ShaderExists(name), "AssetManager: shader not loaded: {0}", name);
+		GE_CORE_ASSERT(ShaderExists(name), "AssetManager: shader not loaded");
 		return const_cast<AssetManager*>(this)->myShaders.Get(name);
 	}
 
@@ -76,7 +76,7 @@ namespace GameEngine {
 
 	Handle<Mesh> AssetManager::GetMesh(const std::string& path) const
 	{
-		GE_CORE_ASSERT(MeshExists(path), "AssetManager: mesh not loaded: {0}", path);
+		GE_CORE_ASSERT(MeshExists(path), "AssetManager: mesh not loaded");
 		return myMeshes.at(path);
 	}
 
