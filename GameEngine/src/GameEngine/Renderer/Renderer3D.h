@@ -39,7 +39,7 @@ namespace GameEngine {
 	/// All lighting information for one rendered frame.
 	struct LightEnvironment
 	{
-		glm::vec3 AmbientColor = { 0.1f, 0.1f, 0.1f };
+		glm::vec3 AmbientColor = { 0.35f, 0.35f, 0.35f };
 
 		bool                HasDirectionalLight = false;
 		DirectionalLightData DirectionalLight;

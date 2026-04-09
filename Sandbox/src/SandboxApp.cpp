@@ -68,8 +68,8 @@ static Handle<Scene> BuildScene(AssetManager& assets)
         auto& rb = e.AddComponent<Rigidbody3DComponent>();
         rb.Type  = Rigidbody3DComponent::BodyType::Static;
 
-        auto& col       = e.AddComponent<BoxCollider3DComponent>();
-        col.HalfExtents = { 10.0f, 0.1f, 10.0f };
+        auto& col = e.AddComponent<BoxCollider3DComponent>();
+        // Use default HalfExtents (0.5,0.5,0.5); physics box = 0.5 * Scale = (10, 0.1, 10) — 20cm thick slab.
     }
 
     // -----------------------------------------------------------------------
@@ -81,9 +81,7 @@ static Handle<Scene> BuildScene(AssetManager& assets)
         auto& t  = e.GetComponent<TransformComponent>();
         t.Translation = { 0.0f, 0.0f, -8.0f };
 
-        auto& houseRenderer = e.AddComponent<MeshRendererComponent>();
-        houseRenderer.Mesh  = houseMesh;
-        houseRenderer.Color = { 10.0f, 10.0f, 10.0f, 1.0f }; // DEBUG: overbright to force visibility
+        e.AddComponent<MeshRendererComponent>().Mesh = houseMesh;
 
         auto& rb = e.AddComponent<Rigidbody3DComponent>();
         rb.Type  = Rigidbody3DComponent::BodyType::Static;
@@ -250,7 +248,7 @@ protected:
     void OnUpdate(Timestep ts) override
     {
         // Clear framebuffer (color + depth) each frame.
-        RenderCommand::SetClearColor({ 1.0f, 1.0f, 1.0f, 1.0f }); // DEBUG: white background
+        RenderCommand::SetClearColor({ 0.15f, 0.15f, 0.2f, 1.0f });
         RenderCommand::Clear();
 
         // 1. FPS camera reads last frame's physics position and writes desired velocity
