@@ -101,8 +101,17 @@ namespace GameEngine {
 			return nullptr;
 		}
 
+		// Log bounding box so we know where the geometry actually lives.
+		glm::vec3 bmin = vertices[0].Position, bmax = vertices[0].Position;
+		for (const auto& v : vertices)
+		{
+			bmin = glm::min(bmin, v.Position);
+			bmax = glm::max(bmax, v.Position);
+		}
 		GE_CORE_INFO("Mesh::Create: loaded '{0}' ({1} vertices, {2} triangles)",
 			filepath, vertices.size(), indices.size() / 3);
+		GE_CORE_INFO("  BBox min: ({0}, {1}, {2})  max: ({3}, {4}, {5})",
+			bmin.x, bmin.y, bmin.z, bmax.x, bmax.y, bmax.z);
 
 		auto mesh = MakeHandle<Mesh>(vertices, indices);
 		mesh->myFilepath = filepath;
