@@ -123,6 +123,7 @@ namespace GameEngine {
 	{
 		GE_PROFILE_FUNCTION();
 
-		glBindTextureUnit(slot, myRendererID);
+		if (myRendererID)
+			glBindTextureUnit(slot, myRendererID);
 	}
 }

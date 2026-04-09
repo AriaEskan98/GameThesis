@@ -36,9 +36,9 @@ namespace GameEngine {
 
 		std::string myPath;
 		bool myIsLoaded = false;
-		uint32_t myWidth, myHeight;
-		uint32_t myRendererID;
-		GLenum myInternalFormat, myDataFormat;
+		uint32_t myWidth = 0, myHeight = 0;
+		uint32_t myRendererID = 0;
+		GLenum myInternalFormat = 0, myDataFormat = 0;
 	};
 
 }
