@@ -65,8 +65,8 @@ namespace GameEngine {
 		{
 			switch (stage)
 			{
-				case GL_VERTEX_SHADER:    return ".cached_opengl.vert";
-				case GL_FRAGMENT_SHADER:  return ".cached_opengl.frag";
+				case GL_VERTEX_SHADER:    return ".cached_opengl_v2.vert";
+				case GL_FRAGMENT_SHADER:  return ".cached_opengl_v2.frag";
 			}
 			GE_CORE_ASSERT(false);
 			return "";
@@ -76,8 +76,8 @@ namespace GameEngine {
 		{
 			switch (stage)
 			{
-			case GL_VERTEX_SHADER:    return ".cached_vulkan.vert";
-			case GL_FRAGMENT_SHADER:  return ".cached_vulkan.frag";
+			case GL_VERTEX_SHADER:    return ".cached_vulkan_v2.vert";
+			case GL_FRAGMENT_SHADER:  return ".cached_vulkan_v2.frag";
 			}
 			GE_CORE_ASSERT(false);
 			return "";
@@ -278,6 +278,12 @@ namespace GameEngine {
 			else
 			{
 				spirv_cross::CompilerGLSL glslCompiler(spirv);
+				// Force GLSL 4.50 output so that layout(binding=N) is emitted
+				// for sampler uniforms — required for texture unit binding to work.
+				spirv_cross::CompilerGLSL::Options glslOptions;
+				glslOptions.version = 450;
+				glslOptions.es = false;
+				glslCompiler.set_common_options(glslOptions);
 				myOpenGLSourceCode[stage] = glslCompiler.compile();
 				auto& source = myOpenGLSourceCode[stage];
 

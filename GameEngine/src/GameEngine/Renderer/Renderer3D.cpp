@@ -117,8 +117,11 @@ namespace GameEngine {
 		gsData->ObjectUBO->SetData(&obj, sizeof(ObjectUBOData));
 
 		// Bind diffuse texture (or white fallback) to slot 0.
+		// Use IsLoaded() so a texture whose file failed to load still falls back
+		// to the white default rather than leaving unit 0 with a stale binding.
 		const auto& tex = mesh->GetTexture();
-		(tex ? tex : gsDefaultTexture)->Bind(0);
+		bool validTex = tex && tex->IsLoaded();
+		(validTex ? tex : gsDefaultTexture)->Bind(0);
 
 		gsMeshShader->Bind();
 		RenderCommand::DrawIndexed(mesh->GetVertexArray(), mesh->GetIndexCount());

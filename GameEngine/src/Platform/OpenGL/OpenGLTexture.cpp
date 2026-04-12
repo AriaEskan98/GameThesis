@@ -64,7 +64,11 @@ namespace GameEngine {
 			data = stbi_load(path.c_str(), &width, &height, &channels, 0);
 		}
 			
-		if (data)
+		if (!data)
+		{
+			GE_CORE_ERROR("OpenGLTexture2D: Failed to load '{0}': {1}", path, stbi_failure_reason());
+		}
+		else
 		{
 			myIsLoaded = true;
 
