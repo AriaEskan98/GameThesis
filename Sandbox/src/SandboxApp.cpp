@@ -121,15 +121,17 @@ static Handle<Scene> BuildScene(AssetManager& assets)
 
         // -- Ramp collider (invisible — no MeshRendererComponent) --
         // rise = 1.25 m over run = 3.0 m  →  angle ≈ 22.6°
-        // Center of ramp between bottom (z=-2) and top (z=-5):  z=-3.5
+        // +22.6° around X: slope surface runs (Z=-2.0, Y=0) → (Z=-5.0, Y=1.25).
+        // Box center and thickness chosen so the front face is entirely underground
+        // and the player steps onto the slope surface, not a vertical wall.
         {
             constexpr float kAngle = glm::radians(22.6f);
 
             Entity ramp = scene->CreateEntity("StairRamp");
             auto& t     = ramp.GetComponent<TransformComponent>();
-            t.Translation = { 0.0f, 0.625f, -3.5f };
-            t.Rotation    = { -kAngle, 0.0f, 0.0f };
-            t.Scale       = { 3.0f, 0.3f, 3.25f };
+            t.Translation = { 0.0f, 0.163f, -3.692f };
+            t.Rotation    = { kAngle, 0.0f, 0.0f };   // positive: slope rises toward -Z
+            t.Scale       = { 3.0f, 1.0f, 3.25f };    // 1m thick → front face ~0.9m underground
 
             auto& rb = ramp.AddComponent<Rigidbody3DComponent>();
             rb.Type  = Rigidbody3DComponent::BodyType::Static;
