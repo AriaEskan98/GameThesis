@@ -114,7 +114,9 @@ static Handle<Scene> BuildScene(AssetManager& assets)
                              -2.0f  - i * 0.6f  };
             t.Scale = { 3.0f, 0.25f, 0.6f };
 
-            e.AddComponent<MeshRendererComponent>().Mesh = crateMesh;
+            auto& mr = e.AddComponent<MeshRendererComponent>();
+            mr.Mesh  = crateMesh;
+            mr.Color = { 0.55f, 0.35f, 0.15f, 1.0f }; // wood brown
         }
 
         // -- Ramp collider (invisible — no MeshRendererComponent) --
@@ -143,7 +145,9 @@ static Handle<Scene> BuildScene(AssetManager& assets)
         t.Translation = { -2.5f, 5.0f, -1.0f };
         t.Rotation    = { 0.2f, 0.5f, 0.1f };
 
-        e.AddComponent<MeshRendererComponent>().Mesh = crateMesh;
+        auto& mr = e.AddComponent<MeshRendererComponent>();
+        mr.Mesh  = crateMesh;
+        mr.Color = { 0.55f, 0.35f, 0.15f, 1.0f }; // wood brown
         e.AddComponent<Rigidbody3DComponent>();   // Dynamic, UseGravity = true by default
         e.AddComponent<BoxCollider3DComponent>();
         e.AddComponent<NativeScriptComponent>().Bind<RotatingCrateScript>();
