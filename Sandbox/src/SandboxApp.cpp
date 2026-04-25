@@ -129,9 +129,9 @@ static Handle<Scene> BuildScene(AssetManager& assets)
 
             Entity ramp = scene->CreateEntity("StairRamp");
             auto& t     = ramp.GetComponent<TransformComponent>();
-            t.Translation = { 0.0f, 0.163f, -3.692f };
+            t.Translation = { 0.0f, 0.063f, -3.692f };
             t.Rotation    = { kAngle, 0.0f, 0.0f };   // positive: slope rises toward -Z
-            t.Scale       = { 3.0f, 1.0f, 3.25f };    // 1m thick → front face ~0.9m underground
+            t.Scale       = { 3.0f, 1.0f, 3.25f };    // 1m thick → front face ~1.0m underground
 
             auto& rb = ramp.AddComponent<Rigidbody3DComponent>();
             rb.Type  = Rigidbody3DComponent::BodyType::Static;
