@@ -7,6 +7,7 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <string>
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
@@ -148,6 +149,17 @@ namespace GameEngine {
 		BoxCollider3DComponent(const BoxCollider3DComponent&) = default;
 	};
 
+	/// Triangle-mesh collider cooked from an .obj file at runtime via PhysX.
+	/// Only valid on Static rigidbodies. The entity transform (position, rotation)
+	/// is applied as the actor pose; mesh vertices are used as-is (no scale baking).
+	struct MeshCollider3DComponent
+	{
+		std::string CollisionMeshPath;
+
+		MeshCollider3DComponent() = default;
+		MeshCollider3DComponent(const MeshCollider3DComponent&) = default;
+	};
+
 	template<typename... Component>
 	struct ComponentGroup
 	{
@@ -157,6 +169,7 @@ namespace GameEngine {
 		ComponentGroup<TransformComponent, CameraComponent,
 			NativeScriptComponent, MeshRendererComponent,
 			DirectionalLightComponent, PointLightComponent,
-			Rigidbody3DComponent, BoxCollider3DComponent>;
+			Rigidbody3DComponent, BoxCollider3DComponent,
+			MeshCollider3DComponent>;
 
 }

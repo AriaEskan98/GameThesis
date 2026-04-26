@@ -11,6 +11,10 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
 
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+
 #include "Entity.h"
 
 namespace GameEngine {
@@ -333,18 +337,68 @@ namespace GameEngine {
 			def.IsKinematic = (rb3d.Type == Rigidbody3DComponent::BodyType::Kinematic);
 			def.Mass = (rb3d.Type == Rigidbody3DComponent::BodyType::Static) ? 0.0f : rb3d.Mass;
 
-			if (entity.HasComponent<BoxCollider3DComponent>())
+			if (entity.HasComponent<MeshCollider3DComponent>())
+			{
+				auto& mc = entity.GetComponent<MeshCollider3DComponent>();
+
+				Assimp::Importer importer;
+				const aiScene* aiSceneData = importer.ReadFile(
+					mc.CollisionMeshPath,
+					aiProcess_Triangulate | aiProcess_JoinIdenticalVertices);
+
+				if (aiSceneData && aiSceneData->mNumMeshes > 0)
+				{
+					Physics3DTriMeshDef tmDef;
+					tmDef.Position    = def.Position;
+					tmDef.Rotation    = def.Rotation;
+					tmDef.Friction    = def.Friction;
+					tmDef.Restitution = def.Restitution;
+
+					for (unsigned m = 0; m < aiSceneData->mNumMeshes; ++m)
+					{
+						aiMesh* mesh = aiSceneData->mMeshes[m];
+						uint32_t base = (uint32_t)tmDef.Vertices.size();
+
+						for (unsigned v = 0; v < mesh->mNumVertices; ++v)
+							tmDef.Vertices.push_back({ mesh->mVertices[v].x,
+							                           mesh->mVertices[v].y,
+							                           mesh->mVertices[v].z });
+
+						for (unsigned f = 0; f < mesh->mNumFaces; ++f)
+						{
+							const aiFace& face = mesh->mFaces[f];
+							if (face.mNumIndices == 3)
+							{
+								tmDef.Indices.push_back(base + face.mIndices[0]);
+								tmDef.Indices.push_back(base + face.mIndices[1]);
+								tmDef.Indices.push_back(base + face.mIndices[2]);
+							}
+						}
+					}
+
+					rb3d.RuntimeBody = myPhysicsWorld3D->CreateTriMeshBody(tmDef);
+				}
+				else
+				{
+					GE_CORE_ERROR("MeshCollider3D: could not load '{0}' — falling back to box",
+						mc.CollisionMeshPath);
+
+					def.HalfExtents  = transform.Scale * 0.5f;
+					rb3d.RuntimeBody = myPhysicsWorld3D->CreateBody(def);
+				}
+			}
+			else if (entity.HasComponent<BoxCollider3DComponent>())
 			{
 				auto& bc3d      = entity.GetComponent<BoxCollider3DComponent>();
 				def.HalfExtents = bc3d.HalfExtents * transform.Scale;
 				def.Position   += bc3d.Offset;
+				rb3d.RuntimeBody = myPhysicsWorld3D->CreateBody(def);
 			}
 			else
 			{
-				def.HalfExtents = transform.Scale * 0.5f;
+				def.HalfExtents  = transform.Scale * 0.5f;
+				rb3d.RuntimeBody = myPhysicsWorld3D->CreateBody(def);
 			}
-
-			rb3d.RuntimeBody = myPhysicsWorld3D->CreateBody(def);
 		}
 	}
 
@@ -468,6 +522,11 @@ namespace GameEngine {
 
 	template<>
 	void Scene::OnComponentAdded<BoxCollider3DComponent>(Entity entity, BoxCollider3DComponent& component)
+	{
+	}
+
+	template<>
+	void Scene::OnComponentAdded<MeshCollider3DComponent>(Entity entity, MeshCollider3DComponent& component)
 	{
 	}
 

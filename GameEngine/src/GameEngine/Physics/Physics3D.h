@@ -41,6 +41,23 @@ namespace GameEngine {
 	};
 
 	// -----------------------------------------------------------------------
+	// Physics3DTriMeshDef  —  triangle-mesh (cooked) body creation parameters
+	// -----------------------------------------------------------------------
+
+	/// Used for static triangle-mesh colliders loaded from .obj files.
+	/// Only valid for static bodies (Mass == 0).
+	struct Physics3DTriMeshDef
+	{
+		glm::vec3 Position = { 0.0f, 0.0f, 0.0f };
+		glm::quat Rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+		float Friction    = 0.5f;
+		float Restitution = 0.0f;
+
+		std::vector<glm::vec3> Vertices;
+		std::vector<uint32_t>  Indices;
+	};
+
+	// -----------------------------------------------------------------------
 	// Physics3DWorld
 	// -----------------------------------------------------------------------
 
@@ -57,10 +74,13 @@ namespace GameEngine {
 		/// Advance the simulation by deltaTime seconds.
 		void Step(float deltaTime);
 
-		/// Allocate and register a new body.
+		/// Allocate and register a new box body.
 		Physics3DBody* CreateBody(const Physics3DBodyDef& def);
 
-		/// Unregister and free a body created by CreateBody.
+		/// Allocate and register a static triangle-mesh body (PhysX cooking).
+		Physics3DBody* CreateTriMeshBody(const Physics3DTriMeshDef& def);
+
+		/// Unregister and free a body created by CreateBody / CreateTriMeshBody.
 		void DestroyBody(Physics3DBody* body);
 
 	private:
