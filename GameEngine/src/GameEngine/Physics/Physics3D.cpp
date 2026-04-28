@@ -60,7 +60,7 @@ namespace GameEngine {
 				myImpl->Scene->removeActor(*actor);
 				actor->release();
 			}
-			delete body;
+			delete body;  // Actor == nullptr is safe; body was cooked but had no actor
 		}
 		myBodies.clear();
 
@@ -145,17 +145,28 @@ namespace GameEngine {
 		meshDesc.triangles.stride = 3 * sizeof(PxU32);
 		meshDesc.triangles.data   = def.Indices.data();
 
-		// Cook: write to memory stream, then load back as PxTriangleMesh
+		// Cook: write to memory stream, then load back as PxTriangleMesh.
+		// Do NOT disable mesh cleaning — 3ds Max exports often have duplicate
+		// verts / degenerate tris that would cause cooking to fail without it.
 		PxCookingParams cookParams(myImpl->Physics->getTolerancesScale());
-		cookParams.meshPreprocessParams |= PxMeshPreprocessingFlag::eDISABLE_CLEAN_MESH;
 
 		PxDefaultMemoryOutputStream buf;
 		bool ok = PxCookTriangleMesh(cookParams, meshDesc, buf);
-		GE_CORE_ASSERT(ok, "PxCookTriangleMesh failed — check mesh data");
+		if (!ok)
+		{
+			GE_CORE_ERROR("CreateTriMeshBody: PxCookTriangleMesh failed — skipping actor");
+			myBodies.push_back(body);
+			return body;
+		}
 
 		PxDefaultMemoryInputData input(buf.getData(), buf.getSize());
 		PxTriangleMesh* triMesh = myImpl->Physics->createTriangleMesh(input);
-		GE_CORE_ASSERT(triMesh, "createTriangleMesh returned null");
+		if (!triMesh)
+		{
+			GE_CORE_ERROR("CreateTriMeshBody: createTriangleMesh returned null — skipping actor");
+			myBodies.push_back(body);
+			return body;
+		}
 
 		const PxQuat pxRot(def.Rotation.x, def.Rotation.y, def.Rotation.z, def.Rotation.w);
 		const PxTransform pose(PxVec3(def.Position.x, def.Position.y, def.Position.z), pxRot);
@@ -204,6 +215,7 @@ namespace GameEngine {
 		// equals what PhysX computed last frame, so nothing changes.
 		for (auto* body : myBodies)
 		{
+			if (!body->Actor) continue;
 			auto* actor   = static_cast<PxRigidActor*>(body->Actor);
 			auto* dynamic = actor->is<PxRigidDynamic>();
 			if (!dynamic || dynamic->getRigidBodyFlags().isSet(PxRigidBodyFlag::eKINEMATIC))
@@ -217,6 +229,7 @@ namespace GameEngine {
 		// Sync transform and velocity back to our body structs.
 		for (auto* body : myBodies)
 		{
+			if (!body->Actor) continue;
 			auto* actor   = static_cast<PxRigidActor*>(body->Actor);
 			auto* dynamic = actor->is<PxRigidDynamic>();
 
