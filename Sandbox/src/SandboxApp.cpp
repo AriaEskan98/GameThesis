@@ -8,16 +8,16 @@
 using namespace GameEngine;
 
 // ---------------------------------------------------------------------------
-// Thesis Showcase Scene — FPS Player + Staircase
+// Thesis Showcase Scene — FPS Player
 //
 // Demonstrates all engine systems interactively:
 //
 //   AssetManager    — LoadMesh auto-loads diffuse textures; no duplicate GPU uploads.
 //   ECS             — entities with distinct component combinations.
 //   Physics         — dynamic player body controlled by FPSCameraController;
-//                     crate falls freely; ramp has a rotated static collider.
+//                     crate falls freely and stops spinning on impact.
 //   Lighting        — directional sun + two warm point lights.
-//   C++ Scripting   — (removed orbit camera; player is now FPSCameraController)
+//   C++ Scripting   — RotatingCrateScript stops on touch; LanternFlickerScript flickers.
 //   Manager order   — Physics → Scene → Game Logic → Render executes correctly.
 //
 // Controls:
@@ -31,7 +31,6 @@ using namespace GameEngine;
 // Required models (place in Sandbox/assets/models/):
 //   house.obj   — your existing house model
 //   crate.obj   — any wooden crate (kenney.nl, sketchfab free, etc.)
-//   ground.obj  — any flat ground / grass plane
 // ---------------------------------------------------------------------------
 
 // ---------------------------------------------------------------------------
@@ -39,11 +38,8 @@ using namespace GameEngine;
 //
 //   z axis points "into screen" (negative = away from player).
 //   Player spawns at (0, 1.5, 4) looking toward the house at (0, 0, -6).
-//   A 5-step staircase sits between the player and the house entrance.
-//   The staircase has:
-//     • visual step meshes (MeshRendererComponent, NO collider)
-//     • one invisible ramp box (Rigidbody Static, rotated collider, NO mesh)
-//   This lets the player walk smoothly up the ramp while the steps look correct.
+//   A crate falls from above and lands in the scene. Walk into it to stop
+//   its spin — detected via a velocity spike after the crate has settled.
 // ---------------------------------------------------------------------------
 
 static Handle<Scene> BuildScene(AssetManager& assets)
@@ -90,52 +86,6 @@ static Handle<Scene> BuildScene(AssetManager& assets)
         // Rough bounding box for the house walls (player can't walk through).
         auto& col       = e.AddComponent<BoxCollider3DComponent>();
         col.HalfExtents = { 5.0f, 3.0f, 5.0f };
-    }
-
-    // -----------------------------------------------------------------------
-    // Staircase
-    //
-    // 5 steps, each 0.25 m tall × 0.6 m deep × 3 m wide.
-    // Total rise: 1.25 m   Total run: 3.0 m
-    //
-    // Visual steps (mesh only, no physics) — sit on top of the ramp.
-    // Ramp collider (rotated static box, no mesh) — player walks up it.
-    // -----------------------------------------------------------------------
-    {
-        // -- Visual steps (decorative, no collider) --
-        // 5 steps leading from Z=-2 toward the house at Z=-8.
-        // Each step: 0.25 m tall, 0.6 m deep, 3 m wide.
-        for (int i = 0; i < 5; ++i)
-        {
-            Entity e = scene->CreateEntity("Step_" + std::to_string(i));
-            auto& t  = e.GetComponent<TransformComponent>();
-            t.Translation = { 0.0f,
-                              0.125f + i * 0.25f,
-                             -2.0f  - i * 0.6f  };
-            t.Scale = { 3.0f, 0.25f, 0.6f };
-
-            auto& mr = e.AddComponent<MeshRendererComponent>();
-            mr.Mesh  = crateMesh;
-            mr.Color = { 0.55f, 0.35f, 0.15f, 1.0f }; // wood brown
-        }
-
-        // -- Ramp collider (invisible — no MeshRendererComponent) --
-        // rise = 1.25 m over run = 3.0 m  →  angle ≈ 22.6°
-        // +22.6° around X: slope surface runs (Z=-2.0, Y=0) → (Z=-5.0, Y=1.25).
-        // Box center and thickness chosen so the front face is entirely underground
-        // and the player steps onto the slope surface, not a vertical wall.
-        {
-            constexpr float kAngle = glm::radians(22.6f);
-
-            Entity ramp = scene->CreateEntity("StairRamp");
-            auto& t     = ramp.GetComponent<TransformComponent>();
-            t.Translation = { 0.0f, 0.063f, -3.692f };
-            t.Rotation    = { kAngle, 0.0f, 0.0f };   // positive: slope rises toward -Z
-            t.Scale       = { 3.0f, 1.0f, 3.25f };    // 1m thick → front face ~1.0m underground
-
-            auto& rb = ramp.AddComponent<Rigidbody3DComponent>();
-            rb.Type  = Rigidbody3DComponent::BodyType::Static;
-        }
     }
 
     // -----------------------------------------------------------------------
@@ -276,7 +226,7 @@ protected:
     void OnImGuiRender() override
     {
         ImGui::Begin("Thesis Demo");
-        ImGui::Text("Scene: House Exterior + Staircase");
+        ImGui::Text("Scene: House Exterior");
         ImGui::Separator();
         ImGui::Text("Controls:");
         ImGui::BulletText("WASD — move");
@@ -287,9 +237,9 @@ protected:
         ImGui::Separator();
         ImGui::Text("Active systems:");
         ImGui::BulletText("AssetManager  — textures auto-loaded from meshes");
-        ImGui::BulletText("Physics3D     — player, crate, ramp all simulated");
+        ImGui::BulletText("Physics3D     — player + crate simulated");
         ImGui::BulletText("FPSCamera     — drives player via Physics3DBody");
-        ImGui::BulletText("NativeScript  — crate rotates, lanterns flicker");
+        ImGui::BulletText("NativeScript  — crate stops on touch, lanterns flicker");
         ImGui::BulletText("Renderer3D    — Blinn-Phong, 1 dir + 2 point lights");
         ImGui::End();
     }
@@ -319,7 +269,7 @@ private:
 GameEngine::Application* GameEngine::CreateApplication(GameEngine::ApplicationCommandLineArgs args)
 {
     ApplicationSpecification spec;
-    spec.Name             = "Thesis Demo — House + Staircase";
+    spec.Name             = "Thesis Demo — House";
     spec.WorkingDirectory = "../Sandbox";
     spec.CommandLineArgs  = args;
     return new Sandbox(spec);
