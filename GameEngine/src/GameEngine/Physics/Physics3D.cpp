@@ -40,6 +40,10 @@ namespace GameEngine {
 			PxTolerancesScale(), false, nullptr);
 		GE_CORE_ASSERT(myImpl->Physics, "PxCreatePhysics failed");
 
+		// Required when static PhysX libs coexist with PhysXCommon/Foundation DLLs:
+		// registers the foundation singleton in every loaded module so cooking works.
+		PxInitExtensions(*myImpl->Physics, nullptr);
+
 		PxSceneDesc desc(myImpl->Physics->getTolerancesScale());
 		desc.gravity       = PxVec3(0.0f, -9.81f, 0.0f);
 		myImpl->Dispatcher = PxDefaultCpuDispatcherCreate(1);
@@ -66,6 +70,7 @@ namespace GameEngine {
 
 		myImpl->Scene->release();
 		myImpl->Dispatcher->release();
+		PxCloseExtensions();
 		myImpl->Physics->release();
 		myImpl->Foundation->release();
 		delete myImpl;
