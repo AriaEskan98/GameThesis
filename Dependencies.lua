@@ -29,12 +29,13 @@ LibraryDir["PhysX_Release"] = "%{wks.location}/GameEngine/vendor/PhysX/lib/Relea
 Library = {}
 Library["assimp"] = "%{LibraryDir.assimp}/assimp.lib"
 
--- DLL import libs — match the PhysXCommon_64.dll / PhysXFoundation_64.dll
--- that vcpkg provides at runtime. Using _static_ libs while DLLs are present
--- splits the PxFoundation singleton across modules and breaks cooking.
-Library["PhysX"]            = "PhysX_64.lib"
-Library["PhysXCommon"]      = "PhysXCommon_64.lib"
-Library["PhysXFoundation"]  = "PhysXFoundation_64.lib"
+-- vcpkg names all PhysX libs with the _static_64 suffix even for DLL builds.
+-- PX_PHYSX_STATIC_LIB must NOT be defined alongside these so that PhysX
+-- headers emit __declspec(dllimport) — making PxSetFoundationInstance route
+-- through PhysXFoundation_64.dll and share the singleton with PhysXCommon_64.dll.
+Library["PhysX"]            = "PhysX_static_64.lib"
+Library["PhysXCommon"]      = "PhysXCommon_static_64.lib"
+Library["PhysXFoundation"]  = "PhysXFoundation_static_64.lib"
 Library["PhysXExtensions"]  = "PhysXExtensions_static_64.lib"
 
 Library["Vulkan"] = "%{LibraryDir.VulkanSDK}/vulkan-1.lib"
