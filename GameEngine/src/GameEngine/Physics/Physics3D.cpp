@@ -36,12 +36,20 @@ namespace GameEngine {
 			myImpl->Allocator, myImpl->ErrorCallback);
 		GE_CORE_ASSERT(myImpl->Foundation, "PxCreateFoundation failed");
 
-		// Propagate the foundation singleton to PhysXFoundation_64.dll so that
-		// PhysXCommon_64.dll can find it via PxGetFoundation(). Without this,
-		// PxCreateFoundation stores the pointer in the static-lib context (EXE)
-		// while cooking code running inside PhysXCommon_64.dll reads a separate
-		// null singleton from PhysXFoundation_64.dll.
-		PxSetFoundationInstance(*myImpl->Foundation);
+		// PxCreateFoundation stores its singleton in the statically-linked
+		// Foundation code (compiled into GameEngine.lib / Sandbox.exe).
+		// PhysXCommon_64.dll looks for the singleton via PhysXFoundation_64.dll,
+		// which has a separate null copy. Fix: reach into the DLL at runtime and
+		// call its own PxSetFoundationInstance so both sides share one pointer.
+#ifdef _WIN32
+		if (HMODULE hFoundDll = GetModuleHandleA("PhysXFoundation_64.dll"))
+		{
+			using SetFoundationFn = void(*)(physx::PxFoundation&);
+			if (auto fn = reinterpret_cast<SetFoundationFn>(
+				GetProcAddress(hFoundDll, "PxSetFoundationInstance")))
+				fn(*myImpl->Foundation);
+		}
+#endif
 
 		myImpl->Physics = PxCreatePhysics(PX_PHYSICS_VERSION, *myImpl->Foundation,
 			PxTolerancesScale(), false, nullptr);
