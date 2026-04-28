@@ -29,7 +29,6 @@ project "Sandbox"
 
 	defines
 	{
-		"PX_PHYSX_STATIC_LIB"
 	}
 
 	filter "system:windows"
