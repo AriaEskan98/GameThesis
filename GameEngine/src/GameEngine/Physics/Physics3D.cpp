@@ -150,25 +150,19 @@ namespace GameEngine {
 		meshDesc.triangles.stride = 3 * sizeof(PxU32);
 		meshDesc.triangles.data   = def.Indices.data();
 
-		// Cook: write to memory stream, then load back as PxTriangleMesh.
-		// Do NOT disable mesh cleaning — 3ds Max exports often have duplicate
-		// verts / degenerate tris that would cause cooking to fail without it.
+		// Use PxCreateTriangleMesh (PhysX 5.x API) — inserts directly via the
+		// physics insertion callback, skipping binary serialisation entirely.
+		// Weld vertices at 1 mm tolerance to fix 3ds Max duplicate-vert exports.
 		PxCookingParams cookParams(myImpl->Physics->getTolerancesScale());
+		cookParams.meshPreprocessParams = PxMeshPreprocessingFlag::eWELD_VERTICES;
+		cookParams.meshWeldTolerance    = 0.001f;
 
-		PxDefaultMemoryOutputStream buf;
-		bool ok = PxCookTriangleMesh(cookParams, meshDesc, buf);
-		if (!ok)
-		{
-			GE_CORE_ERROR("CreateTriMeshBody: PxCookTriangleMesh failed — skipping actor");
-			myBodies.push_back(body);
-			return body;
-		}
-
-		PxDefaultMemoryInputData input(buf.getData(), buf.getSize());
-		PxTriangleMesh* triMesh = myImpl->Physics->createTriangleMesh(input);
+		PxTriangleMesh* triMesh = PxCreateTriangleMesh(
+			cookParams, meshDesc,
+			myImpl->Physics->getPhysicsInsertionCallback());
 		if (!triMesh)
 		{
-			GE_CORE_ERROR("CreateTriMeshBody: createTriangleMesh returned null — skipping actor");
+			GE_CORE_ERROR("CreateTriMeshBody: PxCreateTriangleMesh failed — skipping actor");
 			myBodies.push_back(body);
 			return body;
 		}
