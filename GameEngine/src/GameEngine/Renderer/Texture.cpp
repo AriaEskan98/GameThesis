@@ -18,12 +18,12 @@ namespace GameEngine {
 		return nullptr;
 	}
 
-	Handle<Texture2D> Texture2D::Create(const std::string& path)
+	Handle<Texture2D> Texture2D::Create(const std::string& path, bool sRGB)
 	{
 		switch (Renderer::GetAPI())
 		{
 			case RendererAPI::API::None:    GE_CORE_ASSERT(false, "RendererAPI::None is currently not supported!"); return nullptr;
-			case RendererAPI::API::OpenGL:  return MakeHandle<OpenGLTexture2D>(path);
+			case RendererAPI::API::OpenGL:  return MakeHandle<OpenGLTexture2D>(path, sRGB);
 		}
 
 		GE_CORE_ASSERT(false, "Unknown RendererAPI!");

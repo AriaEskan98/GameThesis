@@ -125,15 +125,16 @@ namespace GameEngine {
 		// Extract diffuse, normal, and RMA textures from the first material that has them.
 		std::string directory = filepath.substr(0, filepath.find_last_of("/\\"));
 
-		auto tryLoad = [&](const aiMaterial* mat, aiTextureType type) -> Handle<Texture2D>
+		// sRGB=true for diffuse (colour data); false for normal/RMA (linear data).
+		auto tryLoad = [&](const aiMaterial* mat, aiTextureType type, bool sRGB) -> Handle<Texture2D>
 		{
 			if (mat->GetTextureCount(type) == 0) return nullptr;
 			aiString texPath;
 			if (mat->GetTexture(type, 0, &texPath) != AI_SUCCESS) return nullptr;
 			std::string fullPath = directory + "/" + texPath.C_Str();
-			auto tex = Renderer3D::LoadTexture(fullPath);
-			if (tex) GE_CORE_INFO("Mesh::Create: loaded texture '{0}'", fullPath);
-			return tex;
+			auto tex = Texture2D::Create(fullPath, sRGB);
+			if (tex && tex->IsLoaded()) GE_CORE_INFO("Mesh::Create: loaded texture '{0}'", fullPath);
+			return (tex && tex->IsLoaded()) ? tex : nullptr;
 		};
 
 		for (uint32_t m = 0; m < scene->mNumMeshes; ++m)
@@ -143,24 +144,24 @@ namespace GameEngine {
 			const aiMaterial* mat = scene->mMaterials[matIndex];
 
 			if (!mesh->myTexture)
-				mesh->myTexture = tryLoad(mat, aiTextureType_DIFFUSE);
+				mesh->myTexture = tryLoad(mat, aiTextureType_DIFFUSE, true);
 
-			// Normal map: prefer NORMALS slot, fall back to HEIGHT (common in OBJ).
+			// Normal map: linear — prefer NORMALS slot, fall back to HEIGHT (OBJ).
 			if (!mesh->myNormalMap)
 			{
-				mesh->myNormalMap = tryLoad(mat, aiTextureType_NORMALS);
+				mesh->myNormalMap = tryLoad(mat, aiTextureType_NORMALS, false);
 				if (!mesh->myNormalMap)
-					mesh->myNormalMap = tryLoad(mat, aiTextureType_HEIGHT);
+					mesh->myNormalMap = tryLoad(mat, aiTextureType_HEIGHT, false);
 			}
 
-			// RMA map: metalness first, then roughness, then specular as fallback.
+			// RMA map: linear — metalness first, then roughness, then specular.
 			if (!mesh->myRMAMap)
 			{
-				mesh->myRMAMap = tryLoad(mat, aiTextureType_METALNESS);
+				mesh->myRMAMap = tryLoad(mat, aiTextureType_METALNESS, false);
 				if (!mesh->myRMAMap)
-					mesh->myRMAMap = tryLoad(mat, aiTextureType_DIFFUSE_ROUGHNESS);
+					mesh->myRMAMap = tryLoad(mat, aiTextureType_DIFFUSE_ROUGHNESS, false);
 				if (!mesh->myRMAMap)
-					mesh->myRMAMap = tryLoad(mat, aiTextureType_SPECULAR);
+					mesh->myRMAMap = tryLoad(mat, aiTextureType_SPECULAR, false);
 			}
 		}
 

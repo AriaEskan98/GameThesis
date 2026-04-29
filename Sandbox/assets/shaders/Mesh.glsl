@@ -174,8 +174,8 @@ void main()
 
 	float shininess = mix(8.0, 128.0, 1.0 - roughness);
 
-	// --- Diffuse colour — linearise sRGB texture ---
-	vec3 albedo = u_Color.rgb * pow(texture(u_Texture, v_TexCoord).rgb, vec3(2.2));
+	// Diffuse loaded as GL_SRGB8 — OpenGL auto-linearises on sample.
+	vec3 albedo = u_Color.rgb * texture(u_Texture, v_TexCoord).rgb;
 
 	// Metalness-based specular reflectance (matches reference project)
 	vec3 F0 = mix(vec3(0.04), albedo, metalness);
@@ -197,9 +197,7 @@ void main()
 	// Tone mapping (Reinhard) — same as reference project
 	result = result / (result + vec3(1.0));
 
-	// Gamma correct to simulate sRGB framebuffer output
-	result = pow(result, vec3(1.0 / 2.2));
-
+	// No manual gamma correction — GL_FRAMEBUFFER_SRGB handles linear→sRGB output.
 	float alpha = u_Color.a * texture(u_Texture, v_TexCoord).a;
 	o_Color    = vec4(result, alpha);
 	o_EntityID = u_EntityID;

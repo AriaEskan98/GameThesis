@@ -50,7 +50,7 @@ namespace GameEngine {
 	{
 	public:
 		static Handle<Texture2D> Create(const TextureSpecification& specification);
-		static Handle<Texture2D> Create(const std::string& path);
+		static Handle<Texture2D> Create(const std::string& path, bool sRGB = false);
 	};
 
 	class TextureLibrary

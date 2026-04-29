@@ -10,7 +10,7 @@ namespace GameEngine {
 	{
 	public:
 		OpenGLTexture2D(const TextureSpecification& specification);
-		OpenGLTexture2D(const std::string& path);
+		OpenGLTexture2D(const std::string& path, bool sRGB = false);
 		virtual ~OpenGLTexture2D();
 
 		virtual const TextureSpecification& GetSpecification() const override { return mySpecification; }

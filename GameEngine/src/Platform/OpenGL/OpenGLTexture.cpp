@@ -51,7 +51,7 @@ namespace GameEngine {
 		glTextureParameteri(myRendererID, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	}
 
-	OpenGLTexture2D::OpenGLTexture2D(const std::string& path)
+	OpenGLTexture2D::OpenGLTexture2D(const std::string& path, bool sRGB)
 		: myPath(path)
 	{
 		GE_PROFILE_FUNCTION();
@@ -63,7 +63,7 @@ namespace GameEngine {
 			GE_PROFILE_SCOPE("stbi_load - OpenGLTexture2D::OpenGLTexture2D(const std::string&)");
 			data = stbi_load(path.c_str(), &width, &height, &channels, 0);
 		}
-			
+
 		if (!data)
 		{
 			GE_CORE_ERROR("OpenGLTexture2D: Failed to load '{0}': {1}", path, stbi_failure_reason());
@@ -78,12 +78,12 @@ namespace GameEngine {
 			GLenum internalFormat = 0, dataFormat = 0;
 			if (channels == 4)
 			{
-				internalFormat = GL_RGBA8;
+				internalFormat = sRGB ? GL_SRGB8_ALPHA8 : GL_RGBA8;
 				dataFormat = GL_RGBA;
 			}
 			else if (channels == 3)
 			{
-				internalFormat = GL_RGB8;
+				internalFormat = sRGB ? GL_SRGB8 : GL_RGB8;
 				dataFormat = GL_RGB;
 			}
 
