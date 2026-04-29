@@ -143,6 +143,18 @@ namespace GameEngine {
 			if (matIndex >= scene->mNumMaterials) continue;
 			const aiMaterial* mat = scene->mMaterials[matIndex];
 
+			// Log every material so the user can see which texture is picked up first.
+			aiString matName; mat->Get(AI_MATKEY_NAME, matName);
+			GE_CORE_INFO("Mesh::Create: submesh[{0}] material='{1}'", m, matName.C_Str());
+			for (int t = 0; t < AI_TEXTURE_TYPE_MAX; ++t)
+			{
+				if (mat->GetTextureCount((aiTextureType)t) > 0)
+				{
+					aiString p; mat->GetTexture((aiTextureType)t, 0, &p);
+					GE_CORE_INFO("  type={0}  -> '{1}'", t, p.C_Str());
+				}
+			}
+
 			if (!mesh->myTexture)
 				mesh->myTexture = tryLoad(mat, aiTextureType_DIFFUSE, true);
 
