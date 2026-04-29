@@ -33,7 +33,6 @@ Library["PhysX"]            = "PhysX_static_64.lib"
 Library["PhysXCommon"]      = "PhysXCommon_static_64.lib"
 Library["PhysXFoundation"]  = "PhysXFoundation_static_64.lib"
 Library["PhysXExtensions"]  = "PhysXExtensions_static_64.lib"
-Library["PhysXCooking"]     = "PhysXCooking_static_64.lib"
 
 Library["Vulkan"] = "%{LibraryDir.VulkanSDK}/vulkan-1.lib"
 Library["VulkanUtils"] = "%{LibraryDir.VulkanSDK}/VkLayer_utils.lib"
