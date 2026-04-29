@@ -6,9 +6,9 @@
 // Spins the crate on the Y axis. Stops permanently the first time the crate is
 // hit after it has settled on the ground.
 //
-// Detection: Physics3DBody::Velocity is synced from PhysX every frame. Once the
-// crate has rested at near-zero speed for 1.5 s, any velocity spike above 0.4 m/s
-// means something collided with it.
+// Detection: once the crate has rested at near-zero speed for 0.5 s (myHasSettled),
+// any subsequent velocity above 0.2 m/s means a collision. The settled flag is
+// never cleared, so brief jitter after landing can't prevent detection.
 class RotatingCrateScript : public GameEngine::ScriptableEntity
 {
 public:
@@ -27,12 +27,17 @@ protected:
         {
             float speed = glm::length(body->Velocity);
 
-            if (speed < 0.05f)
-                mySettledTime += (float)ts;
-            else
-                mySettledTime = 0.0f;
+            if (!myHasSettled)
+            {
+                if (speed < 0.05f)
+                    mySettledTime += (float)ts;
+                else
+                    mySettledTime = 0.0f;
 
-            if (mySettledTime > 1.5f && speed > 0.4f)
+                if (mySettledTime > 0.5f)
+                    myHasSettled = true;
+            }
+            else if (speed > 0.2f)
             {
                 mySpinning = false;
                 return;
@@ -45,5 +50,6 @@ protected:
 
 private:
     float mySettledTime = 0.0f;
+    bool  myHasSettled  = false;
     bool  mySpinning    = true;
 };
