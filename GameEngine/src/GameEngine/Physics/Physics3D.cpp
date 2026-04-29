@@ -201,6 +201,8 @@ namespace GameEngine {
 
 	void Physics3DWorld::Step(float deltaTime)
 	{
+		constexpr float kMaxStep = 1.0f / 20.0f; // cap at 50 ms — prevents tunnelling on slow first frame
+		deltaTime = std::min(deltaTime, kMaxStep);
 		if (deltaTime <= 0.0f)
 			return;
 
