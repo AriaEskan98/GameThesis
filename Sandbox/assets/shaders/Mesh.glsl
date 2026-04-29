@@ -1,6 +1,4 @@
-// 3D Mesh Shader — Blinn-Phong lighting model
-// All mutable data arrives via Uniform Buffer Objects so the shader is
-// compatible with both the Vulkan SPIR-V and OpenGL SPIR-V compilation paths.
+// 3D Mesh Shader — Blinn-Phong + normal map + RMA support
 
 // ============================================================
 //  VERTEX STAGE
@@ -10,41 +8,49 @@
 
 layout(location = 0) in vec3 a_Position;
 layout(location = 1) in vec3 a_Normal;
-layout(location = 2) in vec2 a_TexCoord;
+layout(location = 2) in vec3 a_Tangent;
+layout(location = 3) in vec2 a_TexCoord;
 
-// Binding 1 — camera data (shared across all 3D draws in a scene)
 layout(std140, binding = 1) uniform CameraData
 {
 	mat4 u_ViewProjection;
-	vec4 u_CameraPos; // w unused
+	vec4 u_CameraPos;
 };
 
-// Binding 2 — per-object data (updated before every draw call)
 layout(std140, binding = 2) uniform ObjectData
 {
 	mat4 u_Transform;
 	vec4 u_Color;
 	int  u_EntityID;
-	int  _pad0; int _pad1; int _pad2;
+	int  u_HasNormalMap;
+	int  u_HasRMAMap;
+	int  _pad;
 };
 
 layout(location = 0) out vec3 v_Normal;
 layout(location = 1) out vec3 v_WorldPos;
 layout(location = 2) out vec2 v_TexCoord;
+layout(location = 3) out mat3 v_TBN;  // occupies locations 3, 4, 5
 
 void main()
 {
-	// Normal matrix removes non-uniform scale distortion from normals.
 	mat3 normalMatrix = transpose(inverse(mat3(u_Transform)));
-	v_Normal   = normalize(normalMatrix * a_Normal);
+
+	vec3 N = normalize(normalMatrix * a_Normal);
+	vec3 T = normalize(normalMatrix * a_Tangent);
+	T = normalize(T - dot(T, N) * N); // re-orthogonalize against N
+	vec3 B = cross(N, T);
+
+	v_Normal   = N;
 	v_WorldPos = vec3(u_Transform * vec4(a_Position, 1.0));
 	v_TexCoord = a_TexCoord;
+	v_TBN      = mat3(T, B, N);
 
 	gl_Position = u_ViewProjection * vec4(v_WorldPos, 1.0);
 }
 
 // ============================================================
-//  FRAGMENT STAGE  —  Blinn-Phong
+//  FRAGMENT STAGE
 // ============================================================
 #type fragment
 #version 450 core
@@ -55,61 +61,60 @@ layout(location = 1) out int  o_EntityID;
 layout(location = 0) in vec3 v_Normal;
 layout(location = 1) in vec3 v_WorldPos;
 layout(location = 2) in vec2 v_TexCoord;
+layout(location = 3) in mat3 v_TBN;
 
-// Binding 1 — camera (only CameraPos used in the fragment stage)
 layout(std140, binding = 1) uniform CameraData
 {
 	mat4 u_ViewProjection;
 	vec4 u_CameraPos;
 };
 
-// Binding 2 — per-object
 layout(std140, binding = 2) uniform ObjectData
 {
 	mat4 u_Transform;
 	vec4 u_Color;
 	int  u_EntityID;
-	int  _fpad0; int _fpad1; int _fpad2;
+	int  u_HasNormalMap;
+	int  u_HasRMAMap;
+	int  _fpad;
 };
 
-// GPU-side directional light representation.
 struct DirLightGPU
 {
-	vec4 Direction; // xyz = world-space direction toward the scene, w = intensity
-	vec4 Color;     // xyz = RGB colour, w unused
+	vec4 Direction; // xyz = world-space direction, w = intensity
+	vec4 Color;     // xyz = RGB colour
 };
 
-// GPU-side point light representation.
 struct PointLightGPU
 {
 	vec4 Position;    // xyz = world-space position, w = intensity
 	vec4 Color;       // xyz = RGB colour, w = constant attenuation
-	vec4 Attenuation; // x = linear, y = quadratic, zw unused
+	vec4 Attenuation; // x = linear, y = quadratic
 };
 
 #define MAX_POINT_LIGHTS 4
 
 layout(binding = 0) uniform sampler2D u_Texture;
+layout(binding = 1) uniform sampler2D u_NormalMap;
+layout(binding = 2) uniform sampler2D u_RMAMap;
 
-// Binding 3 — scene lighting (updated once per BeginScene)
 layout(std140, binding = 3) uniform LightData
 {
-	vec4        u_AmbientColor;             // xyz = colour, w unused
-	ivec4       u_LightInfo;                // x = hasDirectional, y = numPointLights
-	DirLightGPU u_DirLight;
+	vec4          u_AmbientColor;
+	ivec4         u_LightInfo;   // x = hasDirectional, y = numPointLights
+	DirLightGPU   u_DirLight;
 	PointLightGPU u_PointLights[MAX_POINT_LIGHTS];
 };
 
 // ---------------------------------------------------------------------------
-// Blinn-Phong directional light contribution.
-vec3 CalcDirLight(vec3 norm, vec3 viewDir)
+vec3 CalcDirLight(vec3 norm, vec3 viewDir, float shininess)
 {
-	vec3  lightDir = normalize(-u_DirLight.Direction.xyz);
+	vec3  lightDir  = normalize(-u_DirLight.Direction.xyz);
 	float intensity = u_DirLight.Direction.w;
 
 	float diff    = max(dot(norm, lightDir), 0.0);
 	vec3  halfDir = normalize(lightDir + viewDir);
-	float spec    = pow(max(dot(norm, halfDir), 0.0), 32.0);
+	float spec    = pow(max(dot(norm, halfDir), 0.0), shininess);
 
 	vec3 diffuse  = diff * u_DirLight.Color.rgb * intensity;
 	vec3 specular = spec * u_DirLight.Color.rgb * intensity * 0.3;
@@ -117,11 +122,10 @@ vec3 CalcDirLight(vec3 norm, vec3 viewDir)
 }
 
 // ---------------------------------------------------------------------------
-// Blinn-Phong point light contribution with quadratic attenuation.
-vec3 CalcPointLight(int i, vec3 norm, vec3 viewDir)
+vec3 CalcPointLight(int i, vec3 norm, vec3 viewDir, float shininess)
 {
-	vec3  toLight  = u_PointLights[i].Position.xyz - v_WorldPos;
-	vec3  lightDir = normalize(toLight);
+	vec3  toLight   = u_PointLights[i].Position.xyz - v_WorldPos;
+	vec3  lightDir  = normalize(toLight);
 	float intensity = u_PointLights[i].Position.w;
 	float dist      = length(toLight);
 
@@ -132,7 +136,7 @@ vec3 CalcPointLight(int i, vec3 norm, vec3 viewDir)
 
 	float diff    = max(dot(norm, lightDir), 0.0);
 	vec3  halfDir = normalize(lightDir + viewDir);
-	float spec    = pow(max(dot(norm, halfDir), 0.0), 32.0);
+	float spec    = pow(max(dot(norm, halfDir), 0.0), shininess);
 
 	vec3 diffuse  = diff * u_PointLights[i].Color.rgb * intensity * atten;
 	vec3 specular = spec * u_PointLights[i].Color.rgb * intensity * atten * 0.3;
@@ -142,22 +146,50 @@ vec3 CalcPointLight(int i, vec3 norm, vec3 viewDir)
 // ---------------------------------------------------------------------------
 void main()
 {
-	vec3 norm    = normalize(v_Normal);
+	// Normal — from map (tangent space → world) or interpolated vertex normal.
+	vec3 norm;
+	if (u_HasNormalMap != 0)
+	{
+		vec3 n = texture(u_NormalMap, v_TexCoord).rgb * 2.0 - 1.0;
+		norm = normalize(v_TBN * n);
+	}
+	else
+	{
+		norm = normalize(v_Normal);
+	}
+
+	// RMA map: R = roughness, G = metalness, B = ambient occlusion.
+	float roughness = 0.5;
+	float ao        = 1.0;
+	if (u_HasRMAMap != 0)
+	{
+		vec3 rma = texture(u_RMAMap, v_TexCoord).rgb;
+		roughness = rma.r;
+		ao        = rma.b;
+	}
+
+	// Roughness drives specular shininess: smooth surfaces get tight highlights.
+	float shininess = mix(8.0, 128.0, 1.0 - roughness);
+
 	vec3 viewDir = normalize(u_CameraPos.xyz - v_WorldPos);
+	vec3 albedo  = u_Color.rgb * texture(u_Texture, v_TexCoord).rgb;
 
-	// Start with ambient term.
-	vec3 result = u_AmbientColor.xyz;
+	// Ambient
+	vec3 result = u_AmbientColor.xyz * albedo * ao;
 
-	// Directional light.
+	// Directional light
 	if (u_LightInfo.x != 0)
-		result += CalcDirLight(norm, viewDir);
+		result += CalcDirLight(norm, viewDir, shininess) * albedo;
 
-	// Point lights.
+	// Point lights
 	int numPoint = min(u_LightInfo.y, MAX_POINT_LIGHTS);
 	for (int i = 0; i < numPoint; i++)
-		result += CalcPointLight(i, norm, viewDir);
+		result += CalcPointLight(i, norm, viewDir, shininess) * albedo;
 
-	result *= u_Color.rgb * texture(u_Texture, v_TexCoord).rgb;
-	o_Color    = vec4(result, u_Color.a * texture(u_Texture, v_TexCoord).a);
+	// Reinhard tone mapping to prevent blown-out highlights.
+	result = result / (result + vec3(1.0));
+
+	float alpha = u_Color.a * texture(u_Texture, v_TexCoord).a;
+	o_Color    = vec4(result, alpha);
 	o_EntityID = u_EntityID;
 }

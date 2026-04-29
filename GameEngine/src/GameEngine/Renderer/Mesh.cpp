@@ -21,6 +21,7 @@ namespace GameEngine {
 		vb->SetLayout({
 			{ ShaderDataType::Float3, "a_Position" },
 			{ ShaderDataType::Float3, "a_Normal"   },
+			{ ShaderDataType::Float3, "a_Tangent"  },
 			{ ShaderDataType::Float2, "a_TexCoord" }
 		});
 		myVertexArray->AddVertexBuffer(vb);
@@ -47,6 +48,7 @@ namespace GameEngine {
 		const aiScene* scene = importer.ReadFile(filepath,
 			aiProcess_Triangulate          |
 			aiProcess_GenSmoothNormals     |
+			aiProcess_CalcTangentSpace     |
 			aiProcess_FlipUVs              |
 			aiProcess_JoinIdenticalVertices
 		);
@@ -78,6 +80,10 @@ namespace GameEngine {
 				v.Normal = mesh->HasNormals()
 					? glm::vec3{ mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z }
 					: glm::vec3{ 0.0f, 1.0f, 0.0f };
+
+				v.Tangent = mesh->HasTangentsAndBitangents()
+					? glm::vec3{ mesh->mTangents[i].x, mesh->mTangents[i].y, mesh->mTangents[i].z }
+					: glm::vec3{ 1.0f, 0.0f, 0.0f };
 
 				// mTextureCoords[0] is the first UV channel (most models only have one).
 				v.TexCoord = mesh->mTextureCoords[0]
@@ -116,25 +122,45 @@ namespace GameEngine {
 		auto mesh = MakeHandle<Mesh>(vertices, indices);
 		mesh->myFilepath = filepath;
 
-		// Extract the diffuse texture from the first material that has one.
+		// Extract diffuse, normal, and RMA textures from the first material that has them.
 		std::string directory = filepath.substr(0, filepath.find_last_of("/\\"));
+
+		auto tryLoad = [&](const aiMaterial* mat, aiTextureType type) -> Handle<Texture2D>
+		{
+			if (mat->GetTextureCount(type) == 0) return nullptr;
+			aiString texPath;
+			if (mat->GetTexture(type, 0, &texPath) != AI_SUCCESS) return nullptr;
+			std::string fullPath = directory + "/" + texPath.C_Str();
+			auto tex = Renderer3D::LoadTexture(fullPath);
+			if (tex) GE_CORE_INFO("Mesh::Create: loaded texture '{0}'", fullPath);
+			return tex;
+		};
+
 		for (uint32_t m = 0; m < scene->mNumMeshes; ++m)
 		{
 			uint32_t matIndex = scene->mMeshes[m]->mMaterialIndex;
-			if (matIndex >= scene->mNumMaterials)
-				continue;
-
+			if (matIndex >= scene->mNumMaterials) continue;
 			const aiMaterial* mat = scene->mMaterials[matIndex];
-			if (mat->GetTextureCount(aiTextureType_DIFFUSE) == 0)
-				continue;
 
-			aiString texPath;
-			if (mat->GetTexture(aiTextureType_DIFFUSE, 0, &texPath) == AI_SUCCESS)
+			if (!mesh->myTexture)
+				mesh->myTexture = tryLoad(mat, aiTextureType_DIFFUSE);
+
+			// Normal map: prefer NORMALS slot, fall back to HEIGHT (common in OBJ).
+			if (!mesh->myNormalMap)
 			{
-				std::string fullPath = directory + "/" + texPath.C_Str();
-				mesh->myTexture = Renderer3D::LoadTexture(fullPath);
-				GE_CORE_INFO("Mesh::Create: loaded texture '{0}'", fullPath);
-				break;
+				mesh->myNormalMap = tryLoad(mat, aiTextureType_NORMALS);
+				if (!mesh->myNormalMap)
+					mesh->myNormalMap = tryLoad(mat, aiTextureType_HEIGHT);
+			}
+
+			// RMA map: metalness first, then roughness, then specular as fallback.
+			if (!mesh->myRMAMap)
+			{
+				mesh->myRMAMap = tryLoad(mat, aiTextureType_METALNESS);
+				if (!mesh->myRMAMap)
+					mesh->myRMAMap = tryLoad(mat, aiTextureType_DIFFUSE_ROUGHNESS);
+				if (!mesh->myRMAMap)
+					mesh->myRMAMap = tryLoad(mat, aiTextureType_SPECULAR);
 			}
 		}
 

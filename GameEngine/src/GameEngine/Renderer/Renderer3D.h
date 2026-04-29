@@ -96,7 +96,9 @@ namespace GameEngine {
 			glm::mat4 Transform;  // 64 bytes
 			glm::vec4 Color;      // 16 bytes
 			int EntityID;         //  4 bytes
-			int _pad0, _pad1, _pad2; // 12 bytes padding to 96 total
+			int HasNormalMap;     //  4 bytes
+			int HasRMAMap;        //  4 bytes
+			int _pad;             //  4 bytes — keeps struct at 96 bytes
 		};
 
 		/// Directional light entry inside the light UBO.

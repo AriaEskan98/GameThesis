@@ -109,19 +109,22 @@ namespace GameEngine {
 		if (!mesh)
 			return;
 
-		// Upload per-object data.
-		ObjectUBOData obj{};
-		obj.Transform = transform;
-		obj.Color     = color;
-		obj.EntityID  = entityID;
-		gsData->ObjectUBO->SetData(&obj, sizeof(ObjectUBOData));
+		// Diffuse (slot 0), normal map (slot 1), RMA map (slot 2).
+		auto bindOrDefault = [&](const Handle<Texture2D>& t, uint32_t slot) {
+			(t && t->IsLoaded() ? t : gsDefaultTexture)->Bind(slot);
+		};
+		bindOrDefault(mesh->GetTexture(),   0);
+		bindOrDefault(mesh->GetNormalMap(), 1);
+		bindOrDefault(mesh->GetRMAMap(),    2);
 
-		// Bind diffuse texture (or white fallback) to slot 0.
-		// Use IsLoaded() so a texture whose file failed to load still falls back
-		// to the white default rather than leaving unit 0 with a stale binding.
-		const auto& tex = mesh->GetTexture();
-		bool validTex = tex && tex->IsLoaded();
-		(validTex ? tex : gsDefaultTexture)->Bind(0);
+		// Upload per-object data including map flags.
+		ObjectUBOData obj{};
+		obj.Transform    = transform;
+		obj.Color        = color;
+		obj.EntityID     = entityID;
+		obj.HasNormalMap = (mesh->GetNormalMap() && mesh->GetNormalMap()->IsLoaded()) ? 1 : 0;
+		obj.HasRMAMap    = (mesh->GetRMAMap()    && mesh->GetRMAMap()->IsLoaded())    ? 1 : 0;
+		gsData->ObjectUBO->SetData(&obj, sizeof(ObjectUBOData));
 
 		gsMeshShader->Bind();
 		RenderCommand::DrawIndexed(mesh->GetVertexArray(), mesh->GetIndexCount());

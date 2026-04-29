@@ -11,17 +11,18 @@
 
 namespace GameEngine {
 
-	/// A single vertex in a 3D mesh, holding position, surface normal, and texture coordinates.
+	/// A single vertex in a 3D mesh.
 	struct MeshVertex
 	{
 		glm::vec3 Position;
 		glm::vec3 Normal;
+		glm::vec3 Tangent;
 		glm::vec2 TexCoord;
 	};
 
 	/// A 3D mesh loaded via Assimp (OBJ, FBX, GLTF, DAE, …) and stored in GPU-side
-	/// vertex/index buffers. Supports positions, normals, and texture coordinates.
-	/// Smooth normals are generated automatically when the source file omits them.
+	/// vertex/index buffers. Supports positions, normals, tangents, and texture coordinates.
+	/// Smooth normals and tangent vectors are generated automatically when absent.
 	class Mesh
 	{
 	public:
@@ -35,12 +36,16 @@ namespace GameEngine {
 		const Handle<VertexArray>& GetVertexArray() const { return myVertexArray; }
 		uint32_t GetIndexCount() const { return myIndexCount; }
 		const std::string& GetFilepath() const { return myFilepath; }
-		const Handle<Texture2D>& GetTexture() const { return myTexture; }
+		const Handle<Texture2D>& GetTexture()   const { return myTexture; }
+		const Handle<Texture2D>& GetNormalMap() const { return myNormalMap; }
+		const Handle<Texture2D>& GetRMAMap()    const { return myRMAMap; }
 	private:
 		Handle<VertexArray> myVertexArray;
 		uint32_t myIndexCount = 0;
 		std::string myFilepath;
 		Handle<Texture2D> myTexture;
+		Handle<Texture2D> myNormalMap;
+		Handle<Texture2D> myRMAMap;
 	};
 
 }
