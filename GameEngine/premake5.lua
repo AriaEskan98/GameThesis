@@ -64,6 +64,7 @@ project "GameEngine"
 		"%{Library.PhysXCommon}",
 		"%{Library.PhysXFoundation}",
 		"%{Library.PhysXExtensions}",
+		"%{Library.PhysXCooking}",
 	}
 
 	filter "files:vendor/ImGuizmo/**.cpp"

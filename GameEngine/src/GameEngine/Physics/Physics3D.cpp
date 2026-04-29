@@ -123,6 +123,59 @@ namespace GameEngine {
 		return body;
 	}
 
+	Physics3DBody* Physics3DWorld::CreateTriMeshBody(const Physics3DTriMeshDef& def)
+	{
+		GE_CORE_ASSERT(!def.Vertices.empty() && !def.Indices.empty(),
+			"CreateTriMeshBody: empty mesh data");
+
+		auto* body     = new Physics3DBody();
+		body->Position = def.Position;
+
+		// Convert glm vertices to PxVec3
+		std::vector<PxVec3> pxVerts;
+		pxVerts.reserve(def.Vertices.size());
+		for (const auto& v : def.Vertices)
+			pxVerts.push_back({ v.x, v.y, v.z });
+
+		PxTriangleMeshDesc meshDesc;
+		meshDesc.points.count  = (PxU32)pxVerts.size();
+		meshDesc.points.stride = sizeof(PxVec3);
+		meshDesc.points.data   = pxVerts.data();
+		meshDesc.triangles.count  = (PxU32)(def.Indices.size() / 3);
+		meshDesc.triangles.stride = 3 * sizeof(PxU32);
+		meshDesc.triangles.data   = def.Indices.data();
+
+		// Cook: write to memory stream, then load back as PxTriangleMesh
+		PxCookingParams cookParams(myImpl->Physics->getTolerancesScale());
+		cookParams.meshPreprocessParams |= PxMeshPreprocessingFlag::eDISABLE_CLEAN_MESH;
+
+		PxDefaultMemoryOutputStream buf;
+		bool ok = PxCookTriangleMesh(cookParams, meshDesc, buf);
+		GE_CORE_ASSERT(ok, "PxCookTriangleMesh failed — check mesh data");
+
+		PxDefaultMemoryInputData input(buf.getData(), buf.getSize());
+		PxTriangleMesh* triMesh = myImpl->Physics->createTriangleMesh(input);
+		GE_CORE_ASSERT(triMesh, "createTriangleMesh returned null");
+
+		const PxQuat pxRot(def.Rotation.x, def.Rotation.y, def.Rotation.z, def.Rotation.w);
+		const PxTransform pose(PxVec3(def.Position.x, def.Position.y, def.Position.z), pxRot);
+
+		PxMaterial* mat = myImpl->Physics->createMaterial(def.Friction, def.Friction, def.Restitution);
+
+		PxTriangleMeshGeometry geom(triMesh);
+		PxRigidStatic* actor = myImpl->Physics->createRigidStatic(pose);
+		PxShape* shape = myImpl->Physics->createShape(geom, *mat);
+		actor->attachShape(*shape);
+		shape->release();
+		mat->release();
+		triMesh->release(); // PxShape holds its own reference
+
+		myImpl->Scene->addActor(*actor);
+		body->Actor = actor;
+		myBodies.push_back(body);
+		return body;
+	}
+
 	void Physics3DWorld::DestroyBody(Physics3DBody* body)
 	{
 		auto it = std::find(myBodies.begin(), myBodies.end(), body);

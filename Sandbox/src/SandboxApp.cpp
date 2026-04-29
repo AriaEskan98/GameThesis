@@ -53,39 +53,39 @@ static Handle<Scene> BuildScene(AssetManager& assets)
     auto scene = MakeHandle<Scene>();
 
     // -----------------------------------------------------------------------
-    // Ground — invisible static physics plane (visual ground is part of house mesh)
+    // Ground — cooked triangle-mesh collider from dedicated collision mesh.
+    // Same rotation as the house (3ds Max Z-up → Y-up).
     // -----------------------------------------------------------------------
     {
         Entity e = scene->CreateEntity("Ground");
         auto& t  = e.GetComponent<TransformComponent>();
-        t.Translation = { 0.0f, -0.1f, 0.0f };
-        t.Scale       = { 20.0f, 0.2f, 20.0f };
+        t.Translation = { 0.0f, 0.0f, -8.0f };
+        t.Rotation    = { glm::radians(-90.0f), 0.0f, 0.0f };
 
         auto& rb = e.AddComponent<Rigidbody3DComponent>();
         rb.Type  = Rigidbody3DComponent::BodyType::Static;
 
-        auto& col = e.AddComponent<BoxCollider3DComponent>();
-        // Use default HalfExtents (0.5,0.5,0.5); physics box = 0.5 * Scale = (10, 0.1, 10) — 20cm thick slab.
+        e.AddComponent<MeshCollider3DComponent>().CollisionMeshPath =
+            "assets/models/old_house_ground_collision.obj";
     }
 
     // -----------------------------------------------------------------------
-    // House — static mesh + wall collider, placed 10 units ahead of spawn.
+    // House — visual mesh + cooked triangle-mesh wall collider.
     // Player spawns at Z=+4 looking toward -Z; house sits at Z=-8.
     // -----------------------------------------------------------------------
     {
         Entity e = scene->CreateEntity("House");
         auto& t  = e.GetComponent<TransformComponent>();
         t.Translation = { 0.0f, 0.0f, -8.0f };
-        t.Rotation    = { glm::radians(90.0f), 0.0f, 0.0f }; // Fix 3ds Max Z-up → Y-up
+        t.Rotation    = { glm::radians(-90.0f), 0.0f, 0.0f };
 
         e.AddComponent<MeshRendererComponent>().Mesh = houseMesh;
 
         auto& rb = e.AddComponent<Rigidbody3DComponent>();
         rb.Type  = Rigidbody3DComponent::BodyType::Static;
 
-        // Rough bounding box for the house walls (player can't walk through).
-        auto& col       = e.AddComponent<BoxCollider3DComponent>();
-        col.HalfExtents = { 5.0f, 3.0f, 5.0f };
+        e.AddComponent<MeshCollider3DComponent>().CollisionMeshPath =
+            "assets/models/old_house_ground_walls_collision.obj";
     }
 
     // -----------------------------------------------------------------------
