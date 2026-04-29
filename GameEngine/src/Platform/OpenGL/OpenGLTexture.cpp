@@ -92,16 +92,19 @@ namespace GameEngine {
 
 			GE_CORE_ASSERT(internalFormat & dataFormat, "Format not supported!");
 
-			glCreateTextures(GL_TEXTURE_2D, 1, &myRendererID);
-			glTextureStorage2D(myRendererID, 1, internalFormat, myWidth, myHeight);
+			int mipLevels = 1 + (int)std::floor(std::log2((float)std::max(myWidth, myHeight)));
 
-			glTextureParameteri(myRendererID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glCreateTextures(GL_TEXTURE_2D, 1, &myRendererID);
+			glTextureStorage2D(myRendererID, mipLevels, internalFormat, myWidth, myHeight);
+
+			glTextureParameteri(myRendererID, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 			glTextureParameteri(myRendererID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 			glTextureParameteri(myRendererID, GL_TEXTURE_WRAP_S, GL_REPEAT);
 			glTextureParameteri(myRendererID, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
 			glTextureSubImage2D(myRendererID, 0, 0, 0, myWidth, myHeight, dataFormat, GL_UNSIGNED_BYTE, data);
+			glGenerateTextureMipmap(myRendererID);
 
 			stbi_image_free(data);
 		}
