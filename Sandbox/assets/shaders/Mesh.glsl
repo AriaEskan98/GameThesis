@@ -172,7 +172,9 @@ void main()
 	float shininess = mix(8.0, 128.0, 1.0 - roughness);
 
 	vec3 viewDir = normalize(u_CameraPos.xyz - v_WorldPos);
-	vec3 albedo  = u_Color.rgb * texture(u_Texture, v_TexCoord).rgb;
+
+	// Diffuse textures are authored in sRGB; linearise before lighting math.
+	vec3 albedo  = u_Color.rgb * pow(texture(u_Texture, v_TexCoord).rgb, vec3(2.2));
 
 	// Ambient
 	vec3 result = u_AmbientColor.xyz * albedo * ao;
@@ -185,6 +187,9 @@ void main()
 	int numPoint = min(u_LightInfo.y, MAX_POINT_LIGHTS);
 	for (int i = 0; i < numPoint; i++)
 		result += CalcPointLight(i, norm, viewDir, shininess) * albedo;
+
+	// Gamma-correct back to sRGB for display.
+	result = pow(result, vec3(1.0 / 2.2));
 
 	float alpha = u_Color.a * texture(u_Texture, v_TexCoord).a;
 	o_Color    = vec4(result, alpha);
