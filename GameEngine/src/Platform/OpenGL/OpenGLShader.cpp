@@ -207,8 +207,18 @@ namespace GameEngine {
 			std::filesystem::path shaderFilePath = myFilePath;
 			std::filesystem::path cachedPath = cacheDirectory / (shaderFilePath.filename().string() + Utils::GLShaderStageCachedVulkanFileExtension(stage));
 
+			// Use cache only if it is newer than the source .glsl file.
+			bool cacheValid = false;
 			std::ifstream in(cachedPath, std::ios::in | std::ios::binary);
 			if (in.is_open())
+			{
+				std::error_code ec;
+				auto srcTime   = std::filesystem::last_write_time(myFilePath, ec);
+				auto cacheTime = std::filesystem::last_write_time(cachedPath, ec);
+				cacheValid = !ec && (cacheTime >= srcTime);
+			}
+
+			if (cacheValid)
 			{
 				in.seekg(0, std::ios::end);
 				auto size = in.tellg();
@@ -220,6 +230,7 @@ namespace GameEngine {
 			}
 			else
 			{
+				in.close();
 				shaderc::SpvCompilationResult module = compiler.CompileGlslToSpv(source, Utils::GLShaderStageToShaderC(stage), myFilePath.c_str(), options);
 				if (module.GetCompilationStatus() != shaderc_compilation_status_success)
 				{
@@ -264,8 +275,17 @@ namespace GameEngine {
 			std::filesystem::path shaderFilePath = myFilePath;
 			std::filesystem::path cachedPath = cacheDirectory / (shaderFilePath.filename().string() + Utils::GLShaderStageCachedOpenGLFileExtension(stage));
 
+			bool cacheValid2 = false;
 			std::ifstream in(cachedPath, std::ios::in | std::ios::binary);
 			if (in.is_open())
+			{
+				std::error_code ec;
+				auto srcTime   = std::filesystem::last_write_time(myFilePath, ec);
+				auto cacheTime = std::filesystem::last_write_time(cachedPath, ec);
+				cacheValid2 = !ec && (cacheTime >= srcTime);
+			}
+
+			if (cacheValid2)
 			{
 				in.seekg(0, std::ios::end);
 				auto size = in.tellg();
@@ -277,6 +297,7 @@ namespace GameEngine {
 			}
 			else
 			{
+				in.close();
 				spirv_cross::CompilerGLSL glslCompiler(spirv);
 				// Force GLSL 4.50 output so that layout(binding=N) is emitted
 				// for sampler uniforms — required for texture unit binding to work.
