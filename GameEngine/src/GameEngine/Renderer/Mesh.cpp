@@ -166,12 +166,14 @@ namespace GameEngine {
 					mesh->myNormalMap = tryLoad(mat, aiTextureType_HEIGHT, false);
 			}
 
-			// RMA map: linear — metalness first, then roughness, then specular.
+			// RMA map: linear — try PBR slots first, then OBJ shininess (map_Ns = type 7).
 			if (!mesh->myRMAMap)
 			{
 				mesh->myRMAMap = tryLoad(mat, aiTextureType_METALNESS, false);
 				if (!mesh->myRMAMap)
 					mesh->myRMAMap = tryLoad(mat, aiTextureType_DIFFUSE_ROUGHNESS, false);
+				if (!mesh->myRMAMap)
+					mesh->myRMAMap = tryLoad(mat, aiTextureType_SHININESS, false); // OBJ map_Ns
 				if (!mesh->myRMAMap)
 					mesh->myRMAMap = tryLoad(mat, aiTextureType_SPECULAR, false);
 			}

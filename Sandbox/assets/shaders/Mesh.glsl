@@ -160,7 +160,8 @@ void main()
 		N = normalize(v_Normal);
 	}
 
-	// --- RMA (roughness, metalness, AO) ---
+	// R = roughness, G = metalness. AO left at 1.0 — a roughness-only map
+	// (OBJ map_Ns, type 7) has B=0 which would zero out ambient entirely.
 	float roughness = 0.5;
 	float metalness = 0.0;
 	float ao        = 1.0;
@@ -169,7 +170,6 @@ void main()
 		vec3 rma = texture(u_RMAMap, v_TexCoord).rgb;
 		roughness = rma.r;
 		metalness = rma.g;
-		ao        = rma.b;
 	}
 
 	float shininess = mix(8.0, 128.0, 1.0 - roughness);
