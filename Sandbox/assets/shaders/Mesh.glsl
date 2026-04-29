@@ -153,6 +153,7 @@ void main()
 	if (u_HasNormalMap != 0)
 	{
 		vec3 n = texture(u_NormalMap, v_TexCoord).rgb * 2.0 - vec3(1.0);
+		n.y = -n.y; // DirectX-convention normal maps (3ds Max) have Y flipped vs OpenGL
 		N = normalize(v_TBN * n);
 	}
 	else
