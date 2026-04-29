@@ -145,17 +145,11 @@ namespace GameEngine {
 		meshDesc.triangles.stride = 3 * sizeof(PxU32);
 		meshDesc.triangles.data   = def.Indices.data();
 
-		// Cook: write to memory stream, then load back as PxTriangleMesh
+		// PhysX 5.x: cook and insert directly — no serialize/deserialize round-trip.
 		PxCookingParams cookParams(myImpl->Physics->getTolerancesScale());
-		cookParams.meshPreprocessParams |= PxMeshPreprocessingFlag::eDISABLE_CLEAN_MESH;
-
-		PxDefaultMemoryOutputStream buf;
-		bool ok = PxCookTriangleMesh(cookParams, meshDesc, buf);
-		GE_CORE_ASSERT(ok, "PxCookTriangleMesh failed — check mesh data");
-
-		PxDefaultMemoryInputData input(buf.getData(), buf.getSize());
-		PxTriangleMesh* triMesh = myImpl->Physics->createTriangleMesh(input);
-		GE_CORE_ASSERT(triMesh, "createTriangleMesh returned null");
+		PxTriangleMesh* triMesh = PxCreateTriangleMesh(
+			cookParams, meshDesc, myImpl->Physics->getPhysicsInsertionCallback());
+		GE_CORE_ASSERT(triMesh, "PxCreateTriangleMesh failed — check mesh data");
 
 		const PxQuat pxRot(def.Rotation.x, def.Rotation.y, def.Rotation.z, def.Rotation.w);
 		const PxTransform pose(PxVec3(def.Position.x, def.Position.y, def.Position.z), pxRot);
