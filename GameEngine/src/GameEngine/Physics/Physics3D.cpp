@@ -40,6 +40,22 @@ namespace GameEngine {
 			PxTolerancesScale(), false, nullptr);
 		GE_CORE_ASSERT(myImpl->Physics, "PxCreatePhysics failed");
 
+		// PhysXCommon_64.dll (system-installed) links against PhysXFoundation_64.dll
+		// and stores its own gBroadcastAllocator global there.  Our PxCreateFoundation
+		// call only sets the equivalent global inside PhysXFoundation_static_64.lib
+		// (compiled into the exe), so the DLL's copy stays null.  Any DLL-side heap
+		// allocation (e.g. triangle mesh cooking) then crashes in PxAllocator.
+		// Fix: call PxSetPhysXFoundation exported by the already-loaded DLL so both
+		// binaries share the same foundation instance.
+#ifdef _WIN32
+		if (HMODULE hFnd = GetModuleHandleA("PhysXFoundation_64.dll"))
+		{
+			using Fn = void(__cdecl*)(physx::PxFoundation&);
+			if (auto fn = reinterpret_cast<Fn>(GetProcAddress(hFnd, "PxSetPhysXFoundation")))
+				fn(*myImpl->Foundation);
+		}
+#endif
+
 		PxSceneDesc desc(myImpl->Physics->getTolerancesScale());
 		desc.gravity       = PxVec3(0.0f, -9.81f, 0.0f);
 		myImpl->Dispatcher = PxDefaultCpuDispatcherCreate(1);
