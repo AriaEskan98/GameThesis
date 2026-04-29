@@ -153,7 +153,6 @@ void main()
 	if (u_HasNormalMap != 0)
 	{
 		vec3 n = texture(u_NormalMap, v_TexCoord).rgb * 2.0 - vec3(1.0);
-		n.y = -n.y; // DirectX-convention normal maps (3ds Max) have Y flipped vs OpenGL
 		N = normalize(v_TBN * n);
 	}
 	else
@@ -161,8 +160,6 @@ void main()
 		N = normalize(v_Normal);
 	}
 
-	// R = roughness, G = metalness. AO left at 1.0 — a roughness-only map
-	// (OBJ map_Ns, type 7) has B=0 which would zero out ambient entirely.
 	float roughness = 0.5;
 	float metalness = 0.0;
 	float ao        = 1.0;
@@ -171,6 +168,7 @@ void main()
 		vec3 rma = texture(u_RMAMap, v_TexCoord).rgb;
 		roughness = rma.r;
 		metalness = rma.g;
+		ao        = rma.b;
 	}
 
 	float shininess = mix(8.0, 128.0, 1.0 - roughness);
