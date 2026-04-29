@@ -40,13 +40,6 @@ namespace GameEngine {
 			PxTolerancesScale(), false, nullptr);
 		GE_CORE_ASSERT(myImpl->Physics, "PxCreatePhysics failed");
 
-		// Propagate the foundation pointer into PhysXCommon_64.dll so that
-		// PxGetFoundation() inside the DLL returns a valid object. Without this,
-		// cooking code that allocates through PxAllocator in the DLL crashes with
-		// an access violation because the DLL-side gFoundation global is null.
-		bool extOk = PxInitExtensions(*myImpl->Physics, nullptr);
-		GE_CORE_ASSERT(extOk, "PxInitExtensions failed");
-
 		PxSceneDesc desc(myImpl->Physics->getTolerancesScale());
 		desc.gravity       = PxVec3(0.0f, -9.81f, 0.0f);
 		myImpl->Dispatcher = PxDefaultCpuDispatcherCreate(1);
@@ -73,7 +66,6 @@ namespace GameEngine {
 
 		myImpl->Scene->release();
 		myImpl->Dispatcher->release();
-		PxCloseExtensions();
 		myImpl->Physics->release();
 		myImpl->Foundation->release();
 		delete myImpl;
