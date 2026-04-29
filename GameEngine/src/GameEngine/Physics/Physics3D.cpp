@@ -1,7 +1,7 @@
 #include "gepch.h"
 #include "Physics3D.h"
 
-#include <PxPhysicsAPI.h>
+#include <physx/PxPhysicsAPI.h>
 
 #include <algorithm>
 
@@ -40,21 +40,8 @@ namespace GameEngine {
 			PxTolerancesScale(), false, nullptr);
 		GE_CORE_ASSERT(myImpl->Physics, "PxCreatePhysics failed");
 
-		// PhysXCommon_64.dll (system-installed) links against PhysXFoundation_64.dll
-		// and stores its own gBroadcastAllocator global there.  Our PxCreateFoundation
-		// call only sets the equivalent global inside PhysXFoundation_static_64.lib
-		// (compiled into the exe), so the DLL's copy stays null.  Any DLL-side heap
-		// allocation (e.g. triangle mesh cooking) then crashes in PxAllocator.
-		// Fix: call PxSetPhysXFoundation exported by the already-loaded DLL so both
-		// binaries share the same foundation instance.
-#ifdef _WIN32
-		if (HMODULE hFnd = GetModuleHandleA("PhysXFoundation_64.dll"))
-		{
-			using Fn = void(__cdecl*)(physx::PxFoundation&);
-			if (auto fn = reinterpret_cast<Fn>(GetProcAddress(hFnd, "PxSetPhysXFoundation")))
-				fn(*myImpl->Foundation);
-		}
-#endif
+		bool extOk = PxInitExtensions(*myImpl->Physics, nullptr);
+		GE_CORE_ASSERT(extOk, "PxInitExtensions failed");
 
 		PxSceneDesc desc(myImpl->Physics->getTolerancesScale());
 		desc.gravity       = PxVec3(0.0f, -9.81f, 0.0f);
@@ -82,6 +69,7 @@ namespace GameEngine {
 
 		myImpl->Scene->release();
 		myImpl->Dispatcher->release();
+		PxCloseExtensions();
 		myImpl->Physics->release();
 		myImpl->Foundation->release();
 		delete myImpl;
@@ -161,11 +149,18 @@ namespace GameEngine {
 		meshDesc.triangles.stride = 3 * sizeof(PxU32);
 		meshDesc.triangles.data   = def.Indices.data();
 
-		// PhysX 5.x: cook and insert directly — no serialize/deserialize round-trip.
 		PxCookingParams cookParams(myImpl->Physics->getTolerancesScale());
-		PxTriangleMesh* triMesh = PxCreateTriangleMesh(
-			cookParams, meshDesc, myImpl->Physics->getPhysicsInsertionCallback());
-		GE_CORE_ASSERT(triMesh, "PxCreateTriangleMesh failed — check mesh data");
+		cookParams.meshPreprocessParams = PxMeshPreprocessingFlags(PxMeshPreprocessingFlag::eWELD_VERTICES);
+		cookParams.meshWeldTolerance = 0.001f;
+
+		PxDefaultMemoryOutputStream writeBuffer;
+		PxTriangleMeshCookingResult::Enum cookResult;
+		bool ok = PxCookTriangleMesh(cookParams, meshDesc, writeBuffer, &cookResult);
+		GE_CORE_ASSERT(ok, "PxCookTriangleMesh failed — check mesh data");
+
+		PxDefaultMemoryInputData readBuffer(writeBuffer.getData(), writeBuffer.getSize());
+		PxTriangleMesh* triMesh = myImpl->Physics->createTriangleMesh(readBuffer);
+		GE_CORE_ASSERT(triMesh, "createTriangleMesh returned null");
 
 		const PxQuat pxRot(def.Rotation.x, def.Rotation.y, def.Rotation.z, def.Rotation.w);
 		const PxTransform pose(PxVec3(def.Position.x, def.Position.y, def.Position.z), pxRot);

@@ -17,22 +17,14 @@ IncludeDir["SPIRV_Cross"]   = "%{wks.location}/GameEngine/vendor/SPIRV-Cross"
 IncludeDir["VulkanSDK"]     = "%{VULKAN_SDK}/Include"
 IncludeDir["assimp"]        = "%{wks.location}/GameEngine/vendor/assimp/include"
 IncludeDir["assimp_config"] = "%{wks.location}/GameEngine/vendor/assimp/build/include"
-IncludeDir["PhysX"]         = "%{wks.location}/GameEngine/vendor/PhysX/include"
 
 LibraryDir = {}
 
 LibraryDir["VulkanSDK"]     = "%{VULKAN_SDK}/Lib"
 LibraryDir["assimp"]        = "%{wks.location}/GameEngine/vendor/assimp/build/lib"
-LibraryDir["PhysX_Debug"]   = "%{wks.location}/GameEngine/vendor/PhysX/lib/Debug"
-LibraryDir["PhysX_Release"] = "%{wks.location}/GameEngine/vendor/PhysX/lib/Release"
 
 Library = {}
 Library["assimp"] = "%{LibraryDir.assimp}/assimp.lib"
-
-Library["PhysX"]            = "PhysX_static_64.lib"
-Library["PhysXCommon"]      = "PhysXCommon_static_64.lib"
-Library["PhysXFoundation"]  = "PhysXFoundation_static_64.lib"
-Library["PhysXExtensions"]  = "PhysXExtensions_static_64.lib"
 
 Library["Vulkan"] = "%{LibraryDir.VulkanSDK}/vulkan-1.lib"
 Library["VulkanUtils"] = "%{LibraryDir.VulkanSDK}/VkLayer_utils.lib"

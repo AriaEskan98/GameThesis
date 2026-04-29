@@ -26,8 +26,7 @@ project "GameEngine"
 	defines
 	{
 		"_CRT_SECURE_NO_WARNINGS",
-		"GLFW_INCLUDE_NONE",
-		"PX_PHYSX_STATIC_LIB"
+		"GLFW_INCLUDE_NONE"
 	}
 
 	includedirs
@@ -44,7 +43,6 @@ project "GameEngine"
 		"%{IncludeDir.ImGuizmo}",
 		"%{IncludeDir.assimp}",
 		"%{IncludeDir.assimp_config}",
-		"%{IncludeDir.PhysX}",
 		"%{IncludeDir.shaderc}",
 		"%{IncludeDir.SPIRV_Cross}",
 		"%{IncludeDir.VulkanSDK}"
@@ -60,10 +58,6 @@ project "GameEngine"
 
 		"%{Library.assimp}",
 		"zlib",
-		"%{Library.PhysX}",
-		"%{Library.PhysXCommon}",
-		"%{Library.PhysXFoundation}",
-		"%{Library.PhysXExtensions}",
 	}
 
 	filter "files:vendor/ImGuizmo/**.cpp"
@@ -90,8 +84,6 @@ project "GameEngine"
 		runtime "Release"
 		symbols "on"
 
-		libdirs { "%{LibraryDir.PhysX_Release}" }
-
 		links
 		{
 			"%{Library.ShaderC_Debug}",
@@ -104,8 +96,6 @@ project "GameEngine"
 		runtime "Release"
 		optimize "on"
 
-		libdirs { "%{LibraryDir.PhysX_Release}" }
-
 		links
 		{
 			"%{Library.ShaderC_Release}",
@@ -117,8 +107,6 @@ project "GameEngine"
 		defines { "GE_DIST", "NDEBUG" }
 		runtime "Release"
 		optimize "on"
-
-		libdirs { "%{LibraryDir.PhysX_Release}" }
 
 		links
 		{
