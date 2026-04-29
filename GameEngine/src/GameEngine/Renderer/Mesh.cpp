@@ -43,13 +43,14 @@ namespace GameEngine {
 
 		// aiProcess_Triangulate    : convert quads/n-gons to triangles.
 		// aiProcess_GenSmoothNormals: compute normals when absent.
-		// aiProcess_FlipUVs        : flip V for OpenGL (origin at bottom-left).
 		// aiProcess_JoinIdenticalVertices: de-duplicate shared vertices.
+		// Note: V is flipped in the vertex shader instead of using aiProcess_FlipUVs
+		// so that aiProcess_CalcTangentSpace computes tangents in the original UV space.
+		// The bitangent mismatch this creates is corrected by n.y = -n.y in the fragment shader.
 		const aiScene* scene = importer.ReadFile(filepath,
 			aiProcess_Triangulate          |
 			aiProcess_GenSmoothNormals     |
 			aiProcess_CalcTangentSpace     |
-			aiProcess_FlipUVs              |
 			aiProcess_JoinIdenticalVertices
 		);
 

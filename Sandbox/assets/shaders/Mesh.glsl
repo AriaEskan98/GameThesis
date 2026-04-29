@@ -43,7 +43,7 @@ void main()
 
 	v_Normal   = N;
 	v_WorldPos = vec3(u_Transform * vec4(a_Position, 1.0));
-	v_TexCoord = a_TexCoord;
+	v_TexCoord = vec2(a_TexCoord.x, 1.0 - a_TexCoord.y); // flip V: OpenGL origin is bottom-left
 	v_TBN      = mat3(T, B, N);
 
 	gl_Position = u_ViewProjection * vec4(v_WorldPos, 1.0);
