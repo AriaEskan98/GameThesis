@@ -1,4 +1,4 @@
-// 3D Mesh Shader — matches phong.frag from reference project
+// 3D Mesh Shader — matches phong.vert / phong.frag from reference project
 
 // ============================================================
 //  VERTEX STAGE
@@ -30,7 +30,8 @@ layout(std140, binding = 2) uniform ObjectData
 layout(location = 0) out vec3 v_Normal;
 layout(location = 1) out vec3 v_WorldPos;
 layout(location = 2) out vec2 v_TexCoord;
-layout(location = 3) out mat3 v_TBN;  // occupies locations 3, 4, 5
+layout(location = 3) out vec3 v_Tangent;
+layout(location = 4) out vec3 v_Bitangent;
 
 void main()
 {
@@ -41,10 +42,11 @@ void main()
 	T = normalize(T - dot(T, N) * N); // Gram-Schmidt re-orthogonalise
 	vec3 B = normalize(cross(N, T));
 
-	v_Normal   = N;
-	v_WorldPos = vec3(u_Transform * vec4(a_Position, 1.0));
-	v_TexCoord = vec2(a_TexCoord.x, 1.0 - a_TexCoord.y); // flip V: OpenGL origin is bottom-left
-	v_TBN      = mat3(T, B, N);
+	v_Normal    = N;
+	v_Tangent   = T;
+	v_Bitangent = B;
+	v_WorldPos  = vec3(u_Transform * vec4(a_Position, 1.0));
+	v_TexCoord  = vec2(a_TexCoord.x, 1.0 - a_TexCoord.y); // flip V for OpenGL
 
 	gl_Position = u_ViewProjection * vec4(v_WorldPos, 1.0);
 }
@@ -61,7 +63,8 @@ layout(location = 1) out int  o_EntityID;
 layout(location = 0) in vec3 v_Normal;
 layout(location = 1) in vec3 v_WorldPos;
 layout(location = 2) in vec2 v_TexCoord;
-layout(location = 3) in mat3 v_TBN;
+layout(location = 3) in vec3 v_Tangent;
+layout(location = 4) in vec3 v_Bitangent;
 
 layout(std140, binding = 1) uniform CameraData
 {
@@ -148,18 +151,20 @@ vec3 CalcPointLight(int i, vec3 N, vec3 V, vec3 albedo, float shininess, vec3 F0
 // ---------------------------------------------------------------------------
 void main()
 {
-	// --- Normal ---
-	vec3 N;
+	// --- Normal (matches reference phong.frag exactly) ---
+	vec3 N = normalize(v_Normal);
 	if (u_HasNormalMap != 0)
 	{
+		vec3 T = normalize(v_Tangent);
+		vec3 B = normalize(v_Bitangent);
+		T = normalize(T - dot(T, N) * N); // re-orthogonalise against interpolated N
+		B = normalize(cross(N, T));
+		mat3 TBN = mat3(T, B, N);
 		vec3 n = texture(u_NormalMap, v_TexCoord).rgb * 2.0 - vec3(1.0);
-		N = normalize(v_TBN * n);
-	}
-	else
-	{
-		N = normalize(v_Normal);
+		N = normalize(TBN * n);
 	}
 
+	// --- RMA ---
 	float roughness = 0.5;
 	float metalness = 0.0;
 	float ao        = 1.0;
@@ -173,15 +178,11 @@ void main()
 
 	float shininess = mix(8.0, 128.0, 1.0 - roughness);
 
-	// Diffuse loaded as GL_SRGB8 — OpenGL auto-linearises on sample.
 	vec3 albedo = u_Color.rgb * texture(u_Texture, v_TexCoord).rgb;
+	vec3 F0     = mix(vec3(0.04), albedo, metalness);
+	vec3 V      = normalize(u_CameraPos.xyz - v_WorldPos);
 
-	// Metalness-based specular reflectance (matches reference project)
-	vec3 F0 = mix(vec3(0.04), albedo, metalness);
-
-	vec3 V = normalize(u_CameraPos.xyz - v_WorldPos);
-
-	// Ambient — AO modulates ambient only, same as reference
+	// Ambient — AO modulates ambient only
 	vec3 result = u_AmbientColor.xyz * albedo * ao;
 
 	// Directional light
@@ -193,10 +194,9 @@ void main()
 	for (int i = 0; i < numPoint; i++)
 		result += CalcPointLight(i, N, V, albedo, shininess, F0);
 
-	// Tone mapping (Reinhard) — same as reference project
+	// Reinhard tone mapping
 	result = result / (result + vec3(1.0));
 
-	// No manual gamma correction — GL_FRAMEBUFFER_SRGB handles linear→sRGB output.
 	float alpha = u_Color.a * texture(u_Texture, v_TexCoord).a;
 	o_Color    = vec4(result, alpha);
 	o_EntityID = u_EntityID;
