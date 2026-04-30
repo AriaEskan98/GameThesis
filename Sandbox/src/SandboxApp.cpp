@@ -103,13 +103,16 @@ static Handle<Scene> BuildScene(AssetManager& assets)
         mr.Color = { 0.55f, 0.35f, 0.15f, 1.0f };
 
         auto& rb = e.AddComponent<Rigidbody3DComponent>();
-        rb.Type  = Rigidbody3DComponent::BodyType::Static;
+        rb.Type  = Rigidbody3DComponent::BodyType::Dynamic;
+        rb.Mass  = 500.0f;
 
         // Mesh bbox: X/Z ±2.5, Y 0–5  →  half-extents (2.5,2.5,2.5).
         // Offset centres the physics box on the visual mesh (2.5 × 0.3 = 0.75 m up).
         auto& col       = e.AddComponent<BoxCollider3DComponent>();
         col.HalfExtents = { 2.5f, 2.5f, 2.5f };
         col.Offset      = { 0.0f, 0.75f, 0.0f };
+
+        e.AddComponent<NativeScriptComponent>().Bind<RotatingCrateScript>();
     }
 
     // -----------------------------------------------------------------------
