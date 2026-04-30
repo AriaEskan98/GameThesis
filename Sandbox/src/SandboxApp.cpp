@@ -116,6 +116,28 @@ static Handle<Scene> BuildScene(AssetManager& assets)
     }
 
     // -----------------------------------------------------------------------
+    // Static crate — solid platform the player can jump on
+    // -----------------------------------------------------------------------
+    {
+        Entity e = scene->CreateEntity("CratePlatform");
+        auto& t  = e.GetComponent<TransformComponent>();
+        t.Translation = { 2.0f, 0.0f, 1.5f };
+        t.Rotation    = { 0.0f, 0.0f, 0.0f };
+        t.Scale       = { 0.3f, 0.3f, 0.3f };
+
+        auto& mr = e.AddComponent<MeshRendererComponent>();
+        mr.Mesh  = crateMesh;
+        mr.Color = { 0.35f, 0.25f, 0.10f, 1.0f }; // slightly darker to distinguish
+
+        auto& rb = e.AddComponent<Rigidbody3DComponent>();
+        rb.Type  = Rigidbody3DComponent::BodyType::Static;
+
+        auto& col       = e.AddComponent<BoxCollider3DComponent>();
+        col.HalfExtents = { 2.5f, 2.5f, 2.5f };
+        col.Offset      = { 0.0f, 0.75f, 0.0f };
+    }
+
+    // -----------------------------------------------------------------------
     // Player — thin dynamic box driven by FPSCameraController
     //
     // HalfExtents.y is intentionally small (0.1m) so that Physics3DBody::Position
