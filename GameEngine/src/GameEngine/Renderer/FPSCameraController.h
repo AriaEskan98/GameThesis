@@ -117,6 +117,7 @@ namespace GameEngine {
 		float          myVerticalVelocity = 0.0f;   ///< Used when no physics body is set.
 		bool           myIsGrounded       = false;
 		bool           myFirstPhysicsFrame = true;  ///< Snap Y on first physics-driven frame.
+		bool           myIsJumping        = false;  ///< True only while a player-initiated jump is in flight.
 	};
 
 }

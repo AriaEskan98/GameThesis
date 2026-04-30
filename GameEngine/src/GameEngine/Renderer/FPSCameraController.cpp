@@ -119,10 +119,27 @@ namespace GameEngine {
 				myPosition.y = targetY;
 			}
 
-			// Jump: apply an upward velocity impulse when grounded.
 			float verticalVel = myPhysicsBody->Velocity.y;
+
 			if (Input::IsKeyPressed(Key::Space) && myIsGrounded)
-				verticalVel = JumpSpeed;
+			{
+				// Player-initiated jump: set velocity and raise the flag.
+				verticalVel  = JumpSpeed;
+				myIsJumping  = true;
+			}
+			else if (myIsJumping && verticalVel <= 0.0f)
+			{
+				// Jump arc peaked and now falling — clear the flag so the
+				// "no upward velocity" guard below takes over again.
+				myIsJumping = false;
+			}
+
+			// If this is NOT a player-initiated jump, zero any upward velocity.
+			// Step-collision spikes cause IsGrounded to flip false at the same moment
+			// they appear, so a grounded-gated clamp never fires.  By tracking the
+			// jump ourselves we can safely kill all non-jump upward motion.
+			if (!myIsJumping && verticalVel > 0.0f)
+				verticalVel = 0.0f;
 
 			// Write the desired velocity back so the physics world can resolve collisions.
 			myPhysicsBody->Velocity = { horizontal.x, verticalVel, horizontal.z };
