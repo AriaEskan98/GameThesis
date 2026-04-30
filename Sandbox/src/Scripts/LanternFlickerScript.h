@@ -11,8 +11,8 @@
 class LanternFlickerScript : public GameEngine::ScriptableEntity
 {
 public:
-    float BaseIntensity = 2.5f;  ///< Resting brightness.
-    float FlickerAmount = 0.4f;  ///< Peak deviation from base.
+    float BaseIntensity = 3.0f;  ///< Resting brightness.
+    float FlickerAmount = 1.2f;  ///< Peak deviation from base.
 
 protected:
     void OnUpdate(GameEngine::Timestep ts) override
