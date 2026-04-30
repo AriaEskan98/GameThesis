@@ -98,6 +98,8 @@ namespace GameEngine {
 			float verticalVel = myPhysicsBody->Velocity.y;
 			if (Input::IsKeyPressed(Key::Space) && myIsGrounded)
 				verticalVel = JumpSpeed;
+			else if (myIsGrounded && verticalVel > 1.5f)
+				verticalVel = 1.5f; // clamp step-collision impulse so stairs feel like a bump, not a launch
 
 			// Write the desired velocity back so the physics world can resolve collisions.
 			myPhysicsBody->Velocity = { horizontal.x, verticalVel, horizontal.z };
