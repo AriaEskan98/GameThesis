@@ -197,7 +197,7 @@ void main()
 	// Reinhard tone mapping
 	result = result / (result + vec3(1.0));
 
-	float alpha = u_Color.a * texture(u_Texture, v_TexCoord).a;
+	float alpha = u_Color.a;
 	o_Color    = vec4(result, alpha);
 	o_EntityID = u_EntityID;
 }
