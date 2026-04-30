@@ -89,19 +89,26 @@ static Handle<Scene> BuildScene(AssetManager& assets)
     }
 
     // -----------------------------------------------------------------------
-    // Falling crate — dynamic rigid body, spawned above the scene
+    // Crate — small platform the player can jump on
     // -----------------------------------------------------------------------
     {
         Entity e = scene->CreateEntity("Crate");
         auto& t  = e.GetComponent<TransformComponent>();
-        t.Translation = { -2.5f, 5.0f, -1.0f };
-        t.Rotation    = { 0.2f, 0.5f, 0.1f };
+        t.Translation = { -2.0f, 1.0f, 1.5f }; // near player, falls to ground
+        t.Rotation    = { 0.0f, 0.0f, 0.0f };   // flat so it lands stably
+        t.Scale       = { 0.3f, 0.3f, 0.3f };   // 1.5 m cube
 
         auto& mr = e.AddComponent<MeshRendererComponent>();
         mr.Mesh  = crateMesh;
-        mr.Color = { 0.55f, 0.35f, 0.15f, 1.0f }; // wood brown
-        e.AddComponent<Rigidbody3DComponent>();   // Dynamic, UseGravity = true by default
-        e.AddComponent<BoxCollider3DComponent>();
+        mr.Color = { 0.55f, 0.35f, 0.15f, 1.0f };
+        e.AddComponent<Rigidbody3DComponent>();
+
+        // Mesh bbox: X/Z ±2.5, Y 0–5  →  half-extents (2.5,2.5,2.5).
+        // Offset shifts the box centre up to the visual mesh centre (2.5 × 0.3 = 0.75 m).
+        auto& col      = e.AddComponent<BoxCollider3DComponent>();
+        col.HalfExtents = { 2.5f, 2.5f, 2.5f };
+        col.Offset      = { 0.0f, 0.75f, 0.0f };
+
         e.AddComponent<NativeScriptComponent>().Bind<RotatingCrateScript>();
     }
 
