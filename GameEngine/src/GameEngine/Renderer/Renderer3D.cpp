@@ -11,6 +11,8 @@ namespace GameEngine {
 	Own<Renderer3D::SceneData> Renderer3D::gsData;
 	Handle<Shader>             Renderer3D::gsMeshShader;
 	Handle<Texture2D>          Renderer3D::gsDefaultTexture;
+	bool                       Renderer3D::EnableNormalMaps = true;
+	bool                       Renderer3D::EnableRMAMaps    = true;
 
 	void Renderer3D::Init()
 	{
@@ -122,8 +124,8 @@ namespace GameEngine {
 		obj.Transform    = transform;
 		obj.Color        = color;
 		obj.EntityID     = entityID;
-		obj.HasNormalMap = (mesh->GetNormalMap() && mesh->GetNormalMap()->IsLoaded()) ? 1 : 0;
-		obj.HasRMAMap    = (mesh->GetRMAMap()    && mesh->GetRMAMap()->IsLoaded())    ? 1 : 0;
+		obj.HasNormalMap = (EnableNormalMaps && mesh->GetNormalMap() && mesh->GetNormalMap()->IsLoaded()) ? 1 : 0;
+		obj.HasRMAMap    = (EnableRMAMaps    && mesh->GetRMAMap()    && mesh->GetRMAMap()->IsLoaded())    ? 1 : 0;
 		gsData->ObjectUBO->SetData(&obj, sizeof(ObjectUBOData));
 
 		gsMeshShader->Bind();

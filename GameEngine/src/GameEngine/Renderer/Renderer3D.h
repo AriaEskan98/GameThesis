@@ -137,6 +137,11 @@ namespace GameEngine {
 		static Own<SceneData>    gsData;
 		static Handle<Shader>    gsMeshShader;
 		static Handle<Texture2D> gsDefaultTexture;
+
+	public:
+		// Toggled at runtime (e.g. from ImGui) to isolate rendering features.
+		static bool EnableNormalMaps;
+		static bool EnableRMAMaps;
 	};
 
 }

@@ -202,8 +202,19 @@ public:
         }
 
         myCamera.SetPosition({ 0.0f, 1.75f, 4.0f });
-        myCamera.SetYaw(-90.0f);   // look toward house (-Z direction)
-        myCamera.SetFPSMode(true); // lock cursor and start in FPS mode
+        myCamera.SetYaw(-90.0f);
+        myCamera.SetFPSMode(true);
+
+        // Cache light entities for ImGui controls.
+        mySun      = myScene->FindEntityByName("Sun");
+        myLanternL = myScene->FindEntityByName("Lantern_L");
+        myLanternR = myScene->FindEntityByName("Lantern_R");
+
+        // Save original intensities so toggles can restore them.
+        if (mySun)
+            myDirLightIntensity = mySun.GetComponent<DirectionalLightComponent>().Intensity;
+        if (myLanternL)
+            myPointLightIntensity = myLanternL.GetComponent<PointLightComponent>().Intensity;
     }
 
     ~Sandbox()
@@ -236,21 +247,70 @@ protected:
     void OnImGuiRender() override
     {
         ImGui::Begin("Thesis Demo");
-        ImGui::Text("Scene: House Exterior");
-        ImGui::Separator();
-        ImGui::Text("Controls:");
-        ImGui::BulletText("WASD — move");
-        ImGui::BulletText("Mouse — look around");
-        ImGui::BulletText("Space — jump");
-        ImGui::BulletText("Shift — sprint");
-        ImGui::BulletText("Escape — release cursor");
-        ImGui::Separator();
-        ImGui::Text("Active systems:");
-        ImGui::BulletText("AssetManager  — textures auto-loaded from meshes");
-        ImGui::BulletText("Physics3D     — player + crate simulated");
-        ImGui::BulletText("FPSCamera     — drives player via Physics3DBody");
-        ImGui::BulletText("NativeScript  — crate stops on touch, lanterns flicker");
-        ImGui::BulletText("Renderer3D    — Blinn-Phong, 1 dir + 2 point lights");
+
+        // ---- Controls reference ----
+        if (ImGui::CollapsingHeader("Controls", ImGuiTreeNodeFlags_DefaultOpen))
+        {
+            ImGui::BulletText("WASD       — move");
+            ImGui::BulletText("Mouse      — look");
+            ImGui::BulletText("Space      — jump");
+            ImGui::BulletText("Shift      — sprint");
+            ImGui::BulletText("Escape     — release cursor");
+            ImGui::BulletText("Click      — re-enter FPS mode");
+        }
+
+        // ---- Lighting ----
+        if (ImGui::CollapsingHeader("Lighting", ImGuiTreeNodeFlags_DefaultOpen))
+        {
+            // Directional light
+            if (ImGui::Checkbox("Directional light (Sun)", &myDirLightOn) && mySun)
+            {
+                mySun.GetComponent<DirectionalLightComponent>().Intensity =
+                    myDirLightOn ? myDirLightIntensity : 0.0f;
+            }
+            if (myDirLightOn && mySun)
+            {
+                ImGui::SameLine();
+                auto& dl = mySun.GetComponent<DirectionalLightComponent>();
+                ImGui::SetNextItemWidth(120.0f);
+                if (ImGui::SliderFloat("##DirInt", &dl.Intensity, 0.0f, 3.0f))
+                    myDirLightIntensity = dl.Intensity;
+                ImGui::ColorEdit3("Sun colour", &dl.Color.x,
+                    ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_Float);
+            }
+
+            ImGui::Spacing();
+
+            // Point lights
+            if (ImGui::Checkbox("Point lights (Lanterns)", &myPointLightsOn))
+            {
+                float val = myPointLightsOn ? myPointLightIntensity : 0.0f;
+                if (myLanternL) myLanternL.GetComponent<PointLightComponent>().Intensity = val;
+                if (myLanternR) myLanternR.GetComponent<PointLightComponent>().Intensity = val;
+            }
+            if (myPointLightsOn && myLanternL)
+            {
+                ImGui::SameLine();
+                auto& pl = myLanternL.GetComponent<PointLightComponent>();
+                ImGui::SetNextItemWidth(120.0f);
+                if (ImGui::SliderFloat("##PtInt", &pl.Intensity, 0.0f, 6.0f))
+                {
+                    myPointLightIntensity = pl.Intensity;
+                    if (myLanternR)
+                        myLanternR.GetComponent<PointLightComponent>().Intensity = pl.Intensity;
+                }
+                ImGui::ColorEdit3("Lantern colour", &pl.Color.x,
+                    ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_Float);
+            }
+        }
+
+        // ---- Rendering features ----
+        if (ImGui::CollapsingHeader("Rendering", ImGuiTreeNodeFlags_DefaultOpen))
+        {
+            ImGui::Checkbox("Normal maps",    &Renderer3D::EnableNormalMaps);
+            ImGui::Checkbox("Roughness maps", &Renderer3D::EnableRMAMaps);
+        }
+
         ImGui::End();
     }
 
@@ -272,6 +332,17 @@ protected:
 private:
     Handle<Scene>        myScene;
     FPSCameraController  myCamera;
+
+    // Light entities — cached for ImGui controls.
+    Entity myLanternL, myLanternR, mySun;
+
+    // Saved intensities so toggles can restore them.
+    float myDirLightIntensity   = 0.75f;
+    float myPointLightIntensity = 3.0f;
+
+    // Toggle state.
+    bool myDirLightOn    = true;
+    bool myPointLightsOn = true;
 };
 
 // ---------------------------------------------------------------------------
