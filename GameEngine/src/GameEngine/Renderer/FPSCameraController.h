@@ -116,6 +116,7 @@ namespace GameEngine {
 		Physics3DBody* myPhysicsBody     = nullptr; ///< Optional; owned by Physics3DWorld.
 		float          myVerticalVelocity = 0.0f;   ///< Used when no physics body is set.
 		bool           myIsGrounded       = false;
+		bool           myFirstPhysicsFrame = true;  ///< Snap Y on first physics-driven frame.
 	};
 
 }

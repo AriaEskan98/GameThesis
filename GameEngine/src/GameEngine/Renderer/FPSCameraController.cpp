@@ -90,16 +90,39 @@ namespace GameEngine {
 		if (myPhysicsBody)
 		{
 			// ---- Physics-driven path ----------------------------------------
-			// Read last frame's position from the physics body (eye = feet + EyeHeight).
-			myPosition = myPhysicsBody->Position + glm::vec3(0.0f, EyeHeight, 0.0f);
 			myIsGrounded = myPhysicsBody->IsGrounded;
+
+			// X/Z follow physics body exactly for responsive collision response.
+			myPosition.x = myPhysicsBody->Position.x;
+			myPosition.z = myPhysicsBody->Position.z;
+
+			// Y: snap on the very first frame, then smooth upward movement so
+			// that PhysX step-edge position corrections (which are instantaneous)
+			// become a short glide rather than a camera pop.
+			// Downward movement snaps immediately so gravity and landing feel right.
+			// The cap (6 m/s) is above JumpSpeed (5 m/s) so jump tracking is exact.
+			float targetY = myPhysicsBody->Position.y + EyeHeight;
+			if (myFirstPhysicsFrame)
+			{
+				myPosition.y       = targetY;
+				myFirstPhysicsFrame = false;
+			}
+			else if (targetY > myPosition.y)
+			{
+				constexpr float kMaxUpSpeed = 6.0f;
+				float maxDelta = kMaxUpSpeed * dt;
+				float dy = targetY - myPosition.y;
+				myPosition.y += (dy < maxDelta ? dy : maxDelta);
+			}
+			else
+			{
+				myPosition.y = targetY;
+			}
 
 			// Jump: apply an upward velocity impulse when grounded.
 			float verticalVel = myPhysicsBody->Velocity.y;
 			if (Input::IsKeyPressed(Key::Space) && myIsGrounded)
 				verticalVel = JumpSpeed;
-			else if (myIsGrounded && verticalVel > 1.5f)
-				verticalVel = 1.5f; // clamp step-collision impulse so stairs feel like a bump, not a launch
 
 			// Write the desired velocity back so the physics world can resolve collisions.
 			myPhysicsBody->Velocity = { horizontal.x, verticalVel, horizontal.z };
