@@ -191,7 +191,11 @@ namespace GameEngine {
 						continue;
 
 					auto* body = (Physics3DBody*)rb3d.RuntimeBody;
-					transform.Translation = body->Position;
+
+					glm::vec3 offset{ 0.0f };
+					if (entity.HasComponent<BoxCollider3DComponent>())
+						offset = entity.GetComponent<BoxCollider3DComponent>().Offset;
+					transform.Translation = body->Position - offset;
 				}
 			}
 		}
@@ -241,7 +245,11 @@ namespace GameEngine {
 						continue;
 
 					auto* body = (Physics3DBody*)rb3d.RuntimeBody;
-					transform.Translation = body->Position;
+
+					glm::vec3 offset{ 0.0f };
+					if (entity.HasComponent<BoxCollider3DComponent>())
+						offset = entity.GetComponent<BoxCollider3DComponent>().Offset;
+					transform.Translation = body->Position - offset;
 				}
 			}
 		}
