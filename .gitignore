@@ -3,6 +3,12 @@
 bin-int/
 Intermediates/
 
+# Assimp build output (large compiled libs, platform-specific)
+GameEngine/vendor/assimp/build/
+
+# Shader cache
+Sandbox/assets/cache/
+
 # Hazel files
 *.log
 
