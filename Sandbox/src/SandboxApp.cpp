@@ -304,11 +304,34 @@ protected:
             }
         }
 
+        // ---- Lantern freeze presets ----
+        if (ImGui::CollapsingHeader("Lantern Snapshots", ImGuiTreeNodeFlags_DefaultOpen))
+        {
+            ImGui::TextDisabled("Freeze flicker for screenshots");
+            constexpr float kBright = 4.8f;  // BaseIntensity + FlickerAmount + FlickerAmount*0.5
+            constexpr float kDim    = 1.2f;  // BaseIntensity - FlickerAmount - FlickerAmount*0.5
+
+            if (ImGui::Button("Freeze — Brightest"))
+                SetLanternFrozen(true, kBright);
+            ImGui::SameLine();
+            if (ImGui::Button("Freeze — Dimmest"))
+                SetLanternFrozen(true, kDim);
+            ImGui::SameLine();
+            if (ImGui::Button("Resume Flicker"))
+                SetLanternFrozen(false, 3.0f);
+        }
+
         // ---- Rendering features ----
         if (ImGui::CollapsingHeader("Rendering", ImGuiTreeNodeFlags_DefaultOpen))
         {
             ImGui::Checkbox("Normal maps",    &Renderer3D::EnableNormalMaps);
             ImGui::Checkbox("Roughness maps", &Renderer3D::EnableRMAMaps);
+
+            ImGui::Spacing();
+            ImGui::TextDisabled("Debug visualisation");
+            bool debugNormals = Renderer3D::DebugMode == 1;
+            if (ImGui::Checkbox("Show normals as colour", &debugNormals))
+                Renderer3D::DebugMode = debugNormals ? 1 : 0;
         }
 
         ImGui::End();
@@ -343,6 +366,20 @@ private:
     // Toggle state.
     bool myDirLightOn    = true;
     bool myPointLightsOn = true;
+
+    void SetLanternFrozen(bool frozen, float intensity)
+    {
+        for (Entity e : { myLanternL, myLanternR })
+        {
+            if (!e) continue;
+            auto& nsc = e.GetComponent<NativeScriptComponent>();
+            if (auto* s = static_cast<LanternFlickerScript*>(nsc.Instance))
+            {
+                s->Frozen          = frozen;
+                s->FrozenIntensity = intensity;
+            }
+        }
+    }
 };
 
 // ---------------------------------------------------------------------------

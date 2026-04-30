@@ -11,12 +11,20 @@
 class LanternFlickerScript : public GameEngine::ScriptableEntity
 {
 public:
-    float BaseIntensity = 3.0f;  ///< Resting brightness.
-    float FlickerAmount = 1.2f;  ///< Peak deviation from base.
+    float BaseIntensity = 3.0f;
+    float FlickerAmount = 1.2f;
+
+    bool  Frozen          = false;
+    float FrozenIntensity = 3.0f;
 
 protected:
     void OnUpdate(GameEngine::Timestep ts) override
     {
+        if (Frozen)
+        {
+            GetComponent<GameEngine::PointLightComponent>().Intensity = FrozenIntensity;
+            return;
+        }
         myTime += (float)ts;
 
         // Two out-of-phase sines at non-harmonic frequencies give an

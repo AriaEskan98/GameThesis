@@ -98,7 +98,7 @@ namespace GameEngine {
 			int EntityID;         //  4 bytes
 			int HasNormalMap;     //  4 bytes
 			int HasRMAMap;        //  4 bytes
-			int _pad;             //  4 bytes — keeps struct at 96 bytes
+			int DebugMode;        //  4 bytes  (0=off, 1=visualise normals)
 		};
 
 		/// Directional light entry inside the light UBO.
@@ -142,6 +142,7 @@ namespace GameEngine {
 		// Toggled at runtime (e.g. from ImGui) to isolate rendering features.
 		static bool EnableNormalMaps;
 		static bool EnableRMAMaps;
+		static int  DebugMode;  // 0 = normal, 1 = visualise normals as colour
 	};
 
 }

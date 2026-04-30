@@ -13,6 +13,7 @@ namespace GameEngine {
 	Handle<Texture2D>          Renderer3D::gsDefaultTexture;
 	bool                       Renderer3D::EnableNormalMaps = true;
 	bool                       Renderer3D::EnableRMAMaps    = true;
+	int                        Renderer3D::DebugMode        = 0;
 
 	void Renderer3D::Init()
 	{
@@ -126,6 +127,7 @@ namespace GameEngine {
 		obj.EntityID     = entityID;
 		obj.HasNormalMap = (EnableNormalMaps && mesh->GetNormalMap() && mesh->GetNormalMap()->IsLoaded()) ? 1 : 0;
 		obj.HasRMAMap    = (EnableRMAMaps    && mesh->GetRMAMap()    && mesh->GetRMAMap()->IsLoaded())    ? 1 : 0;
+		obj.DebugMode    = DebugMode;
 		gsData->ObjectUBO->SetData(&obj, sizeof(ObjectUBOData));
 
 		gsMeshShader->Bind();

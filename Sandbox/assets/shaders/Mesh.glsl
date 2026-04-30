@@ -79,7 +79,7 @@ layout(std140, binding = 2) uniform ObjectData
 	int  u_EntityID;
 	int  u_HasNormalMap;
 	int  u_HasRMAMap;
-	int  _fpad;
+	int  u_DebugMode;   // 0 = normal, 1 = visualise normals as colour
 };
 
 struct DirLightGPU
@@ -196,6 +196,14 @@ void main()
 
 	// Reinhard tone mapping
 	result = result / (result + vec3(1.0));
+
+	if (u_DebugMode == 1)
+	{
+		// Visualise world-space normal as colour (for thesis screenshots).
+		o_Color = vec4(N * 0.5 + 0.5, 1.0);
+		o_EntityID = u_EntityID;
+		return;
+	}
 
 	float alpha = u_Color.a;
 	o_Color    = vec4(result, alpha);
